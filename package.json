@@ -23,7 +23,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/aws/amazon-cognito-identity-js.git"
+    "url": "https://github.com/beamf/amazon-cognito-identity-js.git"
   },
   "license": "SEE LICENSE IN LICENSE.txt",
   "licenses": [
@@ -44,16 +44,18 @@
     "clean": "rimraf lib es",
     "build:commonjs": "cross-env BABEL_ENV=commonjs babel src --out-dir lib",
     "build:es": "cross-env BABEL_ENV=es babel src --out-dir es",
-    "build:umd": "cross-env BABEL_ENV=commonjs NODE_ENV=development webpack dist/amazon-cognito-identity.js",
-    "build:umd:min": "cross-env BABEL_ENV=commonjs NODE_ENV=production webpack dist/amazon-cognito-identity.min.js",
-    "build": "npm run clean && npm run build:commonjs && npm run build:es && npm run build:umd && npm run build:umd:min",
+    "build:umd":
+      "cross-env BABEL_ENV=commonjs NODE_ENV=development webpack dist/amazon-cognito-identity.js",
+    "build:umd:min":
+      "cross-env BABEL_ENV=commonjs NODE_ENV=production webpack dist/amazon-cognito-identity.min.js",
+    "build":
+      "npm run clean && npm run build:commonjs && npm run build:es && npm run build:umd && npm run build:umd:min",
     "doc": "jsdoc src -d docs",
     "lint": "eslint src",
     "lint2": "eslint enhance-rn.js"
   },
   "main": "lib/index.js",
   "react-native": {
-    "lib/index.js": "./enhance-rn.js",
     "./src/StorageHelper": "./src/StorageHelper-rn.js"
   },
   "module": "es/index.js",
