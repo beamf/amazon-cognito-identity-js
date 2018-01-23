@@ -15,28 +15,31 @@
  * limitations under the License.
  */
 
-import { util } from 'aws-sdk/global';
+import { util } from "aws-sdk/global";
+import randomBytes from "randombytes";
+util.crypto.lib.randomBytes = randomBytes;
 
-import BigInteger from './BigInteger';
+import BigInteger from "./BigInteger";
 
-const initN = 'FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD1'
-  + '29024E088A67CC74020BBEA63B139B22514A08798E3404DD'
-  + 'EF9519B3CD3A431B302B0A6DF25F14374FE1356D6D51C245'
-  + 'E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7ED'
-  + 'EE386BFB5A899FA5AE9F24117C4B1FE649286651ECE45B3D'
-  + 'C2007CB8A163BF0598DA48361C55D39A69163FA8FD24CF5F'
-  + '83655D23DCA3AD961C62F356208552BB9ED529077096966D'
-  + '670C354E4ABC9804F1746C08CA18217C32905E462E36CE3B'
-  + 'E39E772C180E86039B2783A2EC07A28FB5C55DF06F4C52C9'
-  + 'DE2BCBF6955817183995497CEA956AE515D2261898FA0510'
-  + '15728E5A8AAAC42DAD33170D04507A33A85521ABDF1CBA64'
-  + 'ECFB850458DBEF0A8AEA71575D060C7DB3970F85A6E1E4C7'
-  + 'ABF5AE8CDB0933D71E8C94E04A25619DCEE3D2261AD2EE6B'
-  + 'F12FFA06D98A0864D87602733EC86A64521F2B18177B200C'
-  + 'BBE117577A615D6C770988C0BAD946E208E24FA074E5AB31'
-  + '43DB5BFCE0FD108E4B82D120A93AD2CAFFFFFFFFFFFFFFFF';
+const initN =
+  "FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD1" +
+  "29024E088A67CC74020BBEA63B139B22514A08798E3404DD" +
+  "EF9519B3CD3A431B302B0A6DF25F14374FE1356D6D51C245" +
+  "E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7ED" +
+  "EE386BFB5A899FA5AE9F24117C4B1FE649286651ECE45B3D" +
+  "C2007CB8A163BF0598DA48361C55D39A69163FA8FD24CF5F" +
+  "83655D23DCA3AD961C62F356208552BB9ED529077096966D" +
+  "670C354E4ABC9804F1746C08CA18217C32905E462E36CE3B" +
+  "E39E772C180E86039B2783A2EC07A28FB5C55DF06F4C52C9" +
+  "DE2BCBF6955817183995497CEA956AE515D2261898FA0510" +
+  "15728E5A8AAAC42DAD33170D04507A33A85521ABDF1CBA64" +
+  "ECFB850458DBEF0A8AEA71575D060C7DB3970F85A6E1E4C7" +
+  "ABF5AE8CDB0933D71E8C94E04A25619DCEE3D2261AD2EE6B" +
+  "F12FFA06D98A0864D87602733EC86A64521F2B18177B200C" +
+  "BBE117577A615D6C770988C0BAD946E208E24FA074E5AB31" +
+  "43DB5BFCE0FD108E4B82D120A93AD2CAFFFFFFFFFFFFFFFF";
 
-const newPasswordRequiredChallengeUserAttributePrefix = 'userAttributes.';
+const newPasswordRequiredChallengeUserAttributePrefix = "userAttributes.";
 
 /** @class */
 export default class AuthenticationHelper {
@@ -46,13 +49,16 @@ export default class AuthenticationHelper {
    */
   constructor(PoolName) {
     this.N = new BigInteger(initN, 16);
-    this.g = new BigInteger('2', 16);
-    this.k = new BigInteger(this.hexHash(`00${this.N.toString(16)}0${this.g.toString(16)}`), 16);
+    this.g = new BigInteger("2", 16);
+    this.k = new BigInteger(
+      this.hexHash(`00${this.N.toString(16)}0${this.g.toString(16)}`),
+      16
+    );
 
     this.smallAValue = this.generateRandomSmallA();
     this.getLargeAValue(() => {});
 
-    this.infoBits = new util.Buffer('Caldera Derived Key', 'utf8');
+    this.infoBits = new util.Buffer("Caldera Derived Key", "utf8");
 
     this.poolName = PoolName;
   }
@@ -89,7 +95,7 @@ export default class AuthenticationHelper {
    * @private
    */
   generateRandomSmallA() {
-    const hexRandom = util.crypto.lib.randomBytes(128).toString('hex');
+    const hexRandom = util.crypto.lib.randomBytes(128).toString("hex");
 
     const randomBigInt = new BigInteger(hexRandom, 16);
     const smallABigInt = randomBigInt.mod(this.N);
@@ -103,7 +109,7 @@ export default class AuthenticationHelper {
    * @private
    */
   generateRandomString() {
-    return util.crypto.lib.randomBytes(40).toString('base64');
+    return util.crypto.lib.randomBytes(40).toString("base64");
   }
 
   /**
@@ -136,10 +142,12 @@ export default class AuthenticationHelper {
    */
   generateHashDevice(deviceGroupKey, username, callback) {
     this.randomPassword = this.generateRandomString();
-    const combinedString = `${deviceGroupKey}${username}:${this.randomPassword}`;
+    const combinedString = `${deviceGroupKey}${username}:${
+      this.randomPassword
+    }`;
     const hashedString = this.hash(combinedString);
 
-    const hexRandom = util.crypto.lib.randomBytes(16).toString('hex');
+    const hexRandom = util.crypto.lib.randomBytes(16).toString("hex");
     this.SaltToHashDevices = this.padHex(new BigInteger(hexRandom, 16));
 
     this.g.modPow(
@@ -152,7 +160,8 @@ export default class AuthenticationHelper {
 
         this.verifierDevices = this.padHex(verifierDevicesNotPadded);
         callback(null, null);
-      });
+      }
+    );
   }
 
   /**
@@ -170,7 +179,7 @@ export default class AuthenticationHelper {
       }
 
       if (A.mod(this.N).equals(BigInteger.ZERO)) {
-        callback(new Error('Illegal paramater. A mod N cannot be 0.'), null);
+        callback(new Error("Illegal paramater. A mod N cannot be 0."), null);
       }
 
       callback(null, A);
@@ -198,8 +207,8 @@ export default class AuthenticationHelper {
    * @private
    */
   hash(buf) {
-    const hashHex = util.crypto.sha256(buf, 'hex');
-    return (new Array(64 - hashHex.length).join('0')) + hashHex;
+    const hashHex = util.crypto.sha256(buf, "hex");
+    return new Array(64 - hashHex.length).join("0") + hashHex;
   }
 
   /**
@@ -209,7 +218,7 @@ export default class AuthenticationHelper {
    * @private
    */
   hexHash(hexStr) {
-    return this.hash(new util.Buffer(hexStr, 'hex'));
+    return this.hash(new util.Buffer(hexStr, "hex"));
   }
 
   /**
@@ -220,12 +229,12 @@ export default class AuthenticationHelper {
    * @private
    */
   computehkdf(ikm, salt) {
-    const prk = util.crypto.hmac(salt, ikm, 'buffer', 'sha256');
+    const prk = util.crypto.hmac(salt, ikm, "buffer", "sha256");
     const infoBitsUpdate = util.buffer.concat([
       this.infoBits,
-      new util.Buffer(String.fromCharCode(1), 'utf8'),
+      new util.Buffer(String.fromCharCode(1), "utf8")
     ]);
-    const hmac = util.crypto.hmac(prk, infoBitsUpdate, 'buffer', 'sha256');
+    const hmac = util.crypto.hmac(prk, infoBitsUpdate, "buffer", "sha256");
     return hmac.slice(0, 16);
   }
 
@@ -238,29 +247,39 @@ export default class AuthenticationHelper {
    * @param {nodeCallback<Buffer>} callback Called with (err, hkdfValue)
    * @returns {void}
    */
-  getPasswordAuthenticationKey(username, password, serverBValue, salt, callback) {
+  getPasswordAuthenticationKey(
+    username,
+    password,
+    serverBValue,
+    salt,
+    callback
+  ) {
     if (serverBValue.mod(this.N).equals(BigInteger.ZERO)) {
-      throw new Error('B cannot be zero.');
+      throw new Error("B cannot be zero.");
     }
 
     this.UValue = this.calculateU(this.largeAValue, serverBValue);
 
     if (this.UValue.equals(BigInteger.ZERO)) {
-      throw new Error('U cannot be zero.');
+      throw new Error("U cannot be zero.");
     }
 
     const usernamePassword = `${this.poolName}${username}:${password}`;
     const usernamePasswordHash = this.hash(usernamePassword);
 
-    const xValue = new BigInteger(this.hexHash(this.padHex(salt) + usernamePasswordHash), 16);
+    const xValue = new BigInteger(
+      this.hexHash(this.padHex(salt) + usernamePasswordHash),
+      16
+    );
     this.calculateS(xValue, serverBValue, (err, sValue) => {
       if (err) {
         callback(err, null);
       }
 
       const hkdf = this.computehkdf(
-        new util.Buffer(this.padHex(sValue), 'hex'),
-        new util.Buffer(this.padHex(this.UValue.toString(16)), 'hex'));
+        new util.Buffer(this.padHex(sValue), "hex"),
+        new util.Buffer(this.padHex(this.UValue.toString(16)), "hex")
+      );
 
       callback(null, hkdf);
     });
@@ -295,9 +314,9 @@ export default class AuthenticationHelper {
   }
 
   /**
-  * Return constant newPasswordRequiredChallengeUserAttributePrefix
-  * @return {newPasswordRequiredChallengeUserAttributePrefix} constant prefix value
-  */
+   * Return constant newPasswordRequiredChallengeUserAttributePrefix
+   * @return {newPasswordRequiredChallengeUserAttributePrefix} constant prefix value
+   */
   getNewPasswordRequiredChallengeUserAttributePrefix() {
     return newPasswordRequiredChallengeUserAttributePrefix;
   }
@@ -311,7 +330,7 @@ export default class AuthenticationHelper {
     let hashStr = bigInt.toString(16);
     if (hashStr.length % 2 === 1) {
       hashStr = `0${hashStr}`;
-    } else if ('89ABCDEFabcdef'.indexOf(hashStr[0]) !== -1) {
+    } else if ("89ABCDEFabcdef".indexOf(hashStr[0]) !== -1) {
       hashStr = `00${hashStr}`;
     }
     return hashStr;
