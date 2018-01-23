@@ -15,10 +15,10 @@
  * limitations under the License.
  */
 
-import CognitoIdentityServiceProvider from 'aws-sdk/clients/cognitoidentityserviceprovider';
+import CognitoIdentityServiceProvider from "aws-sdk/clients/cognitoidentityserviceprovider";
 
-import CognitoUser from './CognitoUser';
-import StorageHelper from './StorageHelper';
+import CognitoUser from "./CognitoUser";
+import StorageHelper from "./StorageHelper";
 
 /** @class */
 export default class CognitoUserPool {
@@ -34,29 +34,36 @@ export default class CognitoUserPool {
    *        flag is set to true.
    */
   constructor(data) {
-    const { UserPoolId, ClientId, endpoint, AdvancedSecurityDataCollectionFlag } = data || {};
+    const {
+      UserPoolId,
+      ClientId,
+      endpoint,
+      AdvancedSecurityDataCollectionFlag
+    } =
+      data || {};
     if (!UserPoolId || !ClientId) {
-      throw new Error('Both UserPoolId and ClientId are required.');
+      throw new Error("Both UserPoolId and ClientId are required.");
     }
     if (!/^[\w-]+_.+$/.test(UserPoolId)) {
-      throw new Error('Invalid UserPoolId format.');
+      throw new Error("Invalid UserPoolId format.");
     }
-    const region = UserPoolId.split('_')[0];
+    const region = UserPoolId.split("_")[0];
 
     this.userPoolId = UserPoolId;
     this.clientId = ClientId;
 
     this.client = new CognitoIdentityServiceProvider({
-      apiVersion: '2016-04-19',
+      apiVersion: "2016-04-19",
       region,
-      endpoint,
+      endpoint
     });
 
     /**
      * By default, AdvancedSecurityDataCollectionFlag is set to true,
      * if no input value is provided.
      */
-    this.advancedSecurityDataCollectionFlag = AdvancedSecurityDataCollectionFlag !== false;
+    this.advancedSecurityDataCollectionFlag =
+      AdvancedSecurityDataCollectionFlag !== false;
 
     this.storage = data.Storage || new StorageHelper().getStorage();
   }
@@ -95,12 +102,13 @@ export default class CognitoUserPool {
       Username: username,
       Password: password,
       UserAttributes: userAttributes,
-      ValidationData: validationData,
+      ValidationData: validationData
     };
     if (this.getUserContextData(username)) {
       jsonReq.UserContextData = this.getUserContextData(username);
     }
-    this.client.makeUnauthenticatedRequest('signUp', jsonReq, (err, data) => {
+    this.client.makeUnauthenticatedRequest("signUp", jsonReq, (err, data) => {
+      console.log("signup", err, data);
       if (err) {
         return callback(err, null);
       }
@@ -108,19 +116,18 @@ export default class CognitoUserPool {
       const cognitoUser = {
         Username: username,
         Pool: this,
-        Storage: this.storage,
+        Storage: this.storage
       };
 
       const returnData = {
         user: new CognitoUser(cognitoUser),
         userConfirmed: data.UserConfirmed,
-        userSub: data.UserSub,
+        userSub: data.UserSub
       };
 
       return callback(null, returnData);
     });
   }
-
 
   /**
    * method for getting the current user of the application from the local storage
@@ -128,14 +135,16 @@ export default class CognitoUserPool {
    * @returns {CognitoUser} the user retrieved from storage
    */
   getCurrentUser() {
-    const lastUserKey = `CognitoIdentityServiceProvider.${this.clientId}.LastAuthUser`;
+    const lastUserKey = `CognitoIdentityServiceProvider.${
+      this.clientId
+    }.LastAuthUser`;
 
     const lastAuthUser = this.storage.getItem(lastUserKey);
     if (lastAuthUser) {
       const cognitoUser = {
         Username: lastAuthUser,
         Pool: this,
-        Storage: this.storage,
+        Storage: this.storage
       };
 
       return new CognitoUser(cognitoUser);
@@ -153,7 +162,7 @@ export default class CognitoUserPool {
    * @returns {string} the user context data
    **/
   getUserContextData(username) {
-    if (typeof AmazonCognitoAdvancedSecurityData === 'undefined') {
+    if (typeof AmazonCognitoAdvancedSecurityData === "undefined") {
       return undefined;
     }
     /* eslint-disable */
@@ -161,11 +170,14 @@ export default class CognitoUserPool {
     /* eslint-enable */
 
     if (this.advancedSecurityDataCollectionFlag) {
-      const advancedSecurityData = amazonCognitoAdvancedSecurityDataConst.getData(username,
-          this.userPoolId, this.clientId);
+      const advancedSecurityData = amazonCognitoAdvancedSecurityDataConst.getData(
+        username,
+        this.userPoolId,
+        this.clientId
+      );
       if (advancedSecurityData) {
         const userContextData = {
-          EncodedData: advancedSecurityData,
+          EncodedData: advancedSecurityData
         };
         return userContextData;
       }
