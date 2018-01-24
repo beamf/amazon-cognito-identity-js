@@ -16,7 +16,7 @@
  */
 
 import { util } from "aws-sdk/global";
-import randomBytes from "randombytes";
+import randomBytes from "react-native-randombytes";
 util.crypto.lib.randomBytes = randomBytes;
 
 import BigInteger from "./BigInteger";

@@ -44,9 +44,12 @@
     "clean": "rimraf lib es",
     "build:commonjs": "cross-env BABEL_ENV=commonjs babel src --out-dir lib",
     "build:es": "cross-env BABEL_ENV=es babel src --out-dir es",
-    "build:umd": "cross-env BABEL_ENV=commonjs NODE_ENV=development webpack dist/amazon-cognito-identity.js",
-    "build:umd:min": "cross-env BABEL_ENV=commonjs NODE_ENV=production webpack dist/amazon-cognito-identity.min.js",
-    "build": "npm run clean && npm run build:commonjs && npm run build:es && npm run build:umd && npm run build:umd:min",
+    "build:umd":
+      "cross-env BABEL_ENV=commonjs NODE_ENV=development webpack dist/amazon-cognito-identity.js",
+    "build:umd:min":
+      "cross-env BABEL_ENV=commonjs NODE_ENV=production webpack dist/amazon-cognito-identity.min.js",
+    "build":
+      "npm run clean && npm run build:commonjs && npm run build:es && npm run build:umd && npm run build:umd:min",
     "doc": "jsdoc src -d docs",
     "lint": "eslint src",
     "lint2": "eslint enhance-rn.js"
@@ -61,7 +64,7 @@
   "dependencies": {
     "aws-sdk": "2.184.0",
     "js-cookie": "^2.1.4",
-    "randombytes": "^2.0.6"
+    "react-native-randombytes": "^3.0.0"
   },
   "devDependencies": {
     "babel-cli": "^6.23.0",

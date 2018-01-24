@@ -25,7 +25,7 @@
 		exports["AmazonCognitoIdentity"] = factory(require("aws-sdk/global"), require("aws-sdk/clients/cognitoidentityserviceprovider"));
 	else
 		root["AmazonCognitoIdentity"] = factory(root["AWSCognito"], root["AWSCognito"]["CognitoIdentityServiceProvider"]);
-})(this, function(__WEBPACK_EXTERNAL_MODULE_1__, __WEBPACK_EXTERNAL_MODULE_13__) {
+})(this, function(__WEBPACK_EXTERNAL_MODULE_16__, __WEBPACK_EXTERNAL_MODULE_42__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -76,7 +76,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	exports.__esModule = true;
 
-	var _src = __webpack_require__(17);
+	var _src = __webpack_require__(46);
 
 	Object.keys(_src).forEach(function (key) {
 	  if (key === "default" || key === "__esModule") return;
@@ -88,7 +88,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  });
 	});
 
-	var _cognitoidentityserviceprovider = __webpack_require__(13);
+	var _cognitoidentityserviceprovider = __webpack_require__(42);
 
 	var _cognitoidentityserviceprovider2 = _interopRequireDefault(_cognitoidentityserviceprovider);
 
@@ -104,4265 +104,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ }),
 /* 1 */
-/***/ (function(module, exports) {
-
-	module.exports = __WEBPACK_EXTERNAL_MODULE_1__;
-
-/***/ }),
-/* 2 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	exports.__esModule = true;
-
-	var _global = __webpack_require__(1);
-
-	var _randombytes = __webpack_require__(23);
-
-	var _randombytes2 = _interopRequireDefault(_randombytes);
-
-	var _BigInteger = __webpack_require__(3);
-
-	var _BigInteger2 = _interopRequireDefault(_BigInteger);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } } /*!
-	                                                                                                                                                           * Copyright 2016 Amazon.com,
-	                                                                                                                                                           * Inc. or its affiliates. All Rights Reserved.
-	                                                                                                                                                           *
-	                                                                                                                                                           * Licensed under the Amazon Software License (the "License").
-	                                                                                                                                                           * You may not use this file except in compliance with the
-	                                                                                                                                                           * License. A copy of the License is located at
-	                                                                                                                                                           *
-	                                                                                                                                                           *     http://aws.amazon.com/asl/
-	                                                                                                                                                           *
-	                                                                                                                                                           * or in the "license" file accompanying this file. This file is
-	                                                                                                                                                           * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
-	                                                                                                                                                           * CONDITIONS OF ANY KIND, express or implied. See the License
-	                                                                                                                                                           * for the specific language governing permissions and
-	                                                                                                                                                           * limitations under the License.
-	                                                                                                                                                           */
-
-	_global.util.crypto.lib.randomBytes = _randombytes2.default;
-
-	var initN = "FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD1" + "29024E088A67CC74020BBEA63B139B22514A08798E3404DD" + "EF9519B3CD3A431B302B0A6DF25F14374FE1356D6D51C245" + "E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7ED" + "EE386BFB5A899FA5AE9F24117C4B1FE649286651ECE45B3D" + "C2007CB8A163BF0598DA48361C55D39A69163FA8FD24CF5F" + "83655D23DCA3AD961C62F356208552BB9ED529077096966D" + "670C354E4ABC9804F1746C08CA18217C32905E462E36CE3B" + "E39E772C180E86039B2783A2EC07A28FB5C55DF06F4C52C9" + "DE2BCBF6955817183995497CEA956AE515D2261898FA0510" + "15728E5A8AAAC42DAD33170D04507A33A85521ABDF1CBA64" + "ECFB850458DBEF0A8AEA71575D060C7DB3970F85A6E1E4C7" + "ABF5AE8CDB0933D71E8C94E04A25619DCEE3D2261AD2EE6B" + "F12FFA06D98A0864D87602733EC86A64521F2B18177B200C" + "BBE117577A615D6C770988C0BAD946E208E24FA074E5AB31" + "43DB5BFCE0FD108E4B82D120A93AD2CAFFFFFFFFFFFFFFFF";
-
-	var newPasswordRequiredChallengeUserAttributePrefix = "userAttributes.";
-
-	/** @class */
-
-	var AuthenticationHelper = function () {
-	  /**
-	   * Constructs a new AuthenticationHelper object
-	   * @param {string} PoolName Cognito user pool name.
-	   */
-	  function AuthenticationHelper(PoolName) {
-	    _classCallCheck(this, AuthenticationHelper);
-
-	    this.N = new _BigInteger2.default(initN, 16);
-	    this.g = new _BigInteger2.default("2", 16);
-	    this.k = new _BigInteger2.default(this.hexHash("00" + this.N.toString(16) + "0" + this.g.toString(16)), 16);
-
-	    this.smallAValue = this.generateRandomSmallA();
-	    this.getLargeAValue(function () {});
-
-	    this.infoBits = new _global.util.Buffer("Caldera Derived Key", "utf8");
-
-	    this.poolName = PoolName;
-	  }
-
-	  /**
-	   * @returns {BigInteger} small A, a random number
-	   */
-
-
-	  AuthenticationHelper.prototype.getSmallAValue = function getSmallAValue() {
-	    return this.smallAValue;
-	  };
-
-	  /**
-	   * @param {nodeCallback<BigInteger>} callback Called with (err, largeAValue)
-	   * @returns {void}
-	   */
-
-
-	  AuthenticationHelper.prototype.getLargeAValue = function getLargeAValue(callback) {
-	    var _this = this;
-
-	    if (this.largeAValue) {
-	      callback(null, this.largeAValue);
-	    } else {
-	      this.calculateA(this.smallAValue, function (err, largeAValue) {
-	        if (err) {
-	          callback(err, null);
-	        }
-
-	        _this.largeAValue = largeAValue;
-	        callback(null, _this.largeAValue);
-	      });
-	    }
-	  };
-
-	  /**
-	   * helper function to generate a random big integer
-	   * @returns {BigInteger} a random value.
-	   * @private
-	   */
-
-
-	  AuthenticationHelper.prototype.generateRandomSmallA = function generateRandomSmallA() {
-	    var hexRandom = _global.util.crypto.lib.randomBytes(128).toString("hex");
-
-	    var randomBigInt = new _BigInteger2.default(hexRandom, 16);
-	    var smallABigInt = randomBigInt.mod(this.N);
-
-	    return smallABigInt;
-	  };
-
-	  /**
-	   * helper function to generate a random string
-	   * @returns {string} a random value.
-	   * @private
-	   */
-
-
-	  AuthenticationHelper.prototype.generateRandomString = function generateRandomString() {
-	    return _global.util.crypto.lib.randomBytes(40).toString("base64");
-	  };
-
-	  /**
-	   * @returns {string} Generated random value included in password hash.
-	   */
-
-
-	  AuthenticationHelper.prototype.getRandomPassword = function getRandomPassword() {
-	    return this.randomPassword;
-	  };
-
-	  /**
-	   * @returns {string} Generated random value included in devices hash.
-	   */
-
-
-	  AuthenticationHelper.prototype.getSaltDevices = function getSaltDevices() {
-	    return this.SaltToHashDevices;
-	  };
-
-	  /**
-	   * @returns {string} Value used to verify devices.
-	   */
-
-
-	  AuthenticationHelper.prototype.getVerifierDevices = function getVerifierDevices() {
-	    return this.verifierDevices;
-	  };
-
-	  /**
-	   * Generate salts and compute verifier.
-	   * @param {string} deviceGroupKey Devices to generate verifier for.
-	   * @param {string} username User to generate verifier for.
-	   * @param {nodeCallback<null>} callback Called with (err, null)
-	   * @returns {void}
-	   */
-
-
-	  AuthenticationHelper.prototype.generateHashDevice = function generateHashDevice(deviceGroupKey, username, callback) {
-	    var _this2 = this;
-
-	    this.randomPassword = this.generateRandomString();
-	    var combinedString = "" + deviceGroupKey + username + ":" + this.randomPassword;
-	    var hashedString = this.hash(combinedString);
-
-	    var hexRandom = _global.util.crypto.lib.randomBytes(16).toString("hex");
-	    this.SaltToHashDevices = this.padHex(new _BigInteger2.default(hexRandom, 16));
-
-	    this.g.modPow(new _BigInteger2.default(this.hexHash(this.SaltToHashDevices + hashedString), 16), this.N, function (err, verifierDevicesNotPadded) {
-	      if (err) {
-	        callback(err, null);
-	      }
-
-	      _this2.verifierDevices = _this2.padHex(verifierDevicesNotPadded);
-	      callback(null, null);
-	    });
-	  };
-
-	  /**
-	   * Calculate the client's public value A = g^a%N
-	   * with the generated random number a
-	   * @param {BigInteger} a Randomly generated small A.
-	   * @param {nodeCallback<BigInteger>} callback Called with (err, largeAValue)
-	   * @returns {void}
-	   * @private
-	   */
-
-
-	  AuthenticationHelper.prototype.calculateA = function calculateA(a, callback) {
-	    var _this3 = this;
-
-	    this.g.modPow(a, this.N, function (err, A) {
-	      if (err) {
-	        callback(err, null);
-	      }
-
-	      if (A.mod(_this3.N).equals(_BigInteger2.default.ZERO)) {
-	        callback(new Error("Illegal paramater. A mod N cannot be 0."), null);
-	      }
-
-	      callback(null, A);
-	    });
-	  };
-
-	  /**
-	   * Calculate the client's value U which is the hash of A and B
-	   * @param {BigInteger} A Large A value.
-	   * @param {BigInteger} B Server B value.
-	   * @returns {BigInteger} Computed U value.
-	   * @private
-	   */
-
-
-	  AuthenticationHelper.prototype.calculateU = function calculateU(A, B) {
-	    this.UHexHash = this.hexHash(this.padHex(A) + this.padHex(B));
-	    var finalU = new _BigInteger2.default(this.UHexHash, 16);
-
-	    return finalU;
-	  };
-
-	  /**
-	   * Calculate a hash from a bitArray
-	   * @param {Buffer} buf Value to hash.
-	   * @returns {String} Hex-encoded hash.
-	   * @private
-	   */
-
-
-	  AuthenticationHelper.prototype.hash = function hash(buf) {
-	    var hashHex = _global.util.crypto.sha256(buf, "hex");
-	    return new Array(64 - hashHex.length).join("0") + hashHex;
-	  };
-
-	  /**
-	   * Calculate a hash from a hex string
-	   * @param {String} hexStr Value to hash.
-	   * @returns {String} Hex-encoded hash.
-	   * @private
-	   */
-
-
-	  AuthenticationHelper.prototype.hexHash = function hexHash(hexStr) {
-	    return this.hash(new _global.util.Buffer(hexStr, "hex"));
-	  };
-
-	  /**
-	   * Standard hkdf algorithm
-	   * @param {Buffer} ikm Input key material.
-	   * @param {Buffer} salt Salt value.
-	   * @returns {Buffer} Strong key material.
-	   * @private
-	   */
-
-
-	  AuthenticationHelper.prototype.computehkdf = function computehkdf(ikm, salt) {
-	    var prk = _global.util.crypto.hmac(salt, ikm, "buffer", "sha256");
-	    var infoBitsUpdate = _global.util.buffer.concat([this.infoBits, new _global.util.Buffer(String.fromCharCode(1), "utf8")]);
-	    var hmac = _global.util.crypto.hmac(prk, infoBitsUpdate, "buffer", "sha256");
-	    return hmac.slice(0, 16);
-	  };
-
-	  /**
-	   * Calculates the final hkdf based on computed S value, and computed U value and the key
-	   * @param {String} username Username.
-	   * @param {String} password Password.
-	   * @param {BigInteger} serverBValue Server B value.
-	   * @param {BigInteger} salt Generated salt.
-	   * @param {nodeCallback<Buffer>} callback Called with (err, hkdfValue)
-	   * @returns {void}
-	   */
-
-
-	  AuthenticationHelper.prototype.getPasswordAuthenticationKey = function getPasswordAuthenticationKey(username, password, serverBValue, salt, callback) {
-	    var _this4 = this;
-
-	    if (serverBValue.mod(this.N).equals(_BigInteger2.default.ZERO)) {
-	      throw new Error("B cannot be zero.");
-	    }
-
-	    this.UValue = this.calculateU(this.largeAValue, serverBValue);
-
-	    if (this.UValue.equals(_BigInteger2.default.ZERO)) {
-	      throw new Error("U cannot be zero.");
-	    }
-
-	    var usernamePassword = "" + this.poolName + username + ":" + password;
-	    var usernamePasswordHash = this.hash(usernamePassword);
-
-	    var xValue = new _BigInteger2.default(this.hexHash(this.padHex(salt) + usernamePasswordHash), 16);
-	    this.calculateS(xValue, serverBValue, function (err, sValue) {
-	      if (err) {
-	        callback(err, null);
-	      }
-
-	      var hkdf = _this4.computehkdf(new _global.util.Buffer(_this4.padHex(sValue), "hex"), new _global.util.Buffer(_this4.padHex(_this4.UValue.toString(16)), "hex"));
-
-	      callback(null, hkdf);
-	    });
-	  };
-
-	  /**
-	   * Calculates the S value used in getPasswordAuthenticationKey
-	   * @param {BigInteger} xValue Salted password hash value.
-	   * @param {BigInteger} serverBValue Server B value.
-	   * @param {nodeCallback<string>} callback Called on success or error.
-	   * @returns {void}
-	   */
-
-
-	  AuthenticationHelper.prototype.calculateS = function calculateS(xValue, serverBValue, callback) {
-	    var _this5 = this;
-
-	    this.g.modPow(xValue, this.N, function (err, gModPowXN) {
-	      if (err) {
-	        callback(err, null);
-	      }
-
-	      var intValue2 = serverBValue.subtract(_this5.k.multiply(gModPowXN));
-	      intValue2.modPow(_this5.smallAValue.add(_this5.UValue.multiply(xValue)), _this5.N, function (err2, result) {
-	        if (err2) {
-	          callback(err2, null);
-	        }
-
-	        callback(null, result.mod(_this5.N));
-	      });
-	    });
-	  };
-
-	  /**
-	   * Return constant newPasswordRequiredChallengeUserAttributePrefix
-	   * @return {newPasswordRequiredChallengeUserAttributePrefix} constant prefix value
-	   */
-
-
-	  AuthenticationHelper.prototype.getNewPasswordRequiredChallengeUserAttributePrefix = function getNewPasswordRequiredChallengeUserAttributePrefix() {
-	    return newPasswordRequiredChallengeUserAttributePrefix;
-	  };
-
-	  /**
-	   * Converts a BigInteger (or hex string) to hex format padded with zeroes for hashing
-	   * @param {BigInteger|String} bigInt Number or string to pad.
-	   * @returns {String} Padded hex string.
-	   */
-
-
-	  AuthenticationHelper.prototype.padHex = function padHex(bigInt) {
-	    var hashStr = bigInt.toString(16);
-	    if (hashStr.length % 2 === 1) {
-	      hashStr = "0" + hashStr;
-	    } else if ("89ABCDEFabcdef".indexOf(hashStr[0]) !== -1) {
-	      hashStr = "00" + hashStr;
-	    }
-	    return hashStr;
-	  };
-
-	  return AuthenticationHelper;
-	}();
-
-	exports.default = AuthenticationHelper;
-
-/***/ }),
-/* 3 */
-/***/ (function(module, exports) {
-
-	"use strict";
-
-	exports.__esModule = true;
-	// A small implementation of BigInteger based on http://www-cs-students.stanford.edu/~tjw/jsbn/
-	//
-	// All public methods have been removed except the following:
-	//   new BigInteger(a, b) (only radix 2, 4, 8, 16 and 32 supported)
-	//   toString (only radix 2, 4, 8, 16 and 32 supported)
-	//   negate
-	//   abs
-	//   compareTo
-	//   bitLength
-	//   mod
-	//   equals
-	//   add
-	//   subtract
-	//   multiply
-	//   divide
-	//   modPow
-
-	exports.default = BigInteger;
-
-	/*
-	 * Copyright (c) 2003-2005  Tom Wu
-	 * All Rights Reserved.
-	 *
-	 * Permission is hereby granted, free of charge, to any person obtaining
-	 * a copy of this software and associated documentation files (the
-	 * "Software"), to deal in the Software without restriction, including
-	 * without limitation the rights to use, copy, modify, merge, publish,
-	 * distribute, sublicense, and/or sell copies of the Software, and to
-	 * permit persons to whom the Software is furnished to do so, subject to
-	 * the following conditions:
-	 *
-	 * The above copyright notice and this permission notice shall be
-	 * included in all copies or substantial portions of the Software.
-	 *
-	 * THE SOFTWARE IS PROVIDED "AS-IS" AND WITHOUT WARRANTY OF ANY KIND,
-	 * EXPRESS, IMPLIED OR OTHERWISE, INCLUDING WITHOUT LIMITATION, ANY
-	 * WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
-	 *
-	 * IN NO EVENT SHALL TOM WU BE LIABLE FOR ANY SPECIAL, INCIDENTAL,
-	 * INDIRECT OR CONSEQUENTIAL DAMAGES OF ANY KIND, OR ANY DAMAGES WHATSOEVER
-	 * RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER OR NOT ADVISED OF
-	 * THE POSSIBILITY OF DAMAGE, AND ON ANY THEORY OF LIABILITY, ARISING OUT
-	 * OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-	 *
-	 * In addition, the following condition applies:
-	 *
-	 * All redistributions must retain an intact copy of this copyright notice
-	 * and disclaimer.
-	 */
-
-	// (public) Constructor
-
-	function BigInteger(a, b) {
-	  if (a != null) this.fromString(a, b);
-	}
-
-	// return new, unset BigInteger
-	function nbi() {
-	  return new BigInteger(null);
-	}
-
-	// Bits per digit
-	var dbits;
-
-	// JavaScript engine analysis
-	var canary = 0xdeadbeefcafe;
-	var j_lm = (canary & 0xffffff) == 0xefcafe;
-
-	// am: Compute w_j += (x*this_i), propagate carries,
-	// c is initial carry, returns final carry.
-	// c < 3*dvalue, x < 2*dvalue, this_i < dvalue
-	// We need to select the fastest one that works in this environment.
-
-	// am1: use a single mult and divide to get the high bits,
-	// max digit bits should be 26 because
-	// max internal value = 2*dvalue^2-2*dvalue (< 2^53)
-	function am1(i, x, w, j, c, n) {
-	  while (--n >= 0) {
-	    var v = x * this[i++] + w[j] + c;
-	    c = Math.floor(v / 0x4000000);
-	    w[j++] = v & 0x3ffffff;
-	  }
-	  return c;
-	}
-	// am2 avoids a big mult-and-extract completely.
-	// Max digit bits should be <= 30 because we do bitwise ops
-	// on values up to 2*hdvalue^2-hdvalue-1 (< 2^31)
-	function am2(i, x, w, j, c, n) {
-	  var xl = x & 0x7fff,
-	      xh = x >> 15;
-	  while (--n >= 0) {
-	    var l = this[i] & 0x7fff;
-	    var h = this[i++] >> 15;
-	    var m = xh * l + h * xl;
-	    l = xl * l + ((m & 0x7fff) << 15) + w[j] + (c & 0x3fffffff);
-	    c = (l >>> 30) + (m >>> 15) + xh * h + (c >>> 30);
-	    w[j++] = l & 0x3fffffff;
-	  }
-	  return c;
-	}
-	// Alternately, set max digit bits to 28 since some
-	// browsers slow down when dealing with 32-bit numbers.
-	function am3(i, x, w, j, c, n) {
-	  var xl = x & 0x3fff,
-	      xh = x >> 14;
-	  while (--n >= 0) {
-	    var l = this[i] & 0x3fff;
-	    var h = this[i++] >> 14;
-	    var m = xh * l + h * xl;
-	    l = xl * l + ((m & 0x3fff) << 14) + w[j] + c;
-	    c = (l >> 28) + (m >> 14) + xh * h;
-	    w[j++] = l & 0xfffffff;
-	  }
-	  return c;
-	}
-	var inBrowser = typeof navigator !== "undefined";
-	if (inBrowser && j_lm && navigator.appName == "Microsoft Internet Explorer") {
-	  BigInteger.prototype.am = am2;
-	  dbits = 30;
-	} else if (inBrowser && j_lm && navigator.appName != "Netscape") {
-	  BigInteger.prototype.am = am1;
-	  dbits = 26;
-	} else {
-	  // Mozilla/Netscape seems to prefer am3
-	  BigInteger.prototype.am = am3;
-	  dbits = 28;
-	}
-
-	BigInteger.prototype.DB = dbits;
-	BigInteger.prototype.DM = (1 << dbits) - 1;
-	BigInteger.prototype.DV = 1 << dbits;
-
-	var BI_FP = 52;
-	BigInteger.prototype.FV = Math.pow(2, BI_FP);
-	BigInteger.prototype.F1 = BI_FP - dbits;
-	BigInteger.prototype.F2 = 2 * dbits - BI_FP;
-
-	// Digit conversions
-	var BI_RM = "0123456789abcdefghijklmnopqrstuvwxyz";
-	var BI_RC = new Array();
-	var rr, vv;
-	rr = "0".charCodeAt(0);
-	for (vv = 0; vv <= 9; ++vv) {
-	  BI_RC[rr++] = vv;
-	}rr = "a".charCodeAt(0);
-	for (vv = 10; vv < 36; ++vv) {
-	  BI_RC[rr++] = vv;
-	}rr = "A".charCodeAt(0);
-	for (vv = 10; vv < 36; ++vv) {
-	  BI_RC[rr++] = vv;
-	}function int2char(n) {
-	  return BI_RM.charAt(n);
-	}
-	function intAt(s, i) {
-	  var c = BI_RC[s.charCodeAt(i)];
-	  return c == null ? -1 : c;
-	}
-
-	// (protected) copy this to r
-	function bnpCopyTo(r) {
-	  for (var i = this.t - 1; i >= 0; --i) {
-	    r[i] = this[i];
-	  }r.t = this.t;
-	  r.s = this.s;
-	}
-
-	// (protected) set from integer value x, -DV <= x < DV
-	function bnpFromInt(x) {
-	  this.t = 1;
-	  this.s = x < 0 ? -1 : 0;
-	  if (x > 0) this[0] = x;else if (x < -1) this[0] = x + this.DV;else this.t = 0;
-	}
-
-	// return bigint initialized to value
-	function nbv(i) {
-	  var r = nbi();
-
-	  r.fromInt(i);
-
-	  return r;
-	}
-
-	// (protected) set from string and radix
-	function bnpFromString(s, b) {
-	  var k;
-	  if (b == 16) k = 4;else if (b == 8) k = 3;else if (b == 2) k = 1;else if (b == 32) k = 5;else if (b == 4) k = 2;else throw new Error("Only radix 2, 4, 8, 16, 32 are supported");
-	  this.t = 0;
-	  this.s = 0;
-	  var i = s.length,
-	      mi = false,
-	      sh = 0;
-	  while (--i >= 0) {
-	    var x = intAt(s, i);
-	    if (x < 0) {
-	      if (s.charAt(i) == "-") mi = true;
-	      continue;
-	    }
-	    mi = false;
-	    if (sh == 0) this[this.t++] = x;else if (sh + k > this.DB) {
-	      this[this.t - 1] |= (x & (1 << this.DB - sh) - 1) << sh;
-	      this[this.t++] = x >> this.DB - sh;
-	    } else this[this.t - 1] |= x << sh;
-	    sh += k;
-	    if (sh >= this.DB) sh -= this.DB;
-	  }
-	  this.clamp();
-	  if (mi) BigInteger.ZERO.subTo(this, this);
-	}
-
-	// (protected) clamp off excess high words
-	function bnpClamp() {
-	  var c = this.s & this.DM;
-	  while (this.t > 0 && this[this.t - 1] == c) {
-	    --this.t;
-	  }
-	}
-
-	// (public) return string representation in given radix
-	function bnToString(b) {
-	  if (this.s < 0) return "-" + this.negate().toString();
-	  var k;
-	  if (b == 16) k = 4;else if (b == 8) k = 3;else if (b == 2) k = 1;else if (b == 32) k = 5;else if (b == 4) k = 2;else throw new Error("Only radix 2, 4, 8, 16, 32 are supported");
-	  var km = (1 << k) - 1,
-	      d,
-	      m = false,
-	      r = "",
-	      i = this.t;
-	  var p = this.DB - i * this.DB % k;
-	  if (i-- > 0) {
-	    if (p < this.DB && (d = this[i] >> p) > 0) {
-	      m = true;
-	      r = int2char(d);
-	    }
-	    while (i >= 0) {
-	      if (p < k) {
-	        d = (this[i] & (1 << p) - 1) << k - p;
-	        d |= this[--i] >> (p += this.DB - k);
-	      } else {
-	        d = this[i] >> (p -= k) & km;
-	        if (p <= 0) {
-	          p += this.DB;
-	          --i;
-	        }
-	      }
-	      if (d > 0) m = true;
-	      if (m) r += int2char(d);
-	    }
-	  }
-	  return m ? r : "0";
-	}
-
-	// (public) -this
-	function bnNegate() {
-	  var r = nbi();
-
-	  BigInteger.ZERO.subTo(this, r);
-
-	  return r;
-	}
-
-	// (public) |this|
-	function bnAbs() {
-	  return this.s < 0 ? this.negate() : this;
-	}
-
-	// (public) return + if this > a, - if this < a, 0 if equal
-	function bnCompareTo(a) {
-	  var r = this.s - a.s;
-	  if (r != 0) return r;
-	  var i = this.t;
-	  r = i - a.t;
-	  if (r != 0) return this.s < 0 ? -r : r;
-	  while (--i >= 0) {
-	    if ((r = this[i] - a[i]) != 0) return r;
-	  }return 0;
-	}
-
-	// returns bit length of the integer x
-	function nbits(x) {
-	  var r = 1,
-	      t;
-	  if ((t = x >>> 16) != 0) {
-	    x = t;
-	    r += 16;
-	  }
-	  if ((t = x >> 8) != 0) {
-	    x = t;
-	    r += 8;
-	  }
-	  if ((t = x >> 4) != 0) {
-	    x = t;
-	    r += 4;
-	  }
-	  if ((t = x >> 2) != 0) {
-	    x = t;
-	    r += 2;
-	  }
-	  if ((t = x >> 1) != 0) {
-	    x = t;
-	    r += 1;
-	  }
-	  return r;
-	}
-
-	// (public) return the number of bits in "this"
-	function bnBitLength() {
-	  if (this.t <= 0) return 0;
-	  return this.DB * (this.t - 1) + nbits(this[this.t - 1] ^ this.s & this.DM);
-	}
-
-	// (protected) r = this << n*DB
-	function bnpDLShiftTo(n, r) {
-	  var i;
-	  for (i = this.t - 1; i >= 0; --i) {
-	    r[i + n] = this[i];
-	  }for (i = n - 1; i >= 0; --i) {
-	    r[i] = 0;
-	  }r.t = this.t + n;
-	  r.s = this.s;
-	}
-
-	// (protected) r = this >> n*DB
-	function bnpDRShiftTo(n, r) {
-	  for (var i = n; i < this.t; ++i) {
-	    r[i - n] = this[i];
-	  }r.t = Math.max(this.t - n, 0);
-	  r.s = this.s;
-	}
-
-	// (protected) r = this << n
-	function bnpLShiftTo(n, r) {
-	  var bs = n % this.DB;
-	  var cbs = this.DB - bs;
-	  var bm = (1 << cbs) - 1;
-	  var ds = Math.floor(n / this.DB),
-	      c = this.s << bs & this.DM,
-	      i;
-	  for (i = this.t - 1; i >= 0; --i) {
-	    r[i + ds + 1] = this[i] >> cbs | c;
-	    c = (this[i] & bm) << bs;
-	  }
-	  for (i = ds - 1; i >= 0; --i) {
-	    r[i] = 0;
-	  }r[ds] = c;
-	  r.t = this.t + ds + 1;
-	  r.s = this.s;
-	  r.clamp();
-	}
-
-	// (protected) r = this >> n
-	function bnpRShiftTo(n, r) {
-	  r.s = this.s;
-	  var ds = Math.floor(n / this.DB);
-	  if (ds >= this.t) {
-	    r.t = 0;
-	    return;
-	  }
-	  var bs = n % this.DB;
-	  var cbs = this.DB - bs;
-	  var bm = (1 << bs) - 1;
-	  r[0] = this[ds] >> bs;
-	  for (var i = ds + 1; i < this.t; ++i) {
-	    r[i - ds - 1] |= (this[i] & bm) << cbs;
-	    r[i - ds] = this[i] >> bs;
-	  }
-	  if (bs > 0) r[this.t - ds - 1] |= (this.s & bm) << cbs;
-	  r.t = this.t - ds;
-	  r.clamp();
-	}
-
-	// (protected) r = this - a
-	function bnpSubTo(a, r) {
-	  var i = 0,
-	      c = 0,
-	      m = Math.min(a.t, this.t);
-	  while (i < m) {
-	    c += this[i] - a[i];
-	    r[i++] = c & this.DM;
-	    c >>= this.DB;
-	  }
-	  if (a.t < this.t) {
-	    c -= a.s;
-	    while (i < this.t) {
-	      c += this[i];
-	      r[i++] = c & this.DM;
-	      c >>= this.DB;
-	    }
-	    c += this.s;
-	  } else {
-	    c += this.s;
-	    while (i < a.t) {
-	      c -= a[i];
-	      r[i++] = c & this.DM;
-	      c >>= this.DB;
-	    }
-	    c -= a.s;
-	  }
-	  r.s = c < 0 ? -1 : 0;
-	  if (c < -1) r[i++] = this.DV + c;else if (c > 0) r[i++] = c;
-	  r.t = i;
-	  r.clamp();
-	}
-
-	// (protected) r = this * a, r != this,a (HAC 14.12)
-	// "this" should be the larger one if appropriate.
-	function bnpMultiplyTo(a, r) {
-	  var x = this.abs(),
-	      y = a.abs();
-	  var i = x.t;
-	  r.t = i + y.t;
-	  while (--i >= 0) {
-	    r[i] = 0;
-	  }for (i = 0; i < y.t; ++i) {
-	    r[i + x.t] = x.am(0, y[i], r, i, 0, x.t);
-	  }r.s = 0;
-	  r.clamp();
-	  if (this.s != a.s) BigInteger.ZERO.subTo(r, r);
-	}
-
-	// (protected) r = this^2, r != this (HAC 14.16)
-	function bnpSquareTo(r) {
-	  var x = this.abs();
-	  var i = r.t = 2 * x.t;
-	  while (--i >= 0) {
-	    r[i] = 0;
-	  }for (i = 0; i < x.t - 1; ++i) {
-	    var c = x.am(i, x[i], r, 2 * i, 0, 1);
-	    if ((r[i + x.t] += x.am(i + 1, 2 * x[i], r, 2 * i + 1, c, x.t - i - 1)) >= x.DV) {
-	      r[i + x.t] -= x.DV;
-	      r[i + x.t + 1] = 1;
-	    }
-	  }
-	  if (r.t > 0) r[r.t - 1] += x.am(i, x[i], r, 2 * i, 0, 1);
-	  r.s = 0;
-	  r.clamp();
-	}
-
-	// (protected) divide this by m, quotient and remainder to q, r (HAC 14.20)
-	// r != q, this != m.  q or r may be null.
-	function bnpDivRemTo(m, q, r) {
-	  var pm = m.abs();
-	  if (pm.t <= 0) return;
-	  var pt = this.abs();
-	  if (pt.t < pm.t) {
-	    if (q != null) q.fromInt(0);
-	    if (r != null) this.copyTo(r);
-	    return;
-	  }
-	  if (r == null) r = nbi();
-	  var y = nbi(),
-	      ts = this.s,
-	      ms = m.s;
-	  var nsh = this.DB - nbits(pm[pm.t - 1]);
-	  // normalize modulus
-	  if (nsh > 0) {
-	    pm.lShiftTo(nsh, y);
-	    pt.lShiftTo(nsh, r);
-	  } else {
-	    pm.copyTo(y);
-	    pt.copyTo(r);
-	  }
-	  var ys = y.t;
-	  var y0 = y[ys - 1];
-	  if (y0 == 0) return;
-	  var yt = y0 * (1 << this.F1) + (ys > 1 ? y[ys - 2] >> this.F2 : 0);
-	  var d1 = this.FV / yt,
-	      d2 = (1 << this.F1) / yt,
-	      e = 1 << this.F2;
-	  var i = r.t,
-	      j = i - ys,
-	      t = q == null ? nbi() : q;
-	  y.dlShiftTo(j, t);
-	  if (r.compareTo(t) >= 0) {
-	    r[r.t++] = 1;
-	    r.subTo(t, r);
-	  }
-	  BigInteger.ONE.dlShiftTo(ys, t);
-	  t.subTo(y, y);
-	  // "negative" y so we can replace sub with am later
-	  while (y.t < ys) {
-	    y[y.t++] = 0;
-	  }while (--j >= 0) {
-	    // Estimate quotient digit
-	    var qd = r[--i] == y0 ? this.DM : Math.floor(r[i] * d1 + (r[i - 1] + e) * d2);
-	    if ((r[i] += y.am(0, qd, r, j, 0, ys)) < qd) {
-	      // Try it out
-	      y.dlShiftTo(j, t);
-	      r.subTo(t, r);
-	      while (r[i] < --qd) {
-	        r.subTo(t, r);
-	      }
-	    }
-	  }
-	  if (q != null) {
-	    r.drShiftTo(ys, q);
-	    if (ts != ms) BigInteger.ZERO.subTo(q, q);
-	  }
-	  r.t = ys;
-	  r.clamp();
-	  if (nsh > 0) r.rShiftTo(nsh, r);
-	  // Denormalize remainder
-	  if (ts < 0) BigInteger.ZERO.subTo(r, r);
-	}
-
-	// (public) this mod a
-	function bnMod(a) {
-	  var r = nbi();
-	  this.abs().divRemTo(a, null, r);
-	  if (this.s < 0 && r.compareTo(BigInteger.ZERO) > 0) a.subTo(r, r);
-	  return r;
-	}
-
-	// (protected) return "-1/this % 2^DB"; useful for Mont. reduction
-	// justification:
-	//         xy == 1 (mod m)
-	//         xy =  1+km
-	//   xy(2-xy) = (1+km)(1-km)
-	// x[y(2-xy)] = 1-k^2m^2
-	// x[y(2-xy)] == 1 (mod m^2)
-	// if y is 1/x mod m, then y(2-xy) is 1/x mod m^2
-	// should reduce x and y(2-xy) by m^2 at each step to keep size bounded.
-	// JS multiply "overflows" differently from C/C++, so care is needed here.
-	function bnpInvDigit() {
-	  if (this.t < 1) return 0;
-	  var x = this[0];
-	  if ((x & 1) == 0) return 0;
-	  var y = x & 3;
-	  // y == 1/x mod 2^2
-	  y = y * (2 - (x & 0xf) * y) & 0xf;
-	  // y == 1/x mod 2^4
-	  y = y * (2 - (x & 0xff) * y) & 0xff;
-	  // y == 1/x mod 2^8
-	  y = y * (2 - ((x & 0xffff) * y & 0xffff)) & 0xffff;
-	  // y == 1/x mod 2^16
-	  // last step - calculate inverse mod DV directly;
-	  // assumes 16 < DB <= 32 and assumes ability to handle 48-bit ints
-	  y = y * (2 - x * y % this.DV) % this.DV;
-	  // y == 1/x mod 2^dbits
-	  // we really want the negative inverse, and -DV < y < DV
-	  return y > 0 ? this.DV - y : -y;
-	}
-
-	function bnEquals(a) {
-	  return this.compareTo(a) == 0;
-	}
-
-	// (protected) r = this + a
-	function bnpAddTo(a, r) {
-	  var i = 0,
-	      c = 0,
-	      m = Math.min(a.t, this.t);
-	  while (i < m) {
-	    c += this[i] + a[i];
-	    r[i++] = c & this.DM;
-	    c >>= this.DB;
-	  }
-	  if (a.t < this.t) {
-	    c += a.s;
-	    while (i < this.t) {
-	      c += this[i];
-	      r[i++] = c & this.DM;
-	      c >>= this.DB;
-	    }
-	    c += this.s;
-	  } else {
-	    c += this.s;
-	    while (i < a.t) {
-	      c += a[i];
-	      r[i++] = c & this.DM;
-	      c >>= this.DB;
-	    }
-	    c += a.s;
-	  }
-	  r.s = c < 0 ? -1 : 0;
-	  if (c > 0) r[i++] = c;else if (c < -1) r[i++] = this.DV + c;
-	  r.t = i;
-	  r.clamp();
-	}
-
-	// (public) this + a
-	function bnAdd(a) {
-	  var r = nbi();
-
-	  this.addTo(a, r);
-
-	  return r;
-	}
-
-	// (public) this - a
-	function bnSubtract(a) {
-	  var r = nbi();
-
-	  this.subTo(a, r);
-
-	  return r;
-	}
-
-	// (public) this * a
-	function bnMultiply(a) {
-	  var r = nbi();
-
-	  this.multiplyTo(a, r);
-
-	  return r;
-	}
-
-	// (public) this / a
-	function bnDivide(a) {
-	  var r = nbi();
-
-	  this.divRemTo(a, r, null);
-
-	  return r;
-	}
-
-	// Montgomery reduction
-	function Montgomery(m) {
-	  this.m = m;
-	  this.mp = m.invDigit();
-	  this.mpl = this.mp & 0x7fff;
-	  this.mph = this.mp >> 15;
-	  this.um = (1 << m.DB - 15) - 1;
-	  this.mt2 = 2 * m.t;
-	}
-
-	// xR mod m
-	function montConvert(x) {
-	  var r = nbi();
-	  x.abs().dlShiftTo(this.m.t, r);
-	  r.divRemTo(this.m, null, r);
-	  if (x.s < 0 && r.compareTo(BigInteger.ZERO) > 0) this.m.subTo(r, r);
-	  return r;
-	}
-
-	// x/R mod m
-	function montRevert(x) {
-	  var r = nbi();
-	  x.copyTo(r);
-	  this.reduce(r);
-	  return r;
-	}
-
-	// x = x/R mod m (HAC 14.32)
-	function montReduce(x) {
-	  while (x.t <= this.mt2) {
-	    // pad x so am has enough room later
-	    x[x.t++] = 0;
-	  }for (var i = 0; i < this.m.t; ++i) {
-	    // faster way of calculating u0 = x[i]*mp mod DV
-	    var j = x[i] & 0x7fff;
-	    var u0 = j * this.mpl + ((j * this.mph + (x[i] >> 15) * this.mpl & this.um) << 15) & x.DM;
-	    // use am to combine the multiply-shift-add into one call
-	    j = i + this.m.t;
-	    x[j] += this.m.am(0, u0, x, i, 0, this.m.t);
-	    // propagate carry
-	    while (x[j] >= x.DV) {
-	      x[j] -= x.DV;
-	      x[++j]++;
-	    }
-	  }
-	  x.clamp();
-	  x.drShiftTo(this.m.t, x);
-	  if (x.compareTo(this.m) >= 0) x.subTo(this.m, x);
-	}
-
-	// r = "x^2/R mod m"; x != r
-	function montSqrTo(x, r) {
-	  x.squareTo(r);
-
-	  this.reduce(r);
-	}
-
-	// r = "xy/R mod m"; x,y != r
-	function montMulTo(x, y, r) {
-	  x.multiplyTo(y, r);
-
-	  this.reduce(r);
-	}
-
-	Montgomery.prototype.convert = montConvert;
-	Montgomery.prototype.revert = montRevert;
-	Montgomery.prototype.reduce = montReduce;
-	Montgomery.prototype.mulTo = montMulTo;
-	Montgomery.prototype.sqrTo = montSqrTo;
-
-	// (public) this^e % m (HAC 14.85)
-	function bnModPow(e, m, callback) {
-	  var i = e.bitLength(),
-	      k,
-	      r = nbv(1),
-	      z = new Montgomery(m);
-	  if (i <= 0) return r;else if (i < 18) k = 1;else if (i < 48) k = 3;else if (i < 144) k = 4;else if (i < 768) k = 5;else k = 6;
-
-	  // precomputation
-	  var g = new Array(),
-	      n = 3,
-	      k1 = k - 1,
-	      km = (1 << k) - 1;
-	  g[1] = z.convert(this);
-	  if (k > 1) {
-	    var g2 = nbi();
-	    z.sqrTo(g[1], g2);
-	    while (n <= km) {
-	      g[n] = nbi();
-	      z.mulTo(g2, g[n - 2], g[n]);
-	      n += 2;
-	    }
-	  }
-
-	  var j = e.t - 1,
-	      w,
-	      is1 = true,
-	      r2 = nbi(),
-	      t;
-	  i = nbits(e[j]) - 1;
-	  while (j >= 0) {
-	    if (i >= k1) w = e[j] >> i - k1 & km;else {
-	      w = (e[j] & (1 << i + 1) - 1) << k1 - i;
-	      if (j > 0) w |= e[j - 1] >> this.DB + i - k1;
-	    }
-
-	    n = k;
-	    while ((w & 1) == 0) {
-	      w >>= 1;
-	      --n;
-	    }
-	    if ((i -= n) < 0) {
-	      i += this.DB;
-	      --j;
-	    }
-	    if (is1) {
-	      // ret == 1, don't bother squaring or multiplying it
-	      g[w].copyTo(r);
-	      is1 = false;
-	    } else {
-	      while (n > 1) {
-	        z.sqrTo(r, r2);
-	        z.sqrTo(r2, r);
-	        n -= 2;
-	      }
-	      if (n > 0) z.sqrTo(r, r2);else {
-	        t = r;
-	        r = r2;
-	        r2 = t;
-	      }
-	      z.mulTo(r2, g[w], r);
-	    }
-
-	    while (j >= 0 && (e[j] & 1 << i) == 0) {
-	      z.sqrTo(r, r2);
-	      t = r;
-	      r = r2;
-	      r2 = t;
-	      if (--i < 0) {
-	        i = this.DB - 1;
-	        --j;
-	      }
-	    }
-	  }
-	  var result = z.revert(r);
-	  callback(null, result);
-	  return result;
-	}
-
-	// protected
-	BigInteger.prototype.copyTo = bnpCopyTo;
-	BigInteger.prototype.fromInt = bnpFromInt;
-	BigInteger.prototype.fromString = bnpFromString;
-	BigInteger.prototype.clamp = bnpClamp;
-	BigInteger.prototype.dlShiftTo = bnpDLShiftTo;
-	BigInteger.prototype.drShiftTo = bnpDRShiftTo;
-	BigInteger.prototype.lShiftTo = bnpLShiftTo;
-	BigInteger.prototype.rShiftTo = bnpRShiftTo;
-	BigInteger.prototype.subTo = bnpSubTo;
-	BigInteger.prototype.multiplyTo = bnpMultiplyTo;
-	BigInteger.prototype.squareTo = bnpSquareTo;
-	BigInteger.prototype.divRemTo = bnpDivRemTo;
-	BigInteger.prototype.invDigit = bnpInvDigit;
-	BigInteger.prototype.addTo = bnpAddTo;
-
-	// public
-	BigInteger.prototype.toString = bnToString;
-	BigInteger.prototype.negate = bnNegate;
-	BigInteger.prototype.abs = bnAbs;
-	BigInteger.prototype.compareTo = bnCompareTo;
-	BigInteger.prototype.bitLength = bnBitLength;
-	BigInteger.prototype.mod = bnMod;
-	BigInteger.prototype.equals = bnEquals;
-	BigInteger.prototype.add = bnAdd;
-	BigInteger.prototype.subtract = bnSubtract;
-	BigInteger.prototype.multiply = bnMultiply;
-	BigInteger.prototype.divide = bnDivide;
-	BigInteger.prototype.modPow = bnModPow;
-
-	// "constants"
-	BigInteger.ZERO = nbv(0);
-	BigInteger.ONE = nbv(1);
-
-/***/ }),
-/* 4 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	exports.__esModule = true;
-
-	var _CognitoJwtToken2 = __webpack_require__(6);
-
-	var _CognitoJwtToken3 = _interopRequireDefault(_CognitoJwtToken2);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } /*
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * Copyright 2016 Amazon.com,
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * Inc. or its affiliates. All Rights Reserved.
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                *
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * Licensed under the Amazon Software License (the "License").
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * You may not use this file except in compliance with the
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * License. A copy of the License is located at
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                *
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                *     http://aws.amazon.com/asl/
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                *
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * or in the "license" file accompanying this file. This file is
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * CONDITIONS OF ANY KIND, express or implied. See the License
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * for the specific language governing permissions and
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * limitations under the License.
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                */
-
-	/** @class */
-	var CognitoAccessToken = function (_CognitoJwtToken) {
-	  _inherits(CognitoAccessToken, _CognitoJwtToken);
-
-	  /**
-	   * Constructs a new CognitoAccessToken object
-	   * @param {string=} AccessToken The JWT access token.
-	   */
-	  function CognitoAccessToken() {
-	    var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-	        AccessToken = _ref.AccessToken;
-
-	    _classCallCheck(this, CognitoAccessToken);
-
-	    return _possibleConstructorReturn(this, _CognitoJwtToken.call(this, AccessToken || ''));
-	  }
-
-	  return CognitoAccessToken;
-	}(_CognitoJwtToken3.default);
-
-	exports.default = CognitoAccessToken;
-
-/***/ }),
-/* 5 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	exports.__esModule = true;
-
-	var _CognitoJwtToken2 = __webpack_require__(6);
-
-	var _CognitoJwtToken3 = _interopRequireDefault(_CognitoJwtToken2);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } /*!
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * Copyright 2016 Amazon.com,
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * Inc. or its affiliates. All Rights Reserved.
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                *
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * Licensed under the Amazon Software License (the "License").
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * You may not use this file except in compliance with the
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * License. A copy of the License is located at
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                *
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                *     http://aws.amazon.com/asl/
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                *
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * or in the "license" file accompanying this file. This file is
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * CONDITIONS OF ANY KIND, express or implied. See the License
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * for the specific language governing permissions and
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * limitations under the License.
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                */
-
-	/** @class */
-	var CognitoIdToken = function (_CognitoJwtToken) {
-	  _inherits(CognitoIdToken, _CognitoJwtToken);
-
-	  /**
-	   * Constructs a new CognitoIdToken object
-	   * @param {string=} IdToken The JWT Id token
-	   */
-	  function CognitoIdToken() {
-	    var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-	        IdToken = _ref.IdToken;
-
-	    _classCallCheck(this, CognitoIdToken);
-
-	    return _possibleConstructorReturn(this, _CognitoJwtToken.call(this, IdToken || ''));
-	  }
-
-	  return CognitoIdToken;
-	}(_CognitoJwtToken3.default);
-
-	exports.default = CognitoIdToken;
-
-/***/ }),
-/* 6 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	exports.__esModule = true;
-
-	var _global = __webpack_require__(1);
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } } /*!
-	                                                                                                                                                           * Copyright 2016 Amazon.com,
-	                                                                                                                                                           * Inc. or its affiliates. All Rights Reserved.
-	                                                                                                                                                           *
-	                                                                                                                                                           * Licensed under the Amazon Software License (the "License").
-	                                                                                                                                                           * You may not use this file except in compliance with the
-	                                                                                                                                                           * License. A copy of the License is located at
-	                                                                                                                                                           *
-	                                                                                                                                                           *     http://aws.amazon.com/asl/
-	                                                                                                                                                           *
-	                                                                                                                                                           * or in the "license" file accompanying this file. This file is
-	                                                                                                                                                           * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
-	                                                                                                                                                           * CONDITIONS OF ANY KIND, express or implied. See the License
-	                                                                                                                                                           * for the specific language governing permissions and
-	                                                                                                                                                           * limitations under the License.
-	                                                                                                                                                           */
-
-	/** @class */
-	var CognitoJwtToken = function () {
-	  /**
-	   * Constructs a new CognitoJwtToken object
-	   * @param {string=} token The JWT token.
-	   */
-	  function CognitoJwtToken(token) {
-	    _classCallCheck(this, CognitoJwtToken);
-
-	    // Assign object
-	    this.jwtToken = token || '';
-	    this.payload = this.decodePayload();
-	  }
-
-	  /**
-	   * @returns {string} the record's token.
-	   */
-
-
-	  CognitoJwtToken.prototype.getJwtToken = function getJwtToken() {
-	    return this.jwtToken;
-	  };
-
-	  /**
-	   * @returns {int} the token's expiration (exp member).
-	   */
-
-
-	  CognitoJwtToken.prototype.getExpiration = function getExpiration() {
-	    return this.payload.exp;
-	  };
-
-	  /**
-	   * @returns {int} the token's "issued at" (iat member).
-	   */
-
-
-	  CognitoJwtToken.prototype.getIssuedAt = function getIssuedAt() {
-	    return this.payload.iat;
-	  };
-
-	  /**
-	   * @returns {object} the token's payload.
-	   */
-
-
-	  CognitoJwtToken.prototype.decodePayload = function decodePayload() {
-	    var payload = this.jwtToken.split('.')[1];
-	    try {
-	      return JSON.parse(_global.util.base64.decode(payload).toString('utf8'));
-	    } catch (err) {
-	      return {};
-	    }
-	  };
-
-	  return CognitoJwtToken;
-	}();
-
-	exports.default = CognitoJwtToken;
-
-/***/ }),
-/* 7 */
-/***/ (function(module, exports) {
-
-	'use strict';
-
-	exports.__esModule = true;
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	/*!
-	 * Copyright 2016 Amazon.com,
-	 * Inc. or its affiliates. All Rights Reserved.
-	 *
-	 * Licensed under the Amazon Software License (the "License").
-	 * You may not use this file except in compliance with the
-	 * License. A copy of the License is located at
-	 *
-	 *     http://aws.amazon.com/asl/
-	 *
-	 * or in the "license" file accompanying this file. This file is
-	 * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
-	 * CONDITIONS OF ANY KIND, express or implied. See the License
-	 * for the specific language governing permissions and
-	 * limitations under the License.
-	 */
-
-	/** @class */
-	var CognitoRefreshToken = function () {
-	  /**
-	   * Constructs a new CognitoRefreshToken object
-	   * @param {string=} RefreshToken The JWT refresh token.
-	   */
-	  function CognitoRefreshToken() {
-	    var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-	        RefreshToken = _ref.RefreshToken;
-
-	    _classCallCheck(this, CognitoRefreshToken);
-
-	    // Assign object
-	    this.token = RefreshToken || '';
-	  }
-
-	  /**
-	   * @returns {string} the record's token.
-	   */
-
-
-	  CognitoRefreshToken.prototype.getToken = function getToken() {
-	    return this.token;
-	  };
-
-	  return CognitoRefreshToken;
-	}();
-
-	exports.default = CognitoRefreshToken;
-
-/***/ }),
-/* 8 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	exports.__esModule = true;
-
-	var _global = __webpack_require__(1);
-
-	var _BigInteger = __webpack_require__(3);
-
-	var _BigInteger2 = _interopRequireDefault(_BigInteger);
-
-	var _AuthenticationHelper = __webpack_require__(2);
-
-	var _AuthenticationHelper2 = _interopRequireDefault(_AuthenticationHelper);
-
-	var _CognitoAccessToken = __webpack_require__(4);
-
-	var _CognitoAccessToken2 = _interopRequireDefault(_CognitoAccessToken);
-
-	var _CognitoIdToken = __webpack_require__(5);
-
-	var _CognitoIdToken2 = _interopRequireDefault(_CognitoIdToken);
-
-	var _CognitoRefreshToken = __webpack_require__(7);
-
-	var _CognitoRefreshToken2 = _interopRequireDefault(_CognitoRefreshToken);
-
-	var _CognitoUserSession = __webpack_require__(10);
-
-	var _CognitoUserSession2 = _interopRequireDefault(_CognitoUserSession);
-
-	var _DateHelper = __webpack_require__(11);
-
-	var _DateHelper2 = _interopRequireDefault(_DateHelper);
-
-	var _CognitoUserAttribute = __webpack_require__(9);
-
-	var _CognitoUserAttribute2 = _interopRequireDefault(_CognitoUserAttribute);
-
-	var _StorageHelper = __webpack_require__(12);
-
-	var _StorageHelper2 = _interopRequireDefault(_StorageHelper);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } } /*!
-	                                                                                                                                                           * Copyright 2016 Amazon.com,
-	                                                                                                                                                           * Inc. or its affiliates. All Rights Reserved.
-	                                                                                                                                                           *
-	                                                                                                                                                           * Licensed under the Amazon Software License (the "License").
-	                                                                                                                                                           * You may not use this file except in compliance with the
-	                                                                                                                                                           * License. A copy of the License is located at
-	                                                                                                                                                           *
-	                                                                                                                                                           *     http://aws.amazon.com/asl/
-	                                                                                                                                                           *
-	                                                                                                                                                           * or in the "license" file accompanying this file. This file is
-	                                                                                                                                                           * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
-	                                                                                                                                                           * CONDITIONS OF ANY KIND, express or implied. See the License
-	                                                                                                                                                           * for the specific language governing permissions and
-	                                                                                                                                                           * limitations under the License.
-	                                                                                                                                                           */
-
-	/**
-	 * @callback nodeCallback
-	 * @template T result
-	 * @param {*} err The operation failure reason, or null.
-	 * @param {T} result The operation result.
-	 */
-
-	/**
-	 * @callback onFailure
-	 * @param {*} err Failure reason.
-	 */
-
-	/**
-	 * @callback onSuccess
-	 * @template T result
-	 * @param {T} result The operation result.
-	 */
-
-	/**
-	 * @callback mfaRequired
-	 * @param {*} details MFA challenge details.
-	 */
-
-	/**
-	 * @callback customChallenge
-	 * @param {*} details Custom challenge details.
-	 */
-
-	/**
-	 * @callback inputVerificationCode
-	 * @param {*} data Server response.
-	 */
-
-	/**
-	 * @callback authSuccess
-	 * @param {CognitoUserSession} session The new session.
-	 * @param {bool=} userConfirmationNecessary User must be confirmed.
-	 */
-
-	/** @class */
-	var CognitoUser = function () {
-	  /**
-	   * Constructs a new CognitoUser object
-	   * @param {object} data Creation options
-	   * @param {string} data.Username The user's username.
-	   * @param {CognitoUserPool} data.Pool Pool containing the user.
-	   * @param {object} data.Storage Optional storage object.
-	   */
-	  function CognitoUser(data) {
-	    _classCallCheck(this, CognitoUser);
-
-	    if (data == null || data.Username == null || data.Pool == null) {
-	      throw new Error("Username and pool information are required.");
-	    }
-
-	    this.username = data.Username || "";
-	    this.pool = data.Pool;
-	    this.Session = null;
-
-	    this.client = data.Pool.client;
-
-	    this.signInUserSession = null;
-	    this.authenticationFlowType = "USER_SRP_AUTH";
-
-	    this.storage = data.Storage || new _StorageHelper2.default().getStorage();
-	  }
-
-	  /**
-	   * Sets the session for this user
-	   * @param {CognitoUserSession} signInUserSession the session
-	   * @returns {void}
-	   */
-
-
-	  CognitoUser.prototype.setSignInUserSession = function setSignInUserSession(signInUserSession) {
-	    this.clearCachedTokens();
-	    this.signInUserSession = signInUserSession;
-	    this.cacheTokens();
-	  };
-
-	  /**
-	   * @returns {CognitoUserSession} the current session for this user
-	   */
-
-
-	  CognitoUser.prototype.getSignInUserSession = function getSignInUserSession() {
-	    return this.signInUserSession;
-	  };
-
-	  /**
-	   * @returns {string} the user's username
-	   */
-
-
-	  CognitoUser.prototype.getUsername = function getUsername() {
-	    return this.username;
-	  };
-
-	  /**
-	   * @returns {String} the authentication flow type
-	   */
-
-
-	  CognitoUser.prototype.getAuthenticationFlowType = function getAuthenticationFlowType() {
-	    return this.authenticationFlowType;
-	  };
-
-	  /**
-	   * sets authentication flow type
-	   * @param {string} authenticationFlowType New value.
-	   * @returns {void}
-	   */
-
-
-	  CognitoUser.prototype.setAuthenticationFlowType = function setAuthenticationFlowType(authenticationFlowType) {
-	    this.authenticationFlowType = authenticationFlowType;
-	  };
-
-	  /**
-	   * This is used for authenticating the user through the custom authentication flow.
-	   * @param {AuthenticationDetails} authDetails Contains the authentication data
-	   * @param {object} callback Result callback map.
-	   * @param {onFailure} callback.onFailure Called on any error.
-	   * @param {customChallenge} callback.customChallenge Custom challenge
-	   *        response required to continue.
-	   * @param {authSuccess} callback.onSuccess Called on success with the new session.
-	   * @returns {void}
-	   */
-
-
-	  CognitoUser.prototype.initiateAuth = function initiateAuth(authDetails, callback) {
-	    var _this = this;
-
-	    var authParameters = authDetails.getAuthParameters();
-	    authParameters.USERNAME = this.username;
-
-	    var jsonReq = {
-	      AuthFlow: "CUSTOM_AUTH",
-	      ClientId: this.pool.getClientId(),
-	      AuthParameters: authParameters,
-	      ClientMetadata: authDetails.getValidationData()
-	    };
-	    if (this.getUserContextData()) {
-	      jsonReq.UserContextData = this.getUserContextData();
-	    }
-
-	    this.client.makeUnauthenticatedRequest("initiateAuth", jsonReq, function (err, data) {
-	      if (err) {
-	        return callback.onFailure(err);
-	      }
-	      var challengeName = data.ChallengeName;
-	      var challengeParameters = data.ChallengeParameters;
-
-	      if (challengeName === "CUSTOM_CHALLENGE") {
-	        _this.Session = data.Session;
-	        return callback.customChallenge(challengeParameters);
-	      }
-	      _this.signInUserSession = _this.getCognitoUserSession(data.AuthenticationResult);
-	      _this.cacheTokens();
-	      return callback.onSuccess(_this.signInUserSession);
-	    });
-	  };
-
-	  /**
-	   * This is used for authenticating the user. it calls the AuthenticationHelper for SRP related
-	   * stuff
-	   * @param {AuthenticationDetails} authDetails Contains the authentication data
-	   * @param {object} callback Result callback map.
-	   * @param {onFailure} callback.onFailure Called on any error.
-	   * @param {newPasswordRequired} callback.newPasswordRequired new
-	   *        password and any required attributes are required to continue
-	   * @param {mfaRequired} callback.mfaRequired MFA code
-	   *        required to continue.
-	   * @param {customChallenge} callback.customChallenge Custom challenge
-	   *        response required to continue.
-	   * @param {authSuccess} callback.onSuccess Called on success with the new session.
-	   * @returns {void}
-	   */
-
-
-	  CognitoUser.prototype.authenticateUser = function authenticateUser(authDetails, callback) {
-	    var _this2 = this;
-
-	    var authenticationHelper = new _AuthenticationHelper2.default(this.pool.getUserPoolId().split("_")[1]);
-	    var dateHelper = new _DateHelper2.default();
-
-	    var serverBValue = void 0;
-	    var salt = void 0;
-	    var authParameters = {};
-
-	    if (this.deviceKey != null) {
-	      authParameters.DEVICE_KEY = this.deviceKey;
-	    }
-
-	    authParameters.USERNAME = this.username;
-	    authenticationHelper.getLargeAValue(function (errOnAValue, aValue) {
-	      // getLargeAValue callback start
-	      if (errOnAValue) {
-	        callback.onFailure(errOnAValue);
-	      }
-
-	      authParameters.SRP_A = aValue.toString(16);
-
-	      if (_this2.authenticationFlowType === "CUSTOM_AUTH") {
-	        authParameters.CHALLENGE_NAME = "SRP_A";
-	      }
-
-	      var jsonReq = {
-	        AuthFlow: _this2.authenticationFlowType,
-	        ClientId: _this2.pool.getClientId(),
-	        AuthParameters: authParameters,
-	        ClientMetadata: authDetails.getValidationData()
-	      };
-	      if (_this2.getUserContextData(_this2.username)) {
-	        jsonReq.UserContextData = _this2.getUserContextData(_this2.username);
-	      }
-
-	      _this2.client.makeUnauthenticatedRequest("initiateAuth", jsonReq, function (err, data) {
-	        if (err) {
-	          return callback.onFailure(err);
-	        }
-
-	        var challengeParameters = data.ChallengeParameters;
-
-	        _this2.username = challengeParameters.USER_ID_FOR_SRP;
-	        serverBValue = new _BigInteger2.default(challengeParameters.SRP_B, 16);
-	        salt = new _BigInteger2.default(challengeParameters.SALT, 16);
-	        _this2.getCachedDeviceKeyAndPassword();
-
-	        authenticationHelper.getPasswordAuthenticationKey(_this2.username, authDetails.getPassword(), serverBValue, salt, function (errOnHkdf, hkdf) {
-	          // getPasswordAuthenticationKey callback start
-	          if (errOnHkdf) {
-	            callback.onFailure(errOnHkdf);
-	          }
-
-	          var dateNow = dateHelper.getNowString();
-
-	          var signatureString = _global.util.crypto.hmac(hkdf, _global.util.buffer.concat([new _global.util.Buffer(_this2.pool.getUserPoolId().split("_")[1], "utf8"), new _global.util.Buffer(_this2.username, "utf8"), new _global.util.Buffer(challengeParameters.SECRET_BLOCK, "base64"), new _global.util.Buffer(dateNow, "utf8")]), "base64", "sha256");
-
-	          var challengeResponses = {};
-
-	          challengeResponses.USERNAME = _this2.username;
-	          challengeResponses.PASSWORD_CLAIM_SECRET_BLOCK = challengeParameters.SECRET_BLOCK;
-	          challengeResponses.TIMESTAMP = dateNow;
-	          challengeResponses.PASSWORD_CLAIM_SIGNATURE = signatureString;
-
-	          if (_this2.deviceKey != null) {
-	            challengeResponses.DEVICE_KEY = _this2.deviceKey;
-	          }
-
-	          var respondToAuthChallenge = function respondToAuthChallenge(challenge, challengeCallback) {
-	            return _this2.client.makeUnauthenticatedRequest("respondToAuthChallenge", challenge, function (errChallenge, dataChallenge) {
-	              if (errChallenge && errChallenge.code === "ResourceNotFoundException" && errChallenge.message.toLowerCase().indexOf("device") !== -1) {
-	                challengeResponses.DEVICE_KEY = null;
-	                _this2.deviceKey = null;
-	                _this2.randomPassword = null;
-	                _this2.deviceGroupKey = null;
-	                _this2.clearCachedDeviceKeyAndPassword();
-	                return respondToAuthChallenge(challenge, challengeCallback);
-	              }
-	              return challengeCallback(errChallenge, dataChallenge);
-	            });
-	          };
-
-	          var jsonReqResp = {
-	            ChallengeName: "PASSWORD_VERIFIER",
-	            ClientId: _this2.pool.getClientId(),
-	            ChallengeResponses: challengeResponses,
-	            Session: data.Session
-	          };
-	          if (_this2.getUserContextData()) {
-	            jsonReqResp.UserContextData = _this2.getUserContextData();
-	          }
-	          respondToAuthChallenge(jsonReqResp, function (errAuthenticate, dataAuthenticate) {
-	            if (errAuthenticate) {
-	              return callback.onFailure(errAuthenticate);
-	            }
-
-	            var challengeName = dataAuthenticate.ChallengeName;
-	            if (challengeName === "NEW_PASSWORD_REQUIRED") {
-	              _this2.Session = dataAuthenticate.Session;
-	              var userAttributes = null;
-	              var rawRequiredAttributes = null;
-	              var requiredAttributes = [];
-	              var userAttributesPrefix = authenticationHelper.getNewPasswordRequiredChallengeUserAttributePrefix();
-
-	              if (dataAuthenticate.ChallengeParameters) {
-	                userAttributes = JSON.parse(dataAuthenticate.ChallengeParameters.userAttributes);
-	                rawRequiredAttributes = JSON.parse(dataAuthenticate.ChallengeParameters.requiredAttributes);
-	              }
-
-	              if (rawRequiredAttributes) {
-	                for (var i = 0; i < rawRequiredAttributes.length; i++) {
-	                  requiredAttributes[i] = rawRequiredAttributes[i].substr(userAttributesPrefix.length);
-	                }
-	              }
-	              return callback.newPasswordRequired(userAttributes, requiredAttributes);
-	            }
-	            return _this2.authenticateUserInternal(dataAuthenticate, authenticationHelper, callback);
-	          });
-	          return undefined;
-	          // getPasswordAuthenticationKey callback end
-	        });
-	        return undefined;
-	      });
-	      // getLargeAValue callback end
-	    });
-	  };
-
-	  /**
-	   * PRIVATE ONLY: This is an internal only method and should not
-	   * be directly called by the consumers.
-	   * @param {object} dataAuthenticate authentication data
-	   * @param {object} authenticationHelper helper created
-	   * @param {callback} callback passed on from caller
-	   * @returns {void}
-	   */
-
-
-	  CognitoUser.prototype.authenticateUserInternal = function authenticateUserInternal(dataAuthenticate, authenticationHelper, callback) {
-	    var _this3 = this;
-
-	    var challengeName = dataAuthenticate.ChallengeName;
-	    var challengeParameters = dataAuthenticate.ChallengeParameters;
-
-	    if (challengeName === "SMS_MFA") {
-	      this.Session = dataAuthenticate.Session;
-	      return callback.mfaRequired(challengeName, challengeParameters);
-	    }
-
-	    if (challengeName === "SELECT_MFA_TYPE") {
-	      this.Session = dataAuthenticate.Session;
-	      return callback.selectMFAType(challengeName, challengeParameters);
-	    }
-
-	    if (challengeName === "MFA_SETUP") {
-	      this.Session = dataAuthenticate.Session;
-	      return callback.mfaSetup(challengeName, challengeParameters);
-	    }
-
-	    if (challengeName === "SOFTWARE_TOKEN_MFA") {
-	      this.Session = dataAuthenticate.Session;
-	      return callback.totpRequired(challengeName, challengeParameters);
-	    }
-
-	    if (challengeName === "CUSTOM_CHALLENGE") {
-	      this.Session = dataAuthenticate.Session;
-	      return callback.customChallenge(challengeParameters);
-	    }
-
-	    if (challengeName === "DEVICE_SRP_AUTH") {
-	      this.getDeviceResponse(callback);
-	      return undefined;
-	    }
-
-	    this.signInUserSession = this.getCognitoUserSession(dataAuthenticate.AuthenticationResult);
-	    this.cacheTokens();
-
-	    var newDeviceMetadata = dataAuthenticate.AuthenticationResult.NewDeviceMetadata;
-	    if (newDeviceMetadata == null) {
-	      return callback.onSuccess(this.signInUserSession);
-	    }
-
-	    authenticationHelper.generateHashDevice(dataAuthenticate.AuthenticationResult.NewDeviceMetadata.DeviceGroupKey, dataAuthenticate.AuthenticationResult.NewDeviceMetadata.DeviceKey, function (errGenHash) {
-	      if (errGenHash) {
-	        return callback.onFailure(errGenHash);
-	      }
-
-	      var deviceSecretVerifierConfig = {
-	        Salt: new _global.util.Buffer(authenticationHelper.getSaltDevices(), "hex").toString("base64"),
-	        PasswordVerifier: new _global.util.Buffer(authenticationHelper.getVerifierDevices(), "hex").toString("base64")
-	      };
-
-	      _this3.verifierDevices = deviceSecretVerifierConfig.PasswordVerifier;
-	      _this3.deviceGroupKey = newDeviceMetadata.DeviceGroupKey;
-	      _this3.randomPassword = authenticationHelper.getRandomPassword();
-
-	      _this3.client.makeUnauthenticatedRequest("confirmDevice", {
-	        DeviceKey: newDeviceMetadata.DeviceKey,
-	        AccessToken: _this3.signInUserSession.getAccessToken().getJwtToken(),
-	        DeviceSecretVerifierConfig: deviceSecretVerifierConfig,
-	        DeviceName: navigator.userAgent
-	      }, function (errConfirm, dataConfirm) {
-	        if (errConfirm) {
-	          return callback.onFailure(errConfirm);
-	        }
-	        _this3.signInUserSession.deviceKey = dataAuthenticate.AuthenticationResult.NewDeviceMetadata.DeviceKey;
-	        _this3.deviceKey = dataAuthenticate.AuthenticationResult.NewDeviceMetadata.DeviceKey;
-	        _this3.cacheDeviceKeyAndPassword();
-	        if (dataConfirm.UserConfirmationNecessary === true) {
-	          return callback.onSuccess(_this3.signInUserSession, dataConfirm.UserConfirmationNecessary);
-	        }
-	        return callback.onSuccess(_this3.signInUserSession);
-	      });
-	      return undefined;
-	    });
-	    return undefined;
-	  };
-
-	  /**
-	   * This method is user to complete the NEW_PASSWORD_REQUIRED challenge.
-	   * Pass the new password with any new user attributes to be updated.
-	   * User attribute keys must be of format userAttributes.<attribute_name>.
-	   * @param {string} newPassword new password for this user
-	   * @param {object} requiredAttributeData map with values for all required attributes
-	   * @param {object} callback Result callback map.
-	   * @param {onFailure} callback.onFailure Called on any error.
-	   * @param {mfaRequired} callback.mfaRequired MFA code required to continue.
-	   * @param {customChallenge} callback.customChallenge Custom challenge
-	   *         response required to continue.
-	   * @param {authSuccess} callback.onSuccess Called on success with the new session.
-	   * @returns {void}
-	   */
-
-
-	  CognitoUser.prototype.completeNewPasswordChallenge = function completeNewPasswordChallenge(newPassword, requiredAttributeData, callback) {
-	    var _this4 = this;
-
-	    if (!newPassword) {
-	      return callback.onFailure(new Error("New password is required."));
-	    }
-	    var authenticationHelper = new _AuthenticationHelper2.default(this.pool.getUserPoolId().split("_")[1]);
-	    var userAttributesPrefix = authenticationHelper.getNewPasswordRequiredChallengeUserAttributePrefix();
-
-	    var finalUserAttributes = {};
-	    if (requiredAttributeData) {
-	      Object.keys(requiredAttributeData).forEach(function (key) {
-	        finalUserAttributes[userAttributesPrefix + key] = requiredAttributeData[key];
-	      });
-	    }
-
-	    finalUserAttributes.NEW_PASSWORD = newPassword;
-	    finalUserAttributes.USERNAME = this.username;
-	    var jsonReq = {
-	      ChallengeName: "NEW_PASSWORD_REQUIRED",
-	      ClientId: this.pool.getClientId(),
-	      ChallengeResponses: finalUserAttributes,
-	      Session: this.Session
-	    };
-	    if (this.getUserContextData()) {
-	      jsonReq.UserContextData = this.getUserContextData();
-	    }
-
-	    this.client.makeUnauthenticatedRequest("respondToAuthChallenge", jsonReq, function (errAuthenticate, dataAuthenticate) {
-	      if (errAuthenticate) {
-	        return callback.onFailure(errAuthenticate);
-	      }
-	      return _this4.authenticateUserInternal(dataAuthenticate, authenticationHelper, callback);
-	    });
-	    return undefined;
-	  };
-
-	  /**
-	   * This is used to get a session using device authentication. It is called at the end of user
-	   * authentication
-	   *
-	   * @param {object} callback Result callback map.
-	   * @param {onFailure} callback.onFailure Called on any error.
-	   * @param {authSuccess} callback.onSuccess Called on success with the new session.
-	   * @returns {void}
-	   * @private
-	   */
-
-
-	  CognitoUser.prototype.getDeviceResponse = function getDeviceResponse(callback) {
-	    var _this5 = this;
-
-	    var authenticationHelper = new _AuthenticationHelper2.default(this.deviceGroupKey);
-	    var dateHelper = new _DateHelper2.default();
-
-	    var authParameters = {};
-
-	    authParameters.USERNAME = this.username;
-	    authParameters.DEVICE_KEY = this.deviceKey;
-	    authenticationHelper.getLargeAValue(function (errAValue, aValue) {
-	      // getLargeAValue callback start
-	      if (errAValue) {
-	        callback.onFailure(errAValue);
-	      }
-
-	      authParameters.SRP_A = aValue.toString(16);
-
-	      var jsonReq = {
-	        ChallengeName: "DEVICE_SRP_AUTH",
-	        ClientId: _this5.pool.getClientId(),
-	        ChallengeResponses: authParameters
-	      };
-	      if (_this5.getUserContextData()) {
-	        jsonReq.UserContextData = _this5.getUserContextData();
-	      }
-	      _this5.client.makeUnauthenticatedRequest("respondToAuthChallenge", jsonReq, function (err, data) {
-	        if (err) {
-	          return callback.onFailure(err);
-	        }
-
-	        var challengeParameters = data.ChallengeParameters;
-
-	        var serverBValue = new _BigInteger2.default(challengeParameters.SRP_B, 16);
-	        var salt = new _BigInteger2.default(challengeParameters.SALT, 16);
-
-	        authenticationHelper.getPasswordAuthenticationKey(_this5.deviceKey, _this5.randomPassword, serverBValue, salt, function (errHkdf, hkdf) {
-	          // getPasswordAuthenticationKey callback start
-	          if (errHkdf) {
-	            return callback.onFailure(errHkdf);
-	          }
-
-	          var dateNow = dateHelper.getNowString();
-
-	          var signatureString = _global.util.crypto.hmac(hkdf, _global.util.buffer.concat([new _global.util.Buffer(_this5.deviceGroupKey, "utf8"), new _global.util.Buffer(_this5.deviceKey, "utf8"), new _global.util.Buffer(challengeParameters.SECRET_BLOCK, "base64"), new _global.util.Buffer(dateNow, "utf8")]), "base64", "sha256");
-
-	          var challengeResponses = {};
-
-	          challengeResponses.USERNAME = _this5.username;
-	          challengeResponses.PASSWORD_CLAIM_SECRET_BLOCK = challengeParameters.SECRET_BLOCK;
-	          challengeResponses.TIMESTAMP = dateNow;
-	          challengeResponses.PASSWORD_CLAIM_SIGNATURE = signatureString;
-	          challengeResponses.DEVICE_KEY = _this5.deviceKey;
-
-	          var jsonReqResp = {
-	            ChallengeName: "DEVICE_PASSWORD_VERIFIER",
-	            ClientId: _this5.pool.getClientId(),
-	            ChallengeResponses: challengeResponses,
-	            Session: data.Session
-	          };
-	          if (_this5.getUserContextData()) {
-	            jsonReqResp.UserContextData = _this5.getUserContextData();
-	          }
-
-	          _this5.client.makeUnauthenticatedRequest("respondToAuthChallenge", jsonReqResp, function (errAuthenticate, dataAuthenticate) {
-	            if (errAuthenticate) {
-	              return callback.onFailure(errAuthenticate);
-	            }
-
-	            _this5.signInUserSession = _this5.getCognitoUserSession(dataAuthenticate.AuthenticationResult);
-	            _this5.cacheTokens();
-
-	            return callback.onSuccess(_this5.signInUserSession);
-	          });
-	          return undefined;
-	          // getPasswordAuthenticationKey callback end
-	        });
-	        return undefined;
-	      });
-	      // getLargeAValue callback end
-	    });
-	  };
-
-	  /**
-	   * This is used for a certain user to confirm the registration by using a confirmation code
-	   * @param {string} confirmationCode Code entered by user.
-	   * @param {bool} forceAliasCreation Allow migrating from an existing email / phone number.
-	   * @param {nodeCallback<string>} callback Called on success or error.
-	   * @returns {void}
-	   */
-
-
-	  CognitoUser.prototype.confirmRegistration = function confirmRegistration(confirmationCode, forceAliasCreation, callback) {
-	    var jsonReq = {
-	      ClientId: this.pool.getClientId(),
-	      ConfirmationCode: confirmationCode,
-	      Username: this.username,
-	      ForceAliasCreation: forceAliasCreation
-	    };
-	    if (this.getUserContextData()) {
-	      jsonReq.UserContextData = this.getUserContextData();
-	    }
-	    this.client.makeUnauthenticatedRequest("confirmSignUp", jsonReq, function (err) {
-	      if (err) {
-	        return callback(err, null);
-	      }
-	      return callback(null, "SUCCESS");
-	    });
-	  };
-
-	  /**
-	   * This is used by the user once he has the responses to a custom challenge
-	   * @param {string} answerChallenge The custom challange answer.
-	   * @param {object} callback Result callback map.
-	   * @param {onFailure} callback.onFailure Called on any error.
-	   * @param {customChallenge} callback.customChallenge
-	   *    Custom challenge response required to continue.
-	   * @param {authSuccess} callback.onSuccess Called on success with the new session.
-	   * @returns {void}
-	   */
-
-
-	  CognitoUser.prototype.sendCustomChallengeAnswer = function sendCustomChallengeAnswer(answerChallenge, callback) {
-	    var _this6 = this;
-
-	    var challengeResponses = {};
-	    challengeResponses.USERNAME = this.username;
-	    challengeResponses.ANSWER = answerChallenge;
-	    var jsonReq = {
-	      ChallengeName: "CUSTOM_CHALLENGE",
-	      ChallengeResponses: challengeResponses,
-	      ClientId: this.pool.getClientId(),
-	      Session: this.Session
-	    };
-	    if (this.getUserContextData()) {
-	      jsonReq.UserContextData = this.getUserContextData();
-	    }
-	    this.client.makeUnauthenticatedRequest("respondToAuthChallenge", jsonReq, function (err, data) {
-	      if (err) {
-	        return callback.onFailure(err);
-	      }
-
-	      var challengeName = data.ChallengeName;
-
-	      if (challengeName === "CUSTOM_CHALLENGE") {
-	        _this6.Session = data.Session;
-	        return callback.customChallenge(data.ChallengeParameters);
-	      }
-
-	      _this6.signInUserSession = _this6.getCognitoUserSession(data.AuthenticationResult);
-	      _this6.cacheTokens();
-	      return callback.onSuccess(_this6.signInUserSession);
-	    });
-	  };
-
-	  /**
-	   * This is used by the user once he has an MFA code
-	   * @param {string} confirmationCode The MFA code entered by the user.
-	   * @param {object} callback Result callback map.
-	   * @param {string} mfaType The mfa we are replying to.
-	   * @param {onFailure} callback.onFailure Called on any error.
-	   * @param {authSuccess} callback.onSuccess Called on success with the new session.
-	   * @returns {void}
-	   */
-
-
-	  CognitoUser.prototype.sendMFACode = function sendMFACode(confirmationCode, callback, mfaType) {
-	    var _this7 = this;
-
-	    var challengeResponses = {};
-	    challengeResponses.USERNAME = this.username;
-	    challengeResponses.SMS_MFA_CODE = confirmationCode;
-	    var mfaTypeSelection = mfaType || "SMS_MFA";
-	    if (mfaTypeSelection === "SOFTWARE_TOKEN_MFA") {
-	      challengeResponses.SOFTWARE_TOKEN_MFA_CODE = confirmationCode;
-	    }
-
-	    if (this.deviceKey != null) {
-	      challengeResponses.DEVICE_KEY = this.deviceKey;
-	    }
-
-	    var jsonReq = {
-	      ChallengeName: mfaTypeSelection,
-	      ChallengeResponses: challengeResponses,
-	      ClientId: this.pool.getClientId(),
-	      Session: this.Session
-	    };
-	    if (this.getUserContextData()) {
-	      jsonReq.UserContextData = this.getUserContextData();
-	    }
-
-	    this.client.makeUnauthenticatedRequest("respondToAuthChallenge", jsonReq, function (err, dataAuthenticate) {
-	      if (err) {
-	        return callback.onFailure(err);
-	      }
-
-	      var challengeName = dataAuthenticate.ChallengeName;
-
-	      if (challengeName === "DEVICE_SRP_AUTH") {
-	        _this7.getDeviceResponse(callback);
-	        return undefined;
-	      }
-
-	      _this7.signInUserSession = _this7.getCognitoUserSession(dataAuthenticate.AuthenticationResult);
-	      _this7.cacheTokens();
-
-	      if (dataAuthenticate.AuthenticationResult.NewDeviceMetadata == null) {
-	        return callback.onSuccess(_this7.signInUserSession);
-	      }
-
-	      var authenticationHelper = new _AuthenticationHelper2.default(_this7.pool.getUserPoolId().split("_")[1]);
-	      authenticationHelper.generateHashDevice(dataAuthenticate.AuthenticationResult.NewDeviceMetadata.DeviceGroupKey, dataAuthenticate.AuthenticationResult.NewDeviceMetadata.DeviceKey, function (errGenHash) {
-	        if (errGenHash) {
-	          return callback.onFailure(errGenHash);
-	        }
-
-	        var deviceSecretVerifierConfig = {
-	          Salt: new _global.util.Buffer(authenticationHelper.getSaltDevices(), "hex").toString("base64"),
-	          PasswordVerifier: new _global.util.Buffer(authenticationHelper.getVerifierDevices(), "hex").toString("base64")
-	        };
-
-	        _this7.verifierDevices = deviceSecretVerifierConfig.PasswordVerifier;
-	        _this7.deviceGroupKey = dataAuthenticate.AuthenticationResult.NewDeviceMetadata.DeviceGroupKey;
-	        _this7.randomPassword = authenticationHelper.getRandomPassword();
-
-	        _this7.client.makeUnauthenticatedRequest("confirmDevice", {
-	          DeviceKey: dataAuthenticate.AuthenticationResult.NewDeviceMetadata.DeviceKey,
-	          AccessToken: _this7.signInUserSession.getAccessToken().getJwtToken(),
-	          DeviceSecretVerifierConfig: deviceSecretVerifierConfig,
-	          DeviceName: navigator.userAgent
-	        }, function (errConfirm, dataConfirm) {
-	          if (errConfirm) {
-	            return callback.onFailure(errConfirm);
-	          }
-
-	          _this7.deviceKey = dataAuthenticate.AuthenticationResult.NewDeviceMetadata.DeviceKey;
-	          _this7.cacheDeviceKeyAndPassword();
-	          if (dataConfirm.UserConfirmationNecessary === true) {
-	            return callback.onSuccess(_this7.signInUserSession, dataConfirm.UserConfirmationNecessary);
-	          }
-	          return callback.onSuccess(_this7.signInUserSession);
-	        });
-	        return undefined;
-	      });
-	      return undefined;
-	    });
-	  };
-
-	  /**
-	   * This is used by an authenticated user to change the current password
-	   * @param {string} oldUserPassword The current password.
-	   * @param {string} newUserPassword The requested new password.
-	   * @param {nodeCallback<string>} callback Called on success or error.
-	   * @returns {void}
-	   */
-
-
-	  CognitoUser.prototype.changePassword = function changePassword(oldUserPassword, newUserPassword, callback) {
-	    if (!(this.signInUserSession != null && this.signInUserSession.isValid())) {
-	      return callback(new Error("User is not authenticated"), null);
-	    }
-
-	    this.client.makeUnauthenticatedRequest("changePassword", {
-	      PreviousPassword: oldUserPassword,
-	      ProposedPassword: newUserPassword,
-	      AccessToken: this.signInUserSession.getAccessToken().getJwtToken()
-	    }, function (err) {
-	      if (err) {
-	        return callback(err, null);
-	      }
-	      return callback(null, "SUCCESS");
-	    });
-	    return undefined;
-	  };
-
-	  /**
-	   * This is used by an authenticated user to enable MFA for himself
-	   * @param {nodeCallback<string>} callback Called on success or error.
-	   * @returns {void}
-	   */
-
-
-	  CognitoUser.prototype.enableMFA = function enableMFA(callback) {
-	    if (this.signInUserSession == null || !this.signInUserSession.isValid()) {
-	      return callback(new Error("User is not authenticated"), null);
-	    }
-
-	    var mfaOptions = [];
-	    var mfaEnabled = {
-	      DeliveryMedium: "SMS",
-	      AttributeName: "phone_number"
-	    };
-	    mfaOptions.push(mfaEnabled);
-
-	    this.client.makeUnauthenticatedRequest("setUserSettings", {
-	      MFAOptions: mfaOptions,
-	      AccessToken: this.signInUserSession.getAccessToken().getJwtToken()
-	    }, function (err) {
-	      if (err) {
-	        return callback(err, null);
-	      }
-	      return callback(null, "SUCCESS");
-	    });
-	    return undefined;
-	  };
-
-	  /**
-	   * This is used by an authenticated user to enable MFA for himself
-	   * @param {string[]} smsMfaSettings the sms mfa settings
-	   * @param {string[]} softwareTokenMfaSettings the software token mfa settings
-	   * @param {nodeCallback<string>} callback Called on success or error.
-	   * @returns {void}
-	   */
-
-
-	  CognitoUser.prototype.setUserMfaPreference = function setUserMfaPreference(smsMfaSettings, softwareTokenMfaSettings, callback) {
-	    if (this.signInUserSession == null || !this.signInUserSession.isValid()) {
-	      return callback(new Error("User is not authenticated"), null);
-	    }
-
-	    this.client.makeUnauthenticatedRequest("setUserMFAPreference", {
-	      SMSMfaSettings: smsMfaSettings,
-	      SoftwareTokenMfaSettings: softwareTokenMfaSettings,
-	      AccessToken: this.signInUserSession.getAccessToken().getJwtToken()
-	    }, function (err) {
-	      if (err) {
-	        return callback(err, null);
-	      }
-	      return callback(null, "SUCCESS");
-	    });
-	    return undefined;
-	  };
-
-	  /**
-	   * This is used by an authenticated user to disable MFA for himself
-	   * @param {nodeCallback<string>} callback Called on success or error.
-	   * @returns {void}
-	   */
-
-
-	  CognitoUser.prototype.disableMFA = function disableMFA(callback) {
-	    if (this.signInUserSession == null || !this.signInUserSession.isValid()) {
-	      return callback(new Error("User is not authenticated"), null);
-	    }
-
-	    var mfaOptions = [];
-
-	    this.client.makeUnauthenticatedRequest("setUserSettings", {
-	      MFAOptions: mfaOptions,
-	      AccessToken: this.signInUserSession.getAccessToken().getJwtToken()
-	    }, function (err) {
-	      if (err) {
-	        return callback(err, null);
-	      }
-	      return callback(null, "SUCCESS");
-	    });
-	    return undefined;
-	  };
-
-	  /**
-	   * This is used by an authenticated user to delete himself
-	   * @param {nodeCallback<string>} callback Called on success or error.
-	   * @returns {void}
-	   */
-
-
-	  CognitoUser.prototype.deleteUser = function deleteUser(callback) {
-	    var _this8 = this;
-
-	    if (this.signInUserSession == null || !this.signInUserSession.isValid()) {
-	      return callback(new Error("User is not authenticated"), null);
-	    }
-
-	    this.client.makeUnauthenticatedRequest("deleteUser", {
-	      AccessToken: this.signInUserSession.getAccessToken().getJwtToken()
-	    }, function (err) {
-	      if (err) {
-	        return callback(err, null);
-	      }
-	      _this8.clearCachedTokens();
-	      return callback(null, "SUCCESS");
-	    });
-	    return undefined;
-	  };
-
-	  /**
-	   * @typedef {CognitoUserAttribute | { Name:string, Value:string }} AttributeArg
-	   */
-	  /**
-	   * This is used by an authenticated user to change a list of attributes
-	   * @param {AttributeArg[]} attributes A list of the new user attributes.
-	   * @param {nodeCallback<string>} callback Called on success or error.
-	   * @returns {void}
-	   */
-
-
-	  CognitoUser.prototype.updateAttributes = function updateAttributes(attributes, callback) {
-	    if (this.signInUserSession == null || !this.signInUserSession.isValid()) {
-	      return callback(new Error("User is not authenticated"), null);
-	    }
-
-	    this.client.makeUnauthenticatedRequest("updateUserAttributes", {
-	      AccessToken: this.signInUserSession.getAccessToken().getJwtToken(),
-	      UserAttributes: attributes
-	    }, function (err) {
-	      if (err) {
-	        return callback(err, null);
-	      }
-	      return callback(null, "SUCCESS");
-	    });
-	    return undefined;
-	  };
-
-	  /**
-	   * This is used by an authenticated user to get a list of attributes
-	   * @param {nodeCallback<CognitoUserAttribute[]>} callback Called on success or error.
-	   * @returns {void}
-	   */
-
-
-	  CognitoUser.prototype.getUserAttributes = function getUserAttributes(callback) {
-	    if (!(this.signInUserSession != null && this.signInUserSession.isValid())) {
-	      return callback(new Error("User is not authenticated"), null);
-	    }
-
-	    this.client.makeUnauthenticatedRequest("getUser", {
-	      AccessToken: this.signInUserSession.getAccessToken().getJwtToken()
-	    }, function (err, userData) {
-	      if (err) {
-	        return callback(err, null);
-	      }
-
-	      var attributeList = [];
-
-	      for (var i = 0; i < userData.UserAttributes.length; i++) {
-	        var attribute = {
-	          Name: userData.UserAttributes[i].Name,
-	          Value: userData.UserAttributes[i].Value
-	        };
-	        var userAttribute = new _CognitoUserAttribute2.default(attribute);
-	        attributeList.push(userAttribute);
-	      }
-
-	      return callback(null, attributeList);
-	    });
-	    return undefined;
-	  };
-
-	  /**
-	   * This is used by an authenticated user to get the MFAOptions
-	   * @param {nodeCallback<MFAOptions>} callback Called on success or error.
-	   * @returns {void}
-	   */
-
-
-	  CognitoUser.prototype.getMFAOptions = function getMFAOptions(callback) {
-	    if (!(this.signInUserSession != null && this.signInUserSession.isValid())) {
-	      return callback(new Error("User is not authenticated"), null);
-	    }
-
-	    this.client.makeUnauthenticatedRequest("getUser", {
-	      AccessToken: this.signInUserSession.getAccessToken().getJwtToken()
-	    }, function (err, userData) {
-	      if (err) {
-	        return callback(err, null);
-	      }
-
-	      return callback(null, userData.MFAOptions);
-	    });
-	    return undefined;
-	  };
-
-	  /**
-	   * This is used by an authenticated user to delete a list of attributes
-	   * @param {string[]} attributeList Names of the attributes to delete.
-	   * @param {nodeCallback<string>} callback Called on success or error.
-	   * @returns {void}
-	   */
-
-
-	  CognitoUser.prototype.deleteAttributes = function deleteAttributes(attributeList, callback) {
-	    if (!(this.signInUserSession != null && this.signInUserSession.isValid())) {
-	      return callback(new Error("User is not authenticated"), null);
-	    }
-
-	    this.client.makeUnauthenticatedRequest("deleteUserAttributes", {
-	      UserAttributeNames: attributeList,
-	      AccessToken: this.signInUserSession.getAccessToken().getJwtToken()
-	    }, function (err) {
-	      if (err) {
-	        return callback(err, null);
-	      }
-	      return callback(null, "SUCCESS");
-	    });
-	    return undefined;
-	  };
-
-	  /**
-	   * This is used by a user to resend a confirmation code
-	   * @param {nodeCallback<string>} callback Called on success or error.
-	   * @returns {void}
-	   */
-
-
-	  CognitoUser.prototype.resendConfirmationCode = function resendConfirmationCode(callback) {
-	    var jsonReq = {
-	      ClientId: this.pool.getClientId(),
-	      Username: this.username
-	    };
-
-	    this.client.makeUnauthenticatedRequest("resendConfirmationCode", jsonReq, function (err, result) {
-	      if (err) {
-	        return callback(err, null);
-	      }
-	      return callback(null, result);
-	    });
-	  };
-
-	  /**
-	   * This is used to get a session, either from the session object
-	   * or from  the local storage, or by using a refresh token
-	   *
-	   * @param {nodeCallback<CognitoUserSession>} callback Called on success or error.
-	   * @returns {void}
-	   */
-
-
-	  CognitoUser.prototype.getSession = function getSession(callback) {
-	    if (this.username == null) {
-	      return callback(new Error("Username is null. Cannot retrieve a new session"), null);
-	    }
-
-	    if (this.signInUserSession != null && this.signInUserSession.isValid()) {
-	      return callback(null, this.signInUserSession);
-	    }
-
-	    var keyPrefix = "CognitoIdentityServiceProvider." + this.pool.getClientId() + "." + this.username;
-	    var idTokenKey = keyPrefix + ".idToken";
-	    var accessTokenKey = keyPrefix + ".accessToken";
-	    var refreshTokenKey = keyPrefix + ".refreshToken";
-	    var clockDriftKey = keyPrefix + ".clockDrift";
-
-	    if (this.storage.getItem(idTokenKey)) {
-	      var idToken = new _CognitoIdToken2.default({
-	        IdToken: this.storage.getItem(idTokenKey)
-	      });
-	      var accessToken = new _CognitoAccessToken2.default({
-	        AccessToken: this.storage.getItem(accessTokenKey)
-	      });
-	      var refreshToken = new _CognitoRefreshToken2.default({
-	        RefreshToken: this.storage.getItem(refreshTokenKey)
-	      });
-	      var clockDrift = parseInt(this.storage.getItem(clockDriftKey), 0) || 0;
-
-	      var sessionData = {
-	        IdToken: idToken,
-	        AccessToken: accessToken,
-	        RefreshToken: refreshToken,
-	        ClockDrift: clockDrift
-	      };
-	      var cachedSession = new _CognitoUserSession2.default(sessionData);
-	      if (cachedSession.isValid()) {
-	        this.signInUserSession = cachedSession;
-	        return callback(null, this.signInUserSession);
-	      }
-
-	      if (refreshToken.getToken() == null) {
-	        return callback(new Error("Cannot retrieve a new session. Please authenticate."), null);
-	      }
-
-	      this.refreshSession(refreshToken, callback);
-	    } else {
-	      callback(new Error("Local storage is missing an ID Token, Please authenticate"), null);
-	    }
-
-	    return undefined;
-	  };
-
-	  /**
-	   * This uses the refreshToken to retrieve a new session
-	   * @param {CognitoRefreshToken} refreshToken A previous session's refresh token.
-	   * @param {nodeCallback<CognitoUserSession>} callback Called on success or error.
-	   * @returns {void}
-	   */
-
-
-	  CognitoUser.prototype.refreshSession = function refreshSession(refreshToken, callback) {
-	    var _this9 = this;
-
-	    var authParameters = {};
-	    authParameters.REFRESH_TOKEN = refreshToken.getToken();
-	    var keyPrefix = "CognitoIdentityServiceProvider." + this.pool.getClientId();
-	    var lastUserKey = keyPrefix + ".LastAuthUser";
-
-	    if (this.storage.getItem(lastUserKey)) {
-	      this.username = this.storage.getItem(lastUserKey);
-	      var deviceKeyKey = keyPrefix + "." + this.username + ".deviceKey";
-	      this.deviceKey = this.storage.getItem(deviceKeyKey);
-	      authParameters.DEVICE_KEY = this.deviceKey;
-	    }
-
-	    var jsonReq = {
-	      ClientId: this.pool.getClientId(),
-	      AuthFlow: "REFRESH_TOKEN_AUTH",
-	      AuthParameters: authParameters
-	    };
-	    if (this.getUserContextData()) {
-	      jsonReq.UserContextData = this.getUserContextData();
-	    }
-	    this.client.makeUnauthenticatedRequest("initiateAuth", jsonReq, function (err, authResult) {
-	      if (err) {
-	        if (err.code === "NotAuthorizedException") {
-	          _this9.clearCachedTokens();
-	        }
-	        return callback(err, null);
-	      }
-	      if (authResult) {
-	        var authenticationResult = authResult.AuthenticationResult;
-	        if (!Object.prototype.hasOwnProperty.call(authenticationResult, "RefreshToken")) {
-	          authenticationResult.RefreshToken = refreshToken.getToken();
-	        }
-	        _this9.signInUserSession = _this9.getCognitoUserSession(authenticationResult);
-	        _this9.cacheTokens();
-	        return callback(null, _this9.signInUserSession);
-	      }
-	      return undefined;
-	    });
-	  };
-
-	  /**
-	   * This is used to save the session tokens to local storage
-	   * @returns {void}
-	   */
-
-
-	  CognitoUser.prototype.cacheTokens = function cacheTokens() {
-	    var keyPrefix = "CognitoIdentityServiceProvider." + this.pool.getClientId();
-	    var idTokenKey = keyPrefix + "." + this.username + ".idToken";
-	    var accessTokenKey = keyPrefix + "." + this.username + ".accessToken";
-	    var refreshTokenKey = keyPrefix + "." + this.username + ".refreshToken";
-	    var clockDriftKey = keyPrefix + "." + this.username + ".clockDrift";
-	    var lastUserKey = keyPrefix + ".LastAuthUser";
-
-	    this.storage.setItem(idTokenKey, this.signInUserSession.getIdToken().getJwtToken());
-	    this.storage.setItem(accessTokenKey, this.signInUserSession.getAccessToken().getJwtToken());
-	    this.storage.setItem(refreshTokenKey, this.signInUserSession.getRefreshToken().getToken());
-	    this.storage.setItem(clockDriftKey, "" + this.signInUserSession.getClockDrift());
-	    this.storage.setItem(lastUserKey, this.username);
-	  };
-
-	  /**
-	   * This is used to cache the device key and device group and device password
-	   * @returns {void}
-	   */
-
-
-	  CognitoUser.prototype.cacheDeviceKeyAndPassword = function cacheDeviceKeyAndPassword() {
-	    var keyPrefix = "CognitoIdentityServiceProvider." + this.pool.getClientId() + "." + this.username;
-	    var deviceKeyKey = keyPrefix + ".deviceKey";
-	    var randomPasswordKey = keyPrefix + ".randomPasswordKey";
-	    var deviceGroupKeyKey = keyPrefix + ".deviceGroupKey";
-
-	    this.storage.setItem(deviceKeyKey, this.deviceKey);
-	    this.storage.setItem(randomPasswordKey, this.randomPassword);
-	    this.storage.setItem(deviceGroupKeyKey, this.deviceGroupKey);
-	  };
-
-	  /**
-	   * This is used to get current device key and device group and device password
-	   * @returns {void}
-	   */
-
-
-	  CognitoUser.prototype.getCachedDeviceKeyAndPassword = function getCachedDeviceKeyAndPassword() {
-	    var keyPrefix = "CognitoIdentityServiceProvider." + this.pool.getClientId() + "." + this.username;
-	    var deviceKeyKey = keyPrefix + ".deviceKey";
-	    var randomPasswordKey = keyPrefix + ".randomPasswordKey";
-	    var deviceGroupKeyKey = keyPrefix + ".deviceGroupKey";
-
-	    if (this.storage.getItem(deviceKeyKey)) {
-	      this.deviceKey = this.storage.getItem(deviceKeyKey);
-	      this.randomPassword = this.storage.getItem(randomPasswordKey);
-	      this.deviceGroupKey = this.storage.getItem(deviceGroupKeyKey);
-	    }
-	  };
-
-	  /**
-	   * This is used to clear the device key info from local storage
-	   * @returns {void}
-	   */
-
-
-	  CognitoUser.prototype.clearCachedDeviceKeyAndPassword = function clearCachedDeviceKeyAndPassword() {
-	    var keyPrefix = "CognitoIdentityServiceProvider." + this.pool.getClientId() + "." + this.username;
-	    var deviceKeyKey = keyPrefix + ".deviceKey";
-	    var randomPasswordKey = keyPrefix + ".randomPasswordKey";
-	    var deviceGroupKeyKey = keyPrefix + ".deviceGroupKey";
-
-	    this.storage.removeItem(deviceKeyKey);
-	    this.storage.removeItem(randomPasswordKey);
-	    this.storage.removeItem(deviceGroupKeyKey);
-	  };
-
-	  /**
-	   * This is used to clear the session tokens from local storage
-	   * @returns {void}
-	   */
-
-
-	  CognitoUser.prototype.clearCachedTokens = function clearCachedTokens() {
-	    var keyPrefix = "CognitoIdentityServiceProvider." + this.pool.getClientId();
-	    var idTokenKey = keyPrefix + "." + this.username + ".idToken";
-	    var accessTokenKey = keyPrefix + "." + this.username + ".accessToken";
-	    var refreshTokenKey = keyPrefix + "." + this.username + ".refreshToken";
-	    var lastUserKey = keyPrefix + ".LastAuthUser";
-
-	    this.storage.removeItem(idTokenKey);
-	    this.storage.removeItem(accessTokenKey);
-	    this.storage.removeItem(refreshTokenKey);
-	    this.storage.removeItem(lastUserKey);
-	  };
-
-	  /**
-	   * This is used to build a user session from tokens retrieved in the authentication result
-	   * @param {object} authResult Successful auth response from server.
-	   * @returns {CognitoUserSession} The new user session.
-	   * @private
-	   */
-
-
-	  CognitoUser.prototype.getCognitoUserSession = function getCognitoUserSession(authResult) {
-	    var idToken = new _CognitoIdToken2.default(authResult);
-	    var accessToken = new _CognitoAccessToken2.default(authResult);
-	    var refreshToken = new _CognitoRefreshToken2.default(authResult);
-
-	    var sessionData = {
-	      IdToken: idToken,
-	      AccessToken: accessToken,
-	      RefreshToken: refreshToken
-	    };
-
-	    return new _CognitoUserSession2.default(sessionData);
-	  };
-
-	  /**
-	   * This is used to initiate a forgot password request
-	   * @param {object} callback Result callback map.
-	   * @param {onFailure} callback.onFailure Called on any error.
-	   * @param {inputVerificationCode?} callback.inputVerificationCode
-	   *    Optional callback raised instead of onSuccess with response data.
-	   * @param {onSuccess} callback.onSuccess Called on success.
-	   * @returns {void}
-	   */
-
-
-	  CognitoUser.prototype.forgotPassword = function forgotPassword(callback) {
-	    var jsonReq = {
-	      ClientId: this.pool.getClientId(),
-	      Username: this.username
-	    };
-	    if (this.getUserContextData()) {
-	      jsonReq.UserContextData = this.getUserContextData();
-	    }
-	    this.client.makeUnauthenticatedRequest("forgotPassword", jsonReq, function (err, data) {
-	      if (err) {
-	        return callback.onFailure(err);
-	      }
-	      if (typeof callback.inputVerificationCode === "function") {
-	        return callback.inputVerificationCode(data);
-	      }
-	      return callback.onSuccess(data);
-	    });
-	  };
-
-	  /**
-	   * This is used to confirm a new password using a confirmationCode
-	   * @param {string} confirmationCode Code entered by user.
-	   * @param {string} newPassword Confirm new password.
-	   * @param {object} callback Result callback map.
-	   * @param {onFailure} callback.onFailure Called on any error.
-	   * @param {onSuccess<void>} callback.onSuccess Called on success.
-	   * @returns {void}
-	   */
-
-
-	  CognitoUser.prototype.confirmPassword = function confirmPassword(confirmationCode, newPassword, callback) {
-	    var jsonReq = {
-	      ClientId: this.pool.getClientId(),
-	      Username: this.username,
-	      ConfirmationCode: confirmationCode,
-	      Password: newPassword
-	    };
-	    if (this.getUserContextData()) {
-	      jsonReq.UserContextData = this.getUserContextData();
-	    }
-	    this.client.makeUnauthenticatedRequest("confirmForgotPassword", jsonReq, function (err) {
-	      if (err) {
-	        return callback.onFailure(err);
-	      }
-	      return callback.onSuccess();
-	    });
-	  };
-
-	  /**
-	   * This is used to initiate an attribute confirmation request
-	   * @param {string} attributeName User attribute that needs confirmation.
-	   * @param {object} callback Result callback map.
-	   * @param {onFailure} callback.onFailure Called on any error.
-	   * @param {inputVerificationCode} callback.inputVerificationCode Called on success.
-	   * @returns {void}
-	   */
-
-
-	  CognitoUser.prototype.getAttributeVerificationCode = function getAttributeVerificationCode(attributeName, callback) {
-	    if (this.signInUserSession == null || !this.signInUserSession.isValid()) {
-	      return callback.onFailure(new Error("User is not authenticated"));
-	    }
-
-	    this.client.makeUnauthenticatedRequest("getUserAttributeVerificationCode", {
-	      AttributeName: attributeName,
-	      AccessToken: this.signInUserSession.getAccessToken().getJwtToken()
-	    }, function (err, data) {
-	      if (err) {
-	        return callback.onFailure(err);
-	      }
-	      if (typeof callback.inputVerificationCode === "function") {
-	        return callback.inputVerificationCode(data);
-	      }
-	      return callback.onSuccess();
-	    });
-	    return undefined;
-	  };
-
-	  /**
-	   * This is used to confirm an attribute using a confirmation code
-	   * @param {string} attributeName Attribute being confirmed.
-	   * @param {string} confirmationCode Code entered by user.
-	   * @param {object} callback Result callback map.
-	   * @param {onFailure} callback.onFailure Called on any error.
-	   * @param {onSuccess<string>} callback.onSuccess Called on success.
-	   * @returns {void}
-	   */
-
-
-	  CognitoUser.prototype.verifyAttribute = function verifyAttribute(attributeName, confirmationCode, callback) {
-	    if (this.signInUserSession == null || !this.signInUserSession.isValid()) {
-	      return callback.onFailure(new Error("User is not authenticated"));
-	    }
-
-	    this.client.makeUnauthenticatedRequest("verifyUserAttribute", {
-	      AttributeName: attributeName,
-	      Code: confirmationCode,
-	      AccessToken: this.signInUserSession.getAccessToken().getJwtToken()
-	    }, function (err) {
-	      if (err) {
-	        return callback.onFailure(err);
-	      }
-	      return callback.onSuccess("SUCCESS");
-	    });
-	    return undefined;
-	  };
-
-	  /**
-	   * This is used to get the device information using the current device key
-	   * @param {object} callback Result callback map.
-	   * @param {onFailure} callback.onFailure Called on any error.
-	   * @param {onSuccess<*>} callback.onSuccess Called on success with device data.
-	   * @returns {void}
-	   */
-
-
-	  CognitoUser.prototype.getDevice = function getDevice(callback) {
-	    if (this.signInUserSession == null || !this.signInUserSession.isValid()) {
-	      return callback.onFailure(new Error("User is not authenticated"));
-	    }
-
-	    this.client.makeUnauthenticatedRequest("getDevice", {
-	      AccessToken: this.signInUserSession.getAccessToken().getJwtToken(),
-	      DeviceKey: this.deviceKey
-	    }, function (err, data) {
-	      if (err) {
-	        return callback.onFailure(err);
-	      }
-	      return callback.onSuccess(data);
-	    });
-	    return undefined;
-	  };
-
-	  /**
-	   * This is used to forget a specific device
-	   * @param {string} deviceKey Device key.
-	   * @param {object} callback Result callback map.
-	   * @param {onFailure} callback.onFailure Called on any error.
-	   * @param {onSuccess<string>} callback.onSuccess Called on success.
-	   * @returns {void}
-	   */
-
-
-	  CognitoUser.prototype.forgetSpecificDevice = function forgetSpecificDevice(deviceKey, callback) {
-	    if (this.signInUserSession == null || !this.signInUserSession.isValid()) {
-	      return callback.onFailure(new Error("User is not authenticated"));
-	    }
-
-	    this.client.makeUnauthenticatedRequest("forgetDevice", {
-	      AccessToken: this.signInUserSession.getAccessToken().getJwtToken(),
-	      DeviceKey: deviceKey
-	    }, function (err) {
-	      if (err) {
-	        return callback.onFailure(err);
-	      }
-	      return callback.onSuccess("SUCCESS");
-	    });
-	    return undefined;
-	  };
-
-	  /**
-	   * This is used to forget the current device
-	   * @param {object} callback Result callback map.
-	   * @param {onFailure} callback.onFailure Called on any error.
-	   * @param {onSuccess<string>} callback.onSuccess Called on success.
-	   * @returns {void}
-	   */
-
-
-	  CognitoUser.prototype.forgetDevice = function forgetDevice(callback) {
-	    var _this10 = this;
-
-	    this.forgetSpecificDevice(this.deviceKey, {
-	      onFailure: callback.onFailure,
-	      onSuccess: function onSuccess(result) {
-	        _this10.deviceKey = null;
-	        _this10.deviceGroupKey = null;
-	        _this10.randomPassword = null;
-	        _this10.clearCachedDeviceKeyAndPassword();
-	        return callback.onSuccess(result);
-	      }
-	    });
-	  };
-
-	  /**
-	   * This is used to set the device status as remembered
-	   * @param {object} callback Result callback map.
-	   * @param {onFailure} callback.onFailure Called on any error.
-	   * @param {onSuccess<string>} callback.onSuccess Called on success.
-	   * @returns {void}
-	   */
-
-
-	  CognitoUser.prototype.setDeviceStatusRemembered = function setDeviceStatusRemembered(callback) {
-	    if (this.signInUserSession == null || !this.signInUserSession.isValid()) {
-	      return callback.onFailure(new Error("User is not authenticated"));
-	    }
-
-	    this.client.makeUnauthenticatedRequest("updateDeviceStatus", {
-	      AccessToken: this.signInUserSession.getAccessToken().getJwtToken(),
-	      DeviceKey: this.deviceKey,
-	      DeviceRememberedStatus: "remembered"
-	    }, function (err) {
-	      if (err) {
-	        return callback.onFailure(err);
-	      }
-	      return callback.onSuccess("SUCCESS");
-	    });
-	    return undefined;
-	  };
-
-	  /**
-	   * This is used to set the device status as not remembered
-	   * @param {object} callback Result callback map.
-	   * @param {onFailure} callback.onFailure Called on any error.
-	   * @param {onSuccess<string>} callback.onSuccess Called on success.
-	   * @returns {void}
-	   */
-
-
-	  CognitoUser.prototype.setDeviceStatusNotRemembered = function setDeviceStatusNotRemembered(callback) {
-	    if (this.signInUserSession == null || !this.signInUserSession.isValid()) {
-	      return callback.onFailure(new Error("User is not authenticated"));
-	    }
-
-	    this.client.makeUnauthenticatedRequest("updateDeviceStatus", {
-	      AccessToken: this.signInUserSession.getAccessToken().getJwtToken(),
-	      DeviceKey: this.deviceKey,
-	      DeviceRememberedStatus: "not_remembered"
-	    }, function (err) {
-	      if (err) {
-	        return callback.onFailure(err);
-	      }
-	      return callback.onSuccess("SUCCESS");
-	    });
-	    return undefined;
-	  };
-
-	  /**
-	   * This is used to list all devices for a user
-	   *
-	   * @param {int} limit the number of devices returned in a call
-	   * @param {string} paginationToken the pagination token in case any was returned before
-	   * @param {object} callback Result callback map.
-	   * @param {onFailure} callback.onFailure Called on any error.
-	   * @param {onSuccess<*>} callback.onSuccess Called on success with device list.
-	   * @returns {void}
-	   */
-
-
-	  CognitoUser.prototype.listDevices = function listDevices(limit, paginationToken, callback) {
-	    if (this.signInUserSession == null || !this.signInUserSession.isValid()) {
-	      return callback.onFailure(new Error("User is not authenticated"));
-	    }
-
-	    this.client.makeUnauthenticatedRequest("listDevices", {
-	      AccessToken: this.signInUserSession.getAccessToken().getJwtToken(),
-	      Limit: limit,
-	      PaginationToken: paginationToken
-	    }, function (err, data) {
-	      if (err) {
-	        return callback.onFailure(err);
-	      }
-	      return callback.onSuccess(data);
-	    });
-	    return undefined;
-	  };
-
-	  /**
-	   * This is used to globally revoke all tokens issued to a user
-	   * @param {object} callback Result callback map.
-	   * @param {onFailure} callback.onFailure Called on any error.
-	   * @param {onSuccess<string>} callback.onSuccess Called on success.
-	   * @returns {void}
-	   */
-
-
-	  CognitoUser.prototype.globalSignOut = function globalSignOut(callback) {
-	    var _this11 = this;
-
-	    if (this.signInUserSession == null || !this.signInUserSession.isValid()) {
-	      return callback.onFailure(new Error("User is not authenticated"));
-	    }
-
-	    this.client.makeUnauthenticatedRequest("globalSignOut", {
-	      AccessToken: this.signInUserSession.getAccessToken().getJwtToken()
-	    }, function (err) {
-	      if (err) {
-	        return callback.onFailure(err);
-	      }
-	      _this11.clearCachedTokens();
-	      return callback.onSuccess("SUCCESS");
-	    });
-	    return undefined;
-	  };
-
-	  /**
-	   * This is used for the user to signOut of the application and clear the cached tokens.
-	   * @returns {void}
-	   */
-
-
-	  CognitoUser.prototype.signOut = function signOut() {
-	    this.signInUserSession = null;
-	    this.clearCachedTokens();
-	  };
-
-	  /**
-	   * This is used by a user trying to select a given MFA
-	   * @param {string} answerChallenge the mfa the user wants
-	   * @param {nodeCallback<string>} callback Called on success or error.
-	   * @returns {void}
-	   */
-
-
-	  CognitoUser.prototype.sendMFASelectionAnswer = function sendMFASelectionAnswer(answerChallenge, callback) {
-	    var _this12 = this;
-
-	    var challengeResponses = {};
-	    challengeResponses.USERNAME = this.username;
-	    challengeResponses.ANSWER = answerChallenge;
-
-	    var jsonReq = {
-	      ChallengeName: "SELECT_MFA_TYPE",
-	      ChallengeResponses: challengeResponses,
-	      ClientId: this.pool.getClientId(),
-	      Session: this.Session
-	    };
-	    if (this.getUserContextData()) {
-	      jsonReq.UserContextData = this.getUserContextData();
-	    }
-	    this.client.makeUnauthenticatedRequest("respondToAuthChallenge", jsonReq, function (err, data) {
-	      if (err) {
-	        return callback.onFailure(err);
-	      }
-	      _this12.Session = data.Session;
-	      if (answerChallenge === "SMS_MFA") {
-	        return callback.mfaRequired(data.challengeName, data.challengeParameters);
-	      }
-	      if (answerChallenge === "SOFTWARE_TOKEN_MFA") {
-	        return callback.totpRequired(data.challengeName, data.challengeParameters);
-	      }
-	      return undefined;
-	    });
-	  };
-
-	  /**
-	   * This returns the user context data for advanced security feature.
-	   * @returns {void}
-	   */
-
-
-	  CognitoUser.prototype.getUserContextData = function getUserContextData() {
-	    var pool = this.pool;
-	    return pool.getUserContextData(this.username);
-	  };
-
-	  /**
-	   * This is used by an authenticated or a user trying to authenticate to associate a TOTP MFA
-	   * @param {nodeCallback<string>} callback Called on success or error.
-	   * @returns {void}
-	   */
-
-
-	  CognitoUser.prototype.associateSoftwareToken = function associateSoftwareToken(callback) {
-	    var _this13 = this;
-
-	    if (!(this.signInUserSession != null && this.signInUserSession.isValid())) {
-	      this.client.makeUnauthenticatedRequest("associateSoftwareToken", {
-	        Session: this.Session
-	      }, function (err, data) {
-	        if (err) {
-	          return callback.onFailure(err);
-	        }
-	        _this13.Session = data.Session;
-	        return callback.associateSecretCode(data.SecretCode);
-	      });
-	    } else {
-	      this.client.makeUnauthenticatedRequest("associateSoftwareToken", {
-	        AccessToken: this.signInUserSession.getAccessToken().getJwtToken()
-	      }, function (err, data) {
-	        if (err) {
-	          return callback.onFailure(err);
-	        }
-	        return callback.associateSecretCode(data.SecretCode);
-	      });
-	    }
-	  };
-
-	  /**
-	   * This is used by an authenticated or a user trying to authenticate to associate a TOTP MFA
-	   * @param {string} totpCode The MFA code entered by the user.
-	   * @param {string} friendlyDeviceName The device name we are assigning to the device.
-	   * @param {nodeCallback<string>} callback Called on success or error.
-	   * @returns {void}
-	   */
-
-
-	  CognitoUser.prototype.verifySoftwareToken = function verifySoftwareToken(totpCode, friendlyDeviceName, callback) {
-	    var _this14 = this;
-
-	    if (!(this.signInUserSession != null && this.signInUserSession.isValid())) {
-	      this.client.makeUnauthenticatedRequest("verifySoftwareToken", {
-	        Session: this.Session,
-	        UserCode: totpCode,
-	        FriendlyDeviceName: friendlyDeviceName
-	      }, function (err, data) {
-	        if (err) {
-	          return callback.onFailure(err);
-	        }
-	        _this14.Session = data.Session;
-	        var challengeResponses = {};
-	        challengeResponses.USERNAME = _this14.username;
-	        var jsonReq = {
-	          ChallengeName: "MFA_SETUP",
-	          ClientId: _this14.pool.getClientId(),
-	          ChallengeResponses: challengeResponses,
-	          Session: _this14.Session
-	        };
-	        if (_this14.getUserContextData()) {
-	          jsonReq.UserContextData = _this14.getUserContextData();
-	        }
-	        _this14.client.makeUnauthenticatedRequest("respondToAuthChallenge", jsonReq, function (errRespond, dataRespond) {
-	          if (errRespond) {
-	            return callback.onFailure(errRespond);
-	          }
-	          _this14.signInUserSession = _this14.getCognitoUserSession(dataRespond.AuthenticationResult);
-	          _this14.cacheTokens();
-	          return callback.onSuccess(_this14.signInUserSession);
-	        });
-	        return undefined;
-	      });
-	    } else {
-	      this.client.makeUnauthenticatedRequest("verifySoftwareToken", {
-	        AccessToken: this.signInUserSession.getAccessToken().getJwtToken(),
-	        UserCode: totpCode,
-	        FriendlyDeviceName: friendlyDeviceName
-	      }, function (err, data) {
-	        if (err) {
-	          return callback.onFailure(err);
-	        }
-	        return callback(null, data);
-	      });
-	    }
-	  };
-
-	  return CognitoUser;
-	}();
-
-	exports.default = CognitoUser;
-
-/***/ }),
-/* 9 */
-/***/ (function(module, exports) {
-
-	'use strict';
-
-	exports.__esModule = true;
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	/*!
-	 * Copyright 2016 Amazon.com,
-	 * Inc. or its affiliates. All Rights Reserved.
-	 *
-	 * Licensed under the Amazon Software License (the "License").
-	 * You may not use this file except in compliance with the
-	 * License. A copy of the License is located at
-	 *
-	 *     http://aws.amazon.com/asl/
-	 *
-	 * or in the "license" file accompanying this file. This file is
-	 * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
-	 * CONDITIONS OF ANY KIND, express or implied. See the License
-	 * for the specific language governing permissions and
-	 * limitations under the License.
-	 */
-
-	/** @class */
-	var CognitoUserAttribute = function () {
-	  /**
-	   * Constructs a new CognitoUserAttribute object
-	   * @param {string=} Name The record's name
-	   * @param {string=} Value The record's value
-	   */
-	  function CognitoUserAttribute() {
-	    var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-	        Name = _ref.Name,
-	        Value = _ref.Value;
-
-	    _classCallCheck(this, CognitoUserAttribute);
-
-	    this.Name = Name || '';
-	    this.Value = Value || '';
-	  }
-
-	  /**
-	   * @returns {string} the record's value.
-	   */
-
-
-	  CognitoUserAttribute.prototype.getValue = function getValue() {
-	    return this.Value;
-	  };
-
-	  /**
-	   * Sets the record's value.
-	   * @param {string} value The new value.
-	   * @returns {CognitoUserAttribute} The record for method chaining.
-	   */
-
-
-	  CognitoUserAttribute.prototype.setValue = function setValue(value) {
-	    this.Value = value;
-	    return this;
-	  };
-
-	  /**
-	   * @returns {string} the record's name.
-	   */
-
-
-	  CognitoUserAttribute.prototype.getName = function getName() {
-	    return this.Name;
-	  };
-
-	  /**
-	   * Sets the record's name
-	   * @param {string} name The new name.
-	   * @returns {CognitoUserAttribute} The record for method chaining.
-	   */
-
-
-	  CognitoUserAttribute.prototype.setName = function setName(name) {
-	    this.Name = name;
-	    return this;
-	  };
-
-	  /**
-	   * @returns {string} a string representation of the record.
-	   */
-
-
-	  CognitoUserAttribute.prototype.toString = function toString() {
-	    return JSON.stringify(this);
-	  };
-
-	  /**
-	   * @returns {object} a flat object representing the record.
-	   */
-
-
-	  CognitoUserAttribute.prototype.toJSON = function toJSON() {
-	    return {
-	      Name: this.Name,
-	      Value: this.Value
-	    };
-	  };
-
-	  return CognitoUserAttribute;
-	}();
-
-	exports.default = CognitoUserAttribute;
-
-/***/ }),
-/* 10 */
-/***/ (function(module, exports) {
-
-	'use strict';
-
-	exports.__esModule = true;
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	/*!
-	 * Copyright 2016 Amazon.com,
-	 * Inc. or its affiliates. All Rights Reserved.
-	 *
-	 * Licensed under the Amazon Software License (the "License").
-	 * You may not use this file except in compliance with the
-	 * License. A copy of the License is located at
-	 *
-	 *     http://aws.amazon.com/asl/
-	 *
-	 * or in the "license" file accompanying this file. This file is
-	 * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
-	 * CONDITIONS OF ANY KIND, express or implied. See the License
-	 * for the specific language governing permissions and
-	 * limitations under the License.
-	 */
-
-	/** @class */
-	var CognitoUserSession = function () {
-	  /**
-	   * Constructs a new CognitoUserSession object
-	   * @param {CognitoIdToken} IdToken The session's Id token.
-	   * @param {CognitoRefreshToken=} RefreshToken The session's refresh token.
-	   * @param {CognitoAccessToken} AccessToken The session's access token.
-	   * @param {int} ClockDrift The saved computer's clock drift or undefined to force calculation.
-	   */
-	  function CognitoUserSession() {
-	    var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-	        IdToken = _ref.IdToken,
-	        RefreshToken = _ref.RefreshToken,
-	        AccessToken = _ref.AccessToken,
-	        ClockDrift = _ref.ClockDrift;
-
-	    _classCallCheck(this, CognitoUserSession);
-
-	    if (AccessToken == null || IdToken == null) {
-	      throw new Error('Id token and Access Token must be present.');
-	    }
-
-	    this.idToken = IdToken;
-	    this.refreshToken = RefreshToken;
-	    this.accessToken = AccessToken;
-	    this.clockDrift = ClockDrift === undefined ? this.calculateClockDrift() : ClockDrift;
-	  }
-
-	  /**
-	   * @returns {CognitoIdToken} the session's Id token
-	   */
-
-
-	  CognitoUserSession.prototype.getIdToken = function getIdToken() {
-	    return this.idToken;
-	  };
-
-	  /**
-	   * @returns {CognitoRefreshToken} the session's refresh token
-	   */
-
-
-	  CognitoUserSession.prototype.getRefreshToken = function getRefreshToken() {
-	    return this.refreshToken;
-	  };
-
-	  /**
-	   * @returns {CognitoAccessToken} the session's access token
-	   */
-
-
-	  CognitoUserSession.prototype.getAccessToken = function getAccessToken() {
-	    return this.accessToken;
-	  };
-
-	  /**
-	   * @returns {int} the session's clock drift
-	   */
-
-
-	  CognitoUserSession.prototype.getClockDrift = function getClockDrift() {
-	    return this.clockDrift;
-	  };
-
-	  /**
-	   * @returns {int} the computer's clock drift
-	   */
-
-
-	  CognitoUserSession.prototype.calculateClockDrift = function calculateClockDrift() {
-	    var now = Math.floor(new Date() / 1000);
-	    var iat = Math.min(this.accessToken.getIssuedAt(), this.idToken.getIssuedAt());
-
-	    return now - iat;
-	  };
-
-	  /**
-	   * Checks to see if the session is still valid based on session expiry information found
-	   * in tokens and the current time (adjusted with clock drift)
-	   * @returns {boolean} if the session is still valid
-	   */
-
-
-	  CognitoUserSession.prototype.isValid = function isValid() {
-	    var now = Math.floor(new Date() / 1000);
-	    var adjusted = now - this.clockDrift;
-
-	    return adjusted < this.accessToken.getExpiration() && adjusted < this.idToken.getExpiration();
-	  };
-
-	  return CognitoUserSession;
-	}();
-
-	exports.default = CognitoUserSession;
-
-/***/ }),
-/* 11 */
-/***/ (function(module, exports) {
-
-	'use strict';
-
-	exports.__esModule = true;
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	/*!
-	 * Copyright 2016 Amazon.com,
-	 * Inc. or its affiliates. All Rights Reserved.
-	 *
-	 * Licensed under the Amazon Software License (the "License").
-	 * You may not use this file except in compliance with the
-	 * License. A copy of the License is located at
-	 *
-	 *     http://aws.amazon.com/asl/
-	 *
-	 * or in the "license" file accompanying this file. This file is
-	 * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
-	 * CONDITIONS OF ANY KIND, express or implied. See the License
-	 * for the specific language governing permissions and
-	 * limitations under the License.
-	 */
-
-	var monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-	var weekNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-
-	/** @class */
-
-	var DateHelper = function () {
-	  function DateHelper() {
-	    _classCallCheck(this, DateHelper);
-	  }
-
-	  /**
-	   * @returns {string} The current time in "ddd MMM D HH:mm:ss UTC YYYY" format.
-	   */
-	  DateHelper.prototype.getNowString = function getNowString() {
-	    var now = new Date();
-
-	    var weekDay = weekNames[now.getUTCDay()];
-	    var month = monthNames[now.getUTCMonth()];
-	    var day = now.getUTCDate();
-
-	    var hours = now.getUTCHours();
-	    if (hours < 10) {
-	      hours = '0' + hours;
-	    }
-
-	    var minutes = now.getUTCMinutes();
-	    if (minutes < 10) {
-	      minutes = '0' + minutes;
-	    }
-
-	    var seconds = now.getUTCSeconds();
-	    if (seconds < 10) {
-	      seconds = '0' + seconds;
-	    }
-
-	    var year = now.getUTCFullYear();
-
-	    // ddd MMM D HH:mm:ss UTC YYYY
-	    var dateNow = weekDay + ' ' + month + ' ' + day + ' ' + hours + ':' + minutes + ':' + seconds + ' UTC ' + year;
-
-	    return dateNow;
-	  };
-
-	  return DateHelper;
-	}();
-
-	exports.default = DateHelper;
-
-/***/ }),
-/* 12 */
-/***/ (function(module, exports) {
-
-	'use strict';
-
-	exports.__esModule = true;
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	/*!
-	 * Copyright 2016 Amazon.com,
-	 * Inc. or its affiliates. All Rights Reserved.
-	 *
-	 * Licensed under the Amazon Software License (the "License").
-	 * You may not use this file except in compliance with the
-	 * License. A copy of the License is located at
-	 *
-	 *     http://aws.amazon.com/asl/
-	 *
-	 * or in the "license" file accompanying this file. This file is
-	 * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
-	 * CONDITIONS OF ANY KIND, express or implied. See the License
-	 * for the specific language governing permissions and
-	 * limitations under the License.
-	 */
-
-	var dataMemory = {};
-
-	/** @class */
-
-	var MemoryStorage = function () {
-	  function MemoryStorage() {
-	    _classCallCheck(this, MemoryStorage);
-	  }
-
-	  /**
-	   * This is used to set a specific item in storage
-	   * @param {string} key - the key for the item
-	   * @param {object} value - the value
-	   * @returns {string} value that was set
-	   */
-	  MemoryStorage.setItem = function setItem(key, value) {
-	    dataMemory[key] = value;
-	    return dataMemory[key];
-	  };
-
-	  /**
-	   * This is used to get a specific key from storage
-	   * @param {string} key - the key for the item
-	   * This is used to clear the storage
-	   * @returns {string} the data item
-	   */
-
-
-	  MemoryStorage.getItem = function getItem(key) {
-	    return Object.prototype.hasOwnProperty.call(dataMemory, key) ? dataMemory[key] : undefined;
-	  };
-
-	  /**
-	   * This is used to remove an item from storage
-	   * @param {string} key - the key being set
-	   * @returns {string} value - value that was deleted
-	   */
-
-
-	  MemoryStorage.removeItem = function removeItem(key) {
-	    return delete dataMemory[key];
-	  };
-
-	  /**
-	   * This is used to clear the storage
-	   * @returns {string} nothing
-	   */
-
-
-	  MemoryStorage.clear = function clear() {
-	    dataMemory = {};
-	    return dataMemory;
-	  };
-
-	  return MemoryStorage;
-	}();
-
-	/** @class */
-
-
-	var StorageHelper = function () {
-
-	  /**
-	   * This is used to get a storage object
-	   * @returns {object} the storage
-	   */
-	  function StorageHelper() {
-	    _classCallCheck(this, StorageHelper);
-
-	    try {
-	      this.storageWindow = window.localStorage;
-	      this.storageWindow.setItem('aws.cognito.test-ls', 1);
-	      this.storageWindow.removeItem('aws.cognito.test-ls');
-	    } catch (exception) {
-	      this.storageWindow = MemoryStorage;
-	    }
-	  }
-
-	  /**
-	   * This is used to return the storage
-	   * @returns {object} the storage
-	   */
-
-
-	  StorageHelper.prototype.getStorage = function getStorage() {
-	    return this.storageWindow;
-	  };
-
-	  return StorageHelper;
-	}();
-
-	exports.default = StorageHelper;
-
-/***/ }),
-/* 13 */
-/***/ (function(module, exports) {
-
-	module.exports = __WEBPACK_EXTERNAL_MODULE_13__;
-
-/***/ }),
-/* 14 */
-/***/ (function(module, exports) {
-
-	"use strict";
-
-	exports.__esModule = true;
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	/*!
-	 * Copyright 2016 Amazon.com,
-	 * Inc. or its affiliates. All Rights Reserved.
-	 *
-	 * Licensed under the Amazon Software License (the "License").
-	 * You may not use this file except in compliance with the
-	 * License. A copy of the License is located at
-	 *
-	 *     http://aws.amazon.com/asl/
-	 *
-	 * or in the "license" file accompanying this file. This file is
-	 * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
-	 * CONDITIONS OF ANY KIND, express or implied. See the License
-	 * for the specific language governing permissions and
-	 * limitations under the License.
-	 */
-
-	/** @class */
-	var AuthenticationDetails = function () {
-	  /**
-	   * Constructs a new AuthenticationDetails object
-	   * @param {object=} data Creation options.
-	   * @param {string} data.Username User being authenticated.
-	   * @param {string} data.Password Plain-text password to authenticate with.
-	   * @param {(AttributeArg[])?} data.ValidationData Application extra metadata.
-	   * @param {(AttributeArg[])?} data.AuthParamaters Authentication paramaters for custom auth.
-	   */
-	  function AuthenticationDetails(data) {
-	    _classCallCheck(this, AuthenticationDetails);
-
-	    var _ref = data || {},
-	        ValidationData = _ref.ValidationData,
-	        Username = _ref.Username,
-	        Password = _ref.Password,
-	        AuthParameters = _ref.AuthParameters;
-
-	    this.validationData = ValidationData || [];
-	    this.authParameters = AuthParameters || [];
-	    this.username = Username;
-	    this.password = Password;
-	  }
-
-	  /**
-	   * @returns {string} the record's username
-	   */
-
-
-	  AuthenticationDetails.prototype.getUsername = function getUsername() {
-	    return this.username;
-	  };
-
-	  /**
-	   * @returns {string} the record's password
-	   */
-
-
-	  AuthenticationDetails.prototype.getPassword = function getPassword() {
-	    return this.password;
-	  };
-
-	  /**
-	   * @returns {Array} the record's validationData
-	   */
-
-
-	  AuthenticationDetails.prototype.getValidationData = function getValidationData() {
-	    return this.validationData;
-	  };
-
-	  /**
-	   * @returns {Array} the record's authParameters
-	   */
-
-
-	  AuthenticationDetails.prototype.getAuthParameters = function getAuthParameters() {
-	    return this.authParameters;
-	  };
-
-	  return AuthenticationDetails;
-	}();
-
-	exports.default = AuthenticationDetails;
-
-/***/ }),
-/* 15 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	exports.__esModule = true;
-
-	var _cognitoidentityserviceprovider = __webpack_require__(13);
-
-	var _cognitoidentityserviceprovider2 = _interopRequireDefault(_cognitoidentityserviceprovider);
-
-	var _CognitoUser = __webpack_require__(8);
-
-	var _CognitoUser2 = _interopRequireDefault(_CognitoUser);
-
-	var _StorageHelper = __webpack_require__(12);
-
-	var _StorageHelper2 = _interopRequireDefault(_StorageHelper);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } } /*!
-	                                                                                                                                                           * Copyright 2016 Amazon.com,
-	                                                                                                                                                           * Inc. or its affiliates. All Rights Reserved.
-	                                                                                                                                                           *
-	                                                                                                                                                           * Licensed under the Amazon Software License (the "License").
-	                                                                                                                                                           * You may not use this file except in compliance with the
-	                                                                                                                                                           * License. A copy of the License is located at
-	                                                                                                                                                           *
-	                                                                                                                                                           *     http://aws.amazon.com/asl/
-	                                                                                                                                                           *
-	                                                                                                                                                           * or in the "license" file accompanying this file. This file is
-	                                                                                                                                                           * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
-	                                                                                                                                                           * CONDITIONS OF ANY KIND, express or implied. See the License
-	                                                                                                                                                           * for the specific language governing permissions and
-	                                                                                                                                                           * limitations under the License.
-	                                                                                                                                                           */
-
-	/** @class */
-	var CognitoUserPool = function () {
-	  /**
-	   * Constructs a new CognitoUserPool object
-	   * @param {object} data Creation options.
-	   * @param {string} data.UserPoolId Cognito user pool id.
-	   * @param {string} data.ClientId User pool application client id.
-	   * @param {object} data.Storage Optional storage object.
-	   * @param {boolean} data.AdvancedSecurityDataCollectionFlag Optional:
-	   *        boolean flag indicating if the data collection is enabled
-	   *        to support cognito advanced security features. By default, this
-	   *        flag is set to true.
-	   */
-	  function CognitoUserPool(data) {
-	    _classCallCheck(this, CognitoUserPool);
-
-	    var _ref = data || {},
-	        UserPoolId = _ref.UserPoolId,
-	        ClientId = _ref.ClientId,
-	        endpoint = _ref.endpoint,
-	        AdvancedSecurityDataCollectionFlag = _ref.AdvancedSecurityDataCollectionFlag;
-
-	    if (!UserPoolId || !ClientId) {
-	      throw new Error("Both UserPoolId and ClientId are required.");
-	    }
-	    if (!/^[\w-]+_.+$/.test(UserPoolId)) {
-	      throw new Error("Invalid UserPoolId format.");
-	    }
-	    var region = UserPoolId.split("_")[0];
-
-	    this.userPoolId = UserPoolId;
-	    this.clientId = ClientId;
-
-	    this.client = new _cognitoidentityserviceprovider2.default({
-	      apiVersion: "2016-04-19",
-	      region: region,
-	      endpoint: endpoint
-	    });
-
-	    /**
-	     * By default, AdvancedSecurityDataCollectionFlag is set to true,
-	     * if no input value is provided.
-	     */
-	    this.advancedSecurityDataCollectionFlag = AdvancedSecurityDataCollectionFlag !== false;
-
-	    this.storage = data.Storage || new _StorageHelper2.default().getStorage();
-	  }
-
-	  /**
-	   * @returns {string} the user pool id
-	   */
-
-
-	  CognitoUserPool.prototype.getUserPoolId = function getUserPoolId() {
-	    return this.userPoolId;
-	  };
-
-	  /**
-	   * @returns {string} the client id
-	   */
-
-
-	  CognitoUserPool.prototype.getClientId = function getClientId() {
-	    return this.clientId;
-	  };
-
-	  /**
-	   * @typedef {object} SignUpResult
-	   * @property {CognitoUser} user New user.
-	   * @property {bool} userConfirmed If the user is already confirmed.
-	   */
-	  /**
-	   * method for signing up a user
-	   * @param {string} username User's username.
-	   * @param {string} password Plain-text initial password entered by user.
-	   * @param {(AttributeArg[])=} userAttributes New user attributes.
-	   * @param {(AttributeArg[])=} validationData Application metadata.
-	   * @param {nodeCallback<SignUpResult>} callback Called on error or with the new user.
-	   * @returns {void}
-	   */
-
-
-	  CognitoUserPool.prototype.signUp = function signUp(username, password, userAttributes, validationData, callback) {
-	    var _this = this;
-
-	    var jsonReq = {
-	      ClientId: this.clientId,
-	      Username: username,
-	      Password: password,
-	      UserAttributes: userAttributes,
-	      ValidationData: validationData
-	    };
-	    if (this.getUserContextData(username)) {
-	      jsonReq.UserContextData = this.getUserContextData(username);
-	    }
-	    this.client.makeUnauthenticatedRequest("signUp", jsonReq, function (err, data) {
-	      console.log("signup", err, data);
-	      if (err) {
-	        return callback(err, null);
-	      }
-
-	      var cognitoUser = {
-	        Username: username,
-	        Pool: _this,
-	        Storage: _this.storage
-	      };
-
-	      var returnData = {
-	        user: new _CognitoUser2.default(cognitoUser),
-	        userConfirmed: data.UserConfirmed,
-	        userSub: data.UserSub
-	      };
-
-	      return callback(null, returnData);
-	    });
-	  };
-
-	  /**
-	   * method for getting the current user of the application from the local storage
-	   *
-	   * @returns {CognitoUser} the user retrieved from storage
-	   */
-
-
-	  CognitoUserPool.prototype.getCurrentUser = function getCurrentUser() {
-	    var lastUserKey = "CognitoIdentityServiceProvider." + this.clientId + ".LastAuthUser";
-
-	    var lastAuthUser = this.storage.getItem(lastUserKey);
-	    if (lastAuthUser) {
-	      var cognitoUser = {
-	        Username: lastAuthUser,
-	        Pool: this,
-	        Storage: this.storage
-	      };
-
-	      return new _CognitoUser2.default(cognitoUser);
-	    }
-
-	    return null;
-	  };
-
-	  /**
-	   * This method returns the encoded data string used for cognito advanced security feature.
-	   * This would be generated only when developer has included the JS used for collecting the
-	   * data on their client. Please refer to documentation to know more about using AdvancedSecurity
-	   * features
-	   * @param {string} username the username for the context data
-	   * @returns {string} the user context data
-	   **/
-
-
-	  CognitoUserPool.prototype.getUserContextData = function getUserContextData(username) {
-	    if (typeof AmazonCognitoAdvancedSecurityData === "undefined") {
-	      return undefined;
-	    }
-	    /* eslint-disable */
-	    var amazonCognitoAdvancedSecurityDataConst = AmazonCognitoAdvancedSecurityData;
-	    /* eslint-enable */
-
-	    if (this.advancedSecurityDataCollectionFlag) {
-	      var advancedSecurityData = amazonCognitoAdvancedSecurityDataConst.getData(username, this.userPoolId, this.clientId);
-	      if (advancedSecurityData) {
-	        var userContextData = {
-	          EncodedData: advancedSecurityData
-	        };
-	        return userContextData;
-	      }
-	    }
-	    return {};
-	  };
-
-	  return CognitoUserPool;
-	}();
-
-	exports.default = CognitoUserPool;
-
-/***/ }),
-/* 16 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	exports.__esModule = true;
-
-	var _jsCookie = __webpack_require__(22);
-
-	var Cookies = _interopRequireWildcard(_jsCookie);
-
-	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	/** @class */
-	var CookieStorage = function () {
-
-	  /**
-	   * Constructs a new CookieStorage object
-	   * @param {object} data Creation options.
-	   * @param {string} data.domain Cookies domain (mandatory).
-	   * @param {string} data.path Cookies path (default: '/')
-	   * @param {integer} data.expires Cookie expiration (in days, default: 365)
-	   * @param {boolean} data.secure Cookie secure flag (default: true)
-	   */
-	  function CookieStorage(data) {
-	    _classCallCheck(this, CookieStorage);
-
-	    this.domain = data.domain;
-	    if (data.path) {
-	      this.path = data.path;
-	    } else {
-	      this.path = '/';
-	    }
-	    if (Object.prototype.hasOwnProperty.call(data, 'expires')) {
-	      this.expires = data.expires;
-	    } else {
-	      this.expires = 365;
-	    }
-	    if (Object.prototype.hasOwnProperty.call(data, 'secure')) {
-	      this.secure = data.secure;
-	    } else {
-	      this.secure = true;
-	    }
-	  }
-
-	  /**
-	   * This is used to set a specific item in storage
-	   * @param {string} key - the key for the item
-	   * @param {object} value - the value
-	   * @returns {string} value that was set
-	   */
-
-
-	  CookieStorage.prototype.setItem = function setItem(key, value) {
-	    Cookies.set(key, value, {
-	      path: this.path,
-	      expires: this.expires,
-	      domain: this.domain,
-	      secure: this.secure
-	    });
-	    return Cookies.get(key);
-	  };
-
-	  /**
-	   * This is used to get a specific key from storage
-	   * @param {string} key - the key for the item
-	   * This is used to clear the storage
-	   * @returns {string} the data item
-	   */
-
-
-	  CookieStorage.prototype.getItem = function getItem(key) {
-	    return Cookies.get(key);
-	  };
-
-	  /**
-	   * This is used to remove an item from storage
-	   * @param {string} key - the key being set
-	   * @returns {string} value - value that was deleted
-	   */
-
-
-	  CookieStorage.prototype.removeItem = function removeItem(key) {
-	    return Cookies.remove(key, {
-	      path: this.path,
-	      domain: this.domain,
-	      secure: this.secure
-	    });
-	  };
-
-	  /**
-	   * This is used to clear the storage
-	   * @returns {string} nothing
-	   */
-
-
-	  CookieStorage.prototype.clear = function clear() {
-	    var cookies = Cookies.get();
-	    var index = void 0;
-	    for (index = 0; index < cookies.length; ++index) {
-	      Cookies.remove(cookies[index]);
-	    }
-	    return {};
-	  };
-
-	  return CookieStorage;
-	}();
-
-	exports.default = CookieStorage;
-
-/***/ }),
-/* 17 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	exports.__esModule = true;
-
-	var _AuthenticationDetails = __webpack_require__(14);
-
-	Object.defineProperty(exports, 'AuthenticationDetails', {
-	  enumerable: true,
-	  get: function get() {
-	    return _interopRequireDefault(_AuthenticationDetails).default;
-	  }
-	});
-
-	var _AuthenticationHelper = __webpack_require__(2);
-
-	Object.defineProperty(exports, 'AuthenticationHelper', {
-	  enumerable: true,
-	  get: function get() {
-	    return _interopRequireDefault(_AuthenticationHelper).default;
-	  }
-	});
-
-	var _CognitoAccessToken = __webpack_require__(4);
-
-	Object.defineProperty(exports, 'CognitoAccessToken', {
-	  enumerable: true,
-	  get: function get() {
-	    return _interopRequireDefault(_CognitoAccessToken).default;
-	  }
-	});
-
-	var _CognitoIdToken = __webpack_require__(5);
-
-	Object.defineProperty(exports, 'CognitoIdToken', {
-	  enumerable: true,
-	  get: function get() {
-	    return _interopRequireDefault(_CognitoIdToken).default;
-	  }
-	});
-
-	var _CognitoRefreshToken = __webpack_require__(7);
-
-	Object.defineProperty(exports, 'CognitoRefreshToken', {
-	  enumerable: true,
-	  get: function get() {
-	    return _interopRequireDefault(_CognitoRefreshToken).default;
-	  }
-	});
-
-	var _CognitoUser = __webpack_require__(8);
-
-	Object.defineProperty(exports, 'CognitoUser', {
-	  enumerable: true,
-	  get: function get() {
-	    return _interopRequireDefault(_CognitoUser).default;
-	  }
-	});
-
-	var _CognitoUserAttribute = __webpack_require__(9);
-
-	Object.defineProperty(exports, 'CognitoUserAttribute', {
-	  enumerable: true,
-	  get: function get() {
-	    return _interopRequireDefault(_CognitoUserAttribute).default;
-	  }
-	});
-
-	var _CognitoUserPool = __webpack_require__(15);
-
-	Object.defineProperty(exports, 'CognitoUserPool', {
-	  enumerable: true,
-	  get: function get() {
-	    return _interopRequireDefault(_CognitoUserPool).default;
-	  }
-	});
-
-	var _CognitoUserSession = __webpack_require__(10);
-
-	Object.defineProperty(exports, 'CognitoUserSession', {
-	  enumerable: true,
-	  get: function get() {
-	    return _interopRequireDefault(_CognitoUserSession).default;
-	  }
-	});
-
-	var _CookieStorage = __webpack_require__(16);
-
-	Object.defineProperty(exports, 'CookieStorage', {
-	  enumerable: true,
-	  get: function get() {
-	    return _interopRequireDefault(_CookieStorage).default;
-	  }
-	});
-
-	var _DateHelper = __webpack_require__(11);
-
-	Object.defineProperty(exports, 'DateHelper', {
-	  enumerable: true,
-	  get: function get() {
-	    return _interopRequireDefault(_DateHelper).default;
-	  }
-	});
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	// The version of crypto-browserify included by aws-sdk only
-	// checks for window.crypto, not window.msCrypto as used by
-	// IE 11 – so we set it explicitly here
-	if (typeof window !== 'undefined' && !window.crypto && window.msCrypto) {
-	  window.crypto = window.msCrypto;
-	}
-
-/***/ }),
-/* 18 */
-/***/ (function(module, exports) {
-
-	'use strict'
-
-	exports.byteLength = byteLength
-	exports.toByteArray = toByteArray
-	exports.fromByteArray = fromByteArray
-
-	var lookup = []
-	var revLookup = []
-	var Arr = typeof Uint8Array !== 'undefined' ? Uint8Array : Array
-
-	var code = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
-	for (var i = 0, len = code.length; i < len; ++i) {
-	  lookup[i] = code[i]
-	  revLookup[code.charCodeAt(i)] = i
-	}
-
-	revLookup['-'.charCodeAt(0)] = 62
-	revLookup['_'.charCodeAt(0)] = 63
-
-	function placeHoldersCount (b64) {
-	  var len = b64.length
-	  if (len % 4 > 0) {
-	    throw new Error('Invalid string. Length must be a multiple of 4')
-	  }
-
-	  // the number of equal signs (place holders)
-	  // if there are two placeholders, than the two characters before it
-	  // represent one byte
-	  // if there is only one, then the three characters before it represent 2 bytes
-	  // this is just a cheap hack to not do indexOf twice
-	  return b64[len - 2] === '=' ? 2 : b64[len - 1] === '=' ? 1 : 0
-	}
-
-	function byteLength (b64) {
-	  // base64 is 4/3 + up to two characters of the original data
-	  return (b64.length * 3 / 4) - placeHoldersCount(b64)
-	}
-
-	function toByteArray (b64) {
-	  var i, l, tmp, placeHolders, arr
-	  var len = b64.length
-	  placeHolders = placeHoldersCount(b64)
-
-	  arr = new Arr((len * 3 / 4) - placeHolders)
-
-	  // if there are placeholders, only get up to the last complete 4 chars
-	  l = placeHolders > 0 ? len - 4 : len
-
-	  var L = 0
-
-	  for (i = 0; i < l; i += 4) {
-	    tmp = (revLookup[b64.charCodeAt(i)] << 18) | (revLookup[b64.charCodeAt(i + 1)] << 12) | (revLookup[b64.charCodeAt(i + 2)] << 6) | revLookup[b64.charCodeAt(i + 3)]
-	    arr[L++] = (tmp >> 16) & 0xFF
-	    arr[L++] = (tmp >> 8) & 0xFF
-	    arr[L++] = tmp & 0xFF
-	  }
-
-	  if (placeHolders === 2) {
-	    tmp = (revLookup[b64.charCodeAt(i)] << 2) | (revLookup[b64.charCodeAt(i + 1)] >> 4)
-	    arr[L++] = tmp & 0xFF
-	  } else if (placeHolders === 1) {
-	    tmp = (revLookup[b64.charCodeAt(i)] << 10) | (revLookup[b64.charCodeAt(i + 1)] << 4) | (revLookup[b64.charCodeAt(i + 2)] >> 2)
-	    arr[L++] = (tmp >> 8) & 0xFF
-	    arr[L++] = tmp & 0xFF
-	  }
-
-	  return arr
-	}
-
-	function tripletToBase64 (num) {
-	  return lookup[num >> 18 & 0x3F] + lookup[num >> 12 & 0x3F] + lookup[num >> 6 & 0x3F] + lookup[num & 0x3F]
-	}
-
-	function encodeChunk (uint8, start, end) {
-	  var tmp
-	  var output = []
-	  for (var i = start; i < end; i += 3) {
-	    tmp = (uint8[i] << 16) + (uint8[i + 1] << 8) + (uint8[i + 2])
-	    output.push(tripletToBase64(tmp))
-	  }
-	  return output.join('')
-	}
-
-	function fromByteArray (uint8) {
-	  var tmp
-	  var len = uint8.length
-	  var extraBytes = len % 3 // if we have 1 byte left, pad 2 bytes
-	  var output = ''
-	  var parts = []
-	  var maxChunkLength = 16383 // must be multiple of 3
-
-	  // go through the array every three bytes, we'll deal with trailing stuff later
-	  for (var i = 0, len2 = len - extraBytes; i < len2; i += maxChunkLength) {
-	    parts.push(encodeChunk(uint8, i, (i + maxChunkLength) > len2 ? len2 : (i + maxChunkLength)))
-	  }
-
-	  // pad the end with zeros, but make sure to not forget the extra bytes
-	  if (extraBytes === 1) {
-	    tmp = uint8[len - 1]
-	    output += lookup[tmp >> 2]
-	    output += lookup[(tmp << 4) & 0x3F]
-	    output += '=='
-	  } else if (extraBytes === 2) {
-	    tmp = (uint8[len - 2] << 8) + (uint8[len - 1])
-	    output += lookup[tmp >> 10]
-	    output += lookup[(tmp >> 4) & 0x3F]
-	    output += lookup[(tmp << 2) & 0x3F]
-	    output += '='
-	  }
-
-	  parts.push(output)
-
-	  return parts.join('')
-	}
-
-
-/***/ }),
-/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/*!
@@ -4375,9 +116,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	'use strict'
 
-	var base64 = __webpack_require__(18)
-	var ieee754 = __webpack_require__(20)
-	var isArray = __webpack_require__(21)
+	var base64 = __webpack_require__(47)
+	var ieee754 = __webpack_require__(66)
+	var isArray = __webpack_require__(36)
 
 	exports.Buffer = Buffer
 	exports.SlowBuffer = SlowBuffer
@@ -6158,392 +1899,36 @@ return /******/ (function(modules) { // webpackBootstrap
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ }),
-/* 20 */
+/* 2 */
 /***/ (function(module, exports) {
 
-	exports.read = function (buffer, offset, isLE, mLen, nBytes) {
-	  var e, m
-	  var eLen = nBytes * 8 - mLen - 1
-	  var eMax = (1 << eLen) - 1
-	  var eBias = eMax >> 1
-	  var nBits = -7
-	  var i = isLE ? (nBytes - 1) : 0
-	  var d = isLE ? -1 : 1
-	  var s = buffer[offset + i]
-
-	  i += d
-
-	  e = s & ((1 << (-nBits)) - 1)
-	  s >>= (-nBits)
-	  nBits += eLen
-	  for (; nBits > 0; e = e * 256 + buffer[offset + i], i += d, nBits -= 8) {}
-
-	  m = e & ((1 << (-nBits)) - 1)
-	  e >>= (-nBits)
-	  nBits += mLen
-	  for (; nBits > 0; m = m * 256 + buffer[offset + i], i += d, nBits -= 8) {}
-
-	  if (e === 0) {
-	    e = 1 - eBias
-	  } else if (e === eMax) {
-	    return m ? NaN : ((s ? -1 : 1) * Infinity)
-	  } else {
-	    m = m + Math.pow(2, mLen)
-	    e = e - eBias
-	  }
-	  return (s ? -1 : 1) * m * Math.pow(2, e - mLen)
-	}
-
-	exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
-	  var e, m, c
-	  var eLen = nBytes * 8 - mLen - 1
-	  var eMax = (1 << eLen) - 1
-	  var eBias = eMax >> 1
-	  var rt = (mLen === 23 ? Math.pow(2, -24) - Math.pow(2, -77) : 0)
-	  var i = isLE ? 0 : (nBytes - 1)
-	  var d = isLE ? 1 : -1
-	  var s = value < 0 || (value === 0 && 1 / value < 0) ? 1 : 0
-
-	  value = Math.abs(value)
-
-	  if (isNaN(value) || value === Infinity) {
-	    m = isNaN(value) ? 1 : 0
-	    e = eMax
-	  } else {
-	    e = Math.floor(Math.log(value) / Math.LN2)
-	    if (value * (c = Math.pow(2, -e)) < 1) {
-	      e--
-	      c *= 2
-	    }
-	    if (e + eBias >= 1) {
-	      value += rt / c
-	    } else {
-	      value += rt * Math.pow(2, 1 - eBias)
-	    }
-	    if (value * c >= 2) {
-	      e++
-	      c /= 2
-	    }
-
-	    if (e + eBias >= eMax) {
-	      m = 0
-	      e = eMax
-	    } else if (e + eBias >= 1) {
-	      m = (value * c - 1) * Math.pow(2, mLen)
-	      e = e + eBias
-	    } else {
-	      m = value * Math.pow(2, eBias - 1) * Math.pow(2, mLen)
-	      e = 0
-	    }
-	  }
-
-	  for (; mLen >= 8; buffer[offset + i] = m & 0xff, i += d, m /= 256, mLen -= 8) {}
-
-	  e = (e << mLen) | m
-	  eLen += mLen
-	  for (; eLen > 0; buffer[offset + i] = e & 0xff, i += d, e /= 256, eLen -= 8) {}
-
-	  buffer[offset + i - d] |= s * 128
-	}
-
-
-/***/ }),
-/* 21 */
-/***/ (function(module, exports) {
-
-	var toString = {}.toString;
-
-	module.exports = Array.isArray || function (arr) {
-	  return toString.call(arr) == '[object Array]';
-	};
-
-
-/***/ }),
-/* 22 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
-	 * JavaScript Cookie v2.2.0
-	 * https://github.com/js-cookie/js-cookie
-	 *
-	 * Copyright 2006, 2015 Klaus Hartl & Fagner Brack
-	 * Released under the MIT license
-	 */
-	;(function (factory) {
-		var registeredInModuleLoader = false;
-		if (true) {
-			!(__WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.call(exports, __webpack_require__, exports, module)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-			registeredInModuleLoader = true;
-		}
-		if (true) {
-			module.exports = factory();
-			registeredInModuleLoader = true;
-		}
-		if (!registeredInModuleLoader) {
-			var OldCookies = window.Cookies;
-			var api = window.Cookies = factory();
-			api.noConflict = function () {
-				window.Cookies = OldCookies;
-				return api;
-			};
-		}
-	}(function () {
-		function extend () {
-			var i = 0;
-			var result = {};
-			for (; i < arguments.length; i++) {
-				var attributes = arguments[ i ];
-				for (var key in attributes) {
-					result[key] = attributes[key];
-				}
-			}
-			return result;
-		}
-
-		function init (converter) {
-			function api (key, value, attributes) {
-				var result;
-				if (typeof document === 'undefined') {
-					return;
-				}
-
-				// Write
-
-				if (arguments.length > 1) {
-					attributes = extend({
-						path: '/'
-					}, api.defaults, attributes);
-
-					if (typeof attributes.expires === 'number') {
-						var expires = new Date();
-						expires.setMilliseconds(expires.getMilliseconds() + attributes.expires * 864e+5);
-						attributes.expires = expires;
-					}
-
-					// We're using "expires" because "max-age" is not supported by IE
-					attributes.expires = attributes.expires ? attributes.expires.toUTCString() : '';
-
-					try {
-						result = JSON.stringify(value);
-						if (/^[\{\[]/.test(result)) {
-							value = result;
-						}
-					} catch (e) {}
-
-					if (!converter.write) {
-						value = encodeURIComponent(String(value))
-							.replace(/%(23|24|26|2B|3A|3C|3E|3D|2F|3F|40|5B|5D|5E|60|7B|7D|7C)/g, decodeURIComponent);
-					} else {
-						value = converter.write(value, key);
-					}
-
-					key = encodeURIComponent(String(key));
-					key = key.replace(/%(23|24|26|2B|5E|60|7C)/g, decodeURIComponent);
-					key = key.replace(/[\(\)]/g, escape);
-
-					var stringifiedAttributes = '';
-
-					for (var attributeName in attributes) {
-						if (!attributes[attributeName]) {
-							continue;
-						}
-						stringifiedAttributes += '; ' + attributeName;
-						if (attributes[attributeName] === true) {
-							continue;
-						}
-						stringifiedAttributes += '=' + attributes[attributeName];
-					}
-					return (document.cookie = key + '=' + value + stringifiedAttributes);
-				}
-
-				// Read
-
-				if (!key) {
-					result = {};
-				}
-
-				// To prevent the for loop in the first place assign an empty array
-				// in case there are no cookies at all. Also prevents odd result when
-				// calling "get()"
-				var cookies = document.cookie ? document.cookie.split('; ') : [];
-				var rdecode = /(%[0-9A-Z]{2})+/g;
-				var i = 0;
-
-				for (; i < cookies.length; i++) {
-					var parts = cookies[i].split('=');
-					var cookie = parts.slice(1).join('=');
-
-					if (!this.json && cookie.charAt(0) === '"') {
-						cookie = cookie.slice(1, -1);
-					}
-
-					try {
-						var name = parts[0].replace(rdecode, decodeURIComponent);
-						cookie = converter.read ?
-							converter.read(cookie, name) : converter(cookie, name) ||
-							cookie.replace(rdecode, decodeURIComponent);
-
-						if (this.json) {
-							try {
-								cookie = JSON.parse(cookie);
-							} catch (e) {}
-						}
-
-						if (key === name) {
-							result = cookie;
-							break;
-						}
-
-						if (!key) {
-							result[name] = cookie;
-						}
-					} catch (e) {}
-				}
-
-				return result;
-			}
-
-			api.set = api;
-			api.get = function (key) {
-				return api.call(api, key);
-			};
-			api.getJSON = function () {
-				return api.apply({
-					json: true
-				}, [].slice.call(arguments));
-			};
-			api.defaults = {};
-
-			api.remove = function (key, attributes) {
-				api(key, '', extend(attributes, {
-					expires: -1
-				}));
-			};
-
-			api.withConverter = init;
-
-			return api;
-		}
-
-		return init(function () {});
-	}));
-
-
-/***/ }),
-/* 23 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(global, process) {'use strict'
-
-	function oldBrowser () {
-	  throw new Error('secure random number generation not supported by this browser\nuse chrome, FireFox or Internet Explorer 11')
-	}
-
-	var Buffer = __webpack_require__(24).Buffer
-	var crypto = global.crypto || global.msCrypto
-
-	if (crypto && crypto.getRandomValues) {
-	  module.exports = randomBytes
+	if (typeof Object.create === 'function') {
+	  // implementation from standard node.js 'util' module
+	  module.exports = function inherits(ctor, superCtor) {
+	    ctor.super_ = superCtor
+	    ctor.prototype = Object.create(superCtor.prototype, {
+	      constructor: {
+	        value: ctor,
+	        enumerable: false,
+	        writable: true,
+	        configurable: true
+	      }
+	    });
+	  };
 	} else {
-	  module.exports = oldBrowser
-	}
-
-	function randomBytes (size, cb) {
-	  // phantomjs needs to throw
-	  if (size > 65536) throw new Error('requested too many random bytes')
-	  // in case browserify  isn't using the Uint8Array version
-	  var rawBytes = new global.Uint8Array(size)
-
-	  // This will not work in older browsers.
-	  // See https://developer.mozilla.org/en-US/docs/Web/API/window.crypto.getRandomValues
-	  if (size > 0) {  // getRandomValues fails on IE if size == 0
-	    crypto.getRandomValues(rawBytes)
+	  // old school shim for old browsers
+	  module.exports = function inherits(ctor, superCtor) {
+	    ctor.super_ = superCtor
+	    var TempCtor = function () {}
+	    TempCtor.prototype = superCtor.prototype
+	    ctor.prototype = new TempCtor()
+	    ctor.prototype.constructor = ctor
 	  }
-
-	  // XXX: phantomjs doesn't like a buffer being passed here
-	  var bytes = Buffer.from(rawBytes.buffer)
-
-	  if (typeof cb === 'function') {
-	    return process.nextTick(function () {
-	      cb(null, bytes)
-	    })
-	  }
-
-	  return bytes
-	}
-
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(25)))
-
-/***/ }),
-/* 24 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	/* eslint-disable node/no-deprecated-api */
-	var buffer = __webpack_require__(19)
-	var Buffer = buffer.Buffer
-
-	// alternative to using Object.keys for old browsers
-	function copyProps (src, dst) {
-	  for (var key in src) {
-	    dst[key] = src[key]
-	  }
-	}
-	if (Buffer.from && Buffer.alloc && Buffer.allocUnsafe && Buffer.allocUnsafeSlow) {
-	  module.exports = buffer
-	} else {
-	  // Copy properties from require('buffer')
-	  copyProps(buffer, exports)
-	  exports.Buffer = SafeBuffer
-	}
-
-	function SafeBuffer (arg, encodingOrOffset, length) {
-	  return Buffer(arg, encodingOrOffset, length)
-	}
-
-	// Copy static methods from Buffer
-	copyProps(Buffer, SafeBuffer)
-
-	SafeBuffer.from = function (arg, encodingOrOffset, length) {
-	  if (typeof arg === 'number') {
-	    throw new TypeError('Argument must not be a number')
-	  }
-	  return Buffer(arg, encodingOrOffset, length)
-	}
-
-	SafeBuffer.alloc = function (size, fill, encoding) {
-	  if (typeof size !== 'number') {
-	    throw new TypeError('Argument must be a number')
-	  }
-	  var buf = Buffer(size)
-	  if (fill !== undefined) {
-	    if (typeof encoding === 'string') {
-	      buf.fill(fill, encoding)
-	    } else {
-	      buf.fill(fill)
-	    }
-	  } else {
-	    buf.fill(0)
-	  }
-	  return buf
-	}
-
-	SafeBuffer.allocUnsafe = function (size) {
-	  if (typeof size !== 'number') {
-	    throw new TypeError('Argument must be a number')
-	  }
-	  return Buffer(size)
-	}
-
-	SafeBuffer.allocUnsafeSlow = function (size) {
-	  if (typeof size !== 'number') {
-	    throw new TypeError('Argument must be a number')
-	  }
-	  return buffer.SlowBuffer(size)
 	}
 
 
 /***/ }),
-/* 25 */
+/* 3 */
 /***/ (function(module, exports) {
 
 	// shim for using process in browser
@@ -6731,6 +2116,11409 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 	process.umask = function() { return 0; };
 
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	// Copyright Joyent, Inc. and other Node contributors.
+	//
+	// Permission is hereby granted, free of charge, to any person obtaining a
+	// copy of this software and associated documentation files (the
+	// "Software"), to deal in the Software without restriction, including
+	// without limitation the rights to use, copy, modify, merge, publish,
+	// distribute, sublicense, and/or sell copies of the Software, and to permit
+	// persons to whom the Software is furnished to do so, subject to the
+	// following conditions:
+	//
+	// The above copyright notice and this permission notice shall be included
+	// in all copies or substantial portions of the Software.
+	//
+	// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+	// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+	// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+	// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+	// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+	// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+	// a duplex stream is just a stream that is both readable and writable.
+	// Since JS doesn't have multiple prototypal inheritance, this class
+	// prototypally inherits from Readable, and then parasitically from
+	// Writable.
+
+	'use strict';
+
+	/*<replacement>*/
+
+	var processNextTick = __webpack_require__(7);
+	/*</replacement>*/
+
+	/*<replacement>*/
+	var objectKeys = Object.keys || function (obj) {
+	  var keys = [];
+	  for (var key in obj) {
+	    keys.push(key);
+	  }return keys;
+	};
+	/*</replacement>*/
+
+	module.exports = Duplex;
+
+	/*<replacement>*/
+	var util = __webpack_require__(5);
+	util.inherits = __webpack_require__(2);
+	/*</replacement>*/
+
+	var Readable = __webpack_require__(37);
+	var Writable = __webpack_require__(13);
+
+	util.inherits(Duplex, Readable);
+
+	var keys = objectKeys(Writable.prototype);
+	for (var v = 0; v < keys.length; v++) {
+	  var method = keys[v];
+	  if (!Duplex.prototype[method]) Duplex.prototype[method] = Writable.prototype[method];
+	}
+
+	function Duplex(options) {
+	  if (!(this instanceof Duplex)) return new Duplex(options);
+
+	  Readable.call(this, options);
+	  Writable.call(this, options);
+
+	  if (options && options.readable === false) this.readable = false;
+
+	  if (options && options.writable === false) this.writable = false;
+
+	  this.allowHalfOpen = true;
+	  if (options && options.allowHalfOpen === false) this.allowHalfOpen = false;
+
+	  this.once('end', onend);
+	}
+
+	// the no-half-open enforcer
+	function onend() {
+	  // if we allow half-open state, or if the writable side ended,
+	  // then we're ok.
+	  if (this.allowHalfOpen || this._writableState.ended) return;
+
+	  // no more data can be written.
+	  // But allow more writes to happen in this tick.
+	  processNextTick(onEndNT, this);
+	}
+
+	function onEndNT(self) {
+	  self.end();
+	}
+
+	Object.defineProperty(Duplex.prototype, 'destroyed', {
+	  get: function () {
+	    if (this._readableState === undefined || this._writableState === undefined) {
+	      return false;
+	    }
+	    return this._readableState.destroyed && this._writableState.destroyed;
+	  },
+	  set: function (value) {
+	    // we ignore the value if the stream
+	    // has not been initialized yet
+	    if (this._readableState === undefined || this._writableState === undefined) {
+	      return;
+	    }
+
+	    // backward compatibility, the user is explicitly
+	    // managing destroyed
+	    this._readableState.destroyed = value;
+	    this._writableState.destroyed = value;
+	  }
+	});
+
+	Duplex.prototype._destroy = function (err, cb) {
+	  this.push(null);
+	  this.end();
+
+	  processNextTick(cb, err);
+	};
+
+	function forEach(xs, f) {
+	  for (var i = 0, l = xs.length; i < l; i++) {
+	    f(xs[i], i);
+	  }
+	}
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(Buffer) {// Copyright Joyent, Inc. and other Node contributors.
+	//
+	// Permission is hereby granted, free of charge, to any person obtaining a
+	// copy of this software and associated documentation files (the
+	// "Software"), to deal in the Software without restriction, including
+	// without limitation the rights to use, copy, modify, merge, publish,
+	// distribute, sublicense, and/or sell copies of the Software, and to permit
+	// persons to whom the Software is furnished to do so, subject to the
+	// following conditions:
+	//
+	// The above copyright notice and this permission notice shall be included
+	// in all copies or substantial portions of the Software.
+	//
+	// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+	// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+	// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+	// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+	// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+	// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+	// NOTE: These type checking functions intentionally don't use `instanceof`
+	// because it is fragile and can be easily faked with `Object.create()`.
+
+	function isArray(arg) {
+	  if (Array.isArray) {
+	    return Array.isArray(arg);
+	  }
+	  return objectToString(arg) === '[object Array]';
+	}
+	exports.isArray = isArray;
+
+	function isBoolean(arg) {
+	  return typeof arg === 'boolean';
+	}
+	exports.isBoolean = isBoolean;
+
+	function isNull(arg) {
+	  return arg === null;
+	}
+	exports.isNull = isNull;
+
+	function isNullOrUndefined(arg) {
+	  return arg == null;
+	}
+	exports.isNullOrUndefined = isNullOrUndefined;
+
+	function isNumber(arg) {
+	  return typeof arg === 'number';
+	}
+	exports.isNumber = isNumber;
+
+	function isString(arg) {
+	  return typeof arg === 'string';
+	}
+	exports.isString = isString;
+
+	function isSymbol(arg) {
+	  return typeof arg === 'symbol';
+	}
+	exports.isSymbol = isSymbol;
+
+	function isUndefined(arg) {
+	  return arg === void 0;
+	}
+	exports.isUndefined = isUndefined;
+
+	function isRegExp(re) {
+	  return objectToString(re) === '[object RegExp]';
+	}
+	exports.isRegExp = isRegExp;
+
+	function isObject(arg) {
+	  return typeof arg === 'object' && arg !== null;
+	}
+	exports.isObject = isObject;
+
+	function isDate(d) {
+	  return objectToString(d) === '[object Date]';
+	}
+	exports.isDate = isDate;
+
+	function isError(e) {
+	  return (objectToString(e) === '[object Error]' || e instanceof Error);
+	}
+	exports.isError = isError;
+
+	function isFunction(arg) {
+	  return typeof arg === 'function';
+	}
+	exports.isFunction = isFunction;
+
+	function isPrimitive(arg) {
+	  return arg === null ||
+	         typeof arg === 'boolean' ||
+	         typeof arg === 'number' ||
+	         typeof arg === 'string' ||
+	         typeof arg === 'symbol' ||  // ES6 symbol
+	         typeof arg === 'undefined';
+	}
+	exports.isPrimitive = isPrimitive;
+
+	exports.isBuffer = Buffer.isBuffer;
+
+	function objectToString(o) {
+	  return Object.prototype.toString.call(o);
+	}
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1).Buffer))
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(Buffer) {module.exports = xor;
+	function xor(a, b) {
+	  var len = Math.min(a.length, b.length);
+	  var out = new Buffer(len);
+	  var i = -1;
+	  while (++i < len) {
+	    out.writeUInt8(a[i] ^ b[i], i);
+	  }
+	  return out;
+	}
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1).Buffer))
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
+
+	if (!process.version ||
+	    process.version.indexOf('v0.') === 0 ||
+	    process.version.indexOf('v1.') === 0 && process.version.indexOf('v1.8.') !== 0) {
+	  module.exports = nextTick;
+	} else {
+	  module.exports = process.nextTick;
+	}
+
+	function nextTick(fn, arg1, arg2, arg3) {
+	  if (typeof fn !== 'function') {
+	    throw new TypeError('"callback" argument must be a function');
+	  }
+	  var len = arguments.length;
+	  var args, i;
+	  switch (len) {
+	  case 0:
+	  case 1:
+	    return process.nextTick(fn);
+	  case 2:
+	    return process.nextTick(function afterTickOne() {
+	      fn.call(null, arg1);
+	    });
+	  case 3:
+	    return process.nextTick(function afterTickTwo() {
+	      fn.call(null, arg1, arg2);
+	    });
+	  case 4:
+	    return process.nextTick(function afterTickThree() {
+	      fn.call(null, arg1, arg2, arg3);
+	    });
+	  default:
+	    args = new Array(len - 1);
+	    i = 0;
+	    while (i < args.length) {
+	      args[i++] = arguments[i];
+	    }
+	    return process.nextTick(function afterTick() {
+	      fn.apply(null, args);
+	    });
+	  }
+	}
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* eslint-disable node/no-deprecated-api */
+	var buffer = __webpack_require__(1)
+	var Buffer = buffer.Buffer
+
+	// alternative to using Object.keys for old browsers
+	function copyProps (src, dst) {
+	  for (var key in src) {
+	    dst[key] = src[key]
+	  }
+	}
+	if (Buffer.from && Buffer.alloc && Buffer.allocUnsafe && Buffer.allocUnsafeSlow) {
+	  module.exports = buffer
+	} else {
+	  // Copy properties from require('buffer')
+	  copyProps(buffer, exports)
+	  exports.Buffer = SafeBuffer
+	}
+
+	function SafeBuffer (arg, encodingOrOffset, length) {
+	  return Buffer(arg, encodingOrOffset, length)
+	}
+
+	// Copy static methods from Buffer
+	copyProps(Buffer, SafeBuffer)
+
+	SafeBuffer.from = function (arg, encodingOrOffset, length) {
+	  if (typeof arg === 'number') {
+	    throw new TypeError('Argument must not be a number')
+	  }
+	  return Buffer(arg, encodingOrOffset, length)
+	}
+
+	SafeBuffer.alloc = function (size, fill, encoding) {
+	  if (typeof size !== 'number') {
+	    throw new TypeError('Argument must be a number')
+	  }
+	  var buf = Buffer(size)
+	  if (fill !== undefined) {
+	    if (typeof encoding === 'string') {
+	      buf.fill(fill, encoding)
+	    } else {
+	      buf.fill(fill)
+	    }
+	  } else {
+	    buf.fill(0)
+	  }
+	  return buf
+	}
+
+	SafeBuffer.allocUnsafe = function (size) {
+	  if (typeof size !== 'number') {
+	    throw new TypeError('Argument must be a number')
+	  }
+	  return Buffer(size)
+	}
+
+	SafeBuffer.allocUnsafeSlow = function (size) {
+	  if (typeof size !== 'number') {
+	    throw new TypeError('Argument must be a number')
+	  }
+	  return buffer.SlowBuffer(size)
+	}
+
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(Buffer) {var uint_max = Math.pow(2, 32);
+	function fixup_uint32(x) {
+	    var ret, x_pos;
+	    ret = x > uint_max || x < 0 ? (x_pos = Math.abs(x) % uint_max, x < 0 ? uint_max - x_pos : x_pos) : x;
+	    return ret;
+	}
+	function scrub_vec(v) {
+	  var i, _i, _ref;
+	  for (i = _i = 0, _ref = v.length; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
+	    v[i] = 0;
+	  }
+	  return false;
+	}
+
+	function Global() {
+	  var i;
+	  this.SBOX = [];
+	  this.INV_SBOX = [];
+	  this.SUB_MIX = (function() {
+	    var _i, _results;
+	    _results = [];
+	    for (i = _i = 0; _i < 4; i = ++_i) {
+	      _results.push([]);
+	    }
+	    return _results;
+	  })();
+	  this.INV_SUB_MIX = (function() {
+	    var _i, _results;
+	    _results = [];
+	    for (i = _i = 0; _i < 4; i = ++_i) {
+	      _results.push([]);
+	    }
+	    return _results;
+	  })();
+	  this.init();
+	  this.RCON = [0x00, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36];
+	}
+
+	Global.prototype.init = function() {
+	  var d, i, sx, t, x, x2, x4, x8, xi, _i;
+	  d = (function() {
+	    var _i, _results;
+	    _results = [];
+	    for (i = _i = 0; _i < 256; i = ++_i) {
+	      if (i < 128) {
+	        _results.push(i << 1);
+	      } else {
+	        _results.push((i << 1) ^ 0x11b);
+	      }
+	    }
+	    return _results;
+	  })();
+	  x = 0;
+	  xi = 0;
+	  for (i = _i = 0; _i < 256; i = ++_i) {
+	    sx = xi ^ (xi << 1) ^ (xi << 2) ^ (xi << 3) ^ (xi << 4);
+	    sx = (sx >>> 8) ^ (sx & 0xff) ^ 0x63;
+	    this.SBOX[x] = sx;
+	    this.INV_SBOX[sx] = x;
+	    x2 = d[x];
+	    x4 = d[x2];
+	    x8 = d[x4];
+	    t = (d[sx] * 0x101) ^ (sx * 0x1010100);
+	    this.SUB_MIX[0][x] = (t << 24) | (t >>> 8);
+	    this.SUB_MIX[1][x] = (t << 16) | (t >>> 16);
+	    this.SUB_MIX[2][x] = (t << 8) | (t >>> 24);
+	    this.SUB_MIX[3][x] = t;
+	    t = (x8 * 0x1010101) ^ (x4 * 0x10001) ^ (x2 * 0x101) ^ (x * 0x1010100);
+	    this.INV_SUB_MIX[0][sx] = (t << 24) | (t >>> 8);
+	    this.INV_SUB_MIX[1][sx] = (t << 16) | (t >>> 16);
+	    this.INV_SUB_MIX[2][sx] = (t << 8) | (t >>> 24);
+	    this.INV_SUB_MIX[3][sx] = t;
+	    if (x === 0) {
+	      x = xi = 1;
+	    } else {
+	      x = x2 ^ d[d[d[x8 ^ x2]]];
+	      xi ^= d[d[xi]];
+	    }
+	  }
+	  return true;
+	};
+
+	var G = new Global();
+
+
+	AES.blockSize = 4 * 4;
+
+	AES.prototype.blockSize = AES.blockSize;
+
+	AES.keySize = 256 / 8;
+
+	AES.prototype.keySize = AES.keySize;
+
+	AES.ivSize = AES.blockSize;
+
+	AES.prototype.ivSize = AES.ivSize;
+
+	 function bufferToArray(buf) {
+	  var len = buf.length/4;
+	  var out = new Array(len);
+	  var i = -1;
+	  while (++i < len) {
+	    out[i] = buf.readUInt32BE(i * 4);
+	  }
+	  return out;
+	 }
+	function AES(key) {
+	  this._key = bufferToArray(key);
+	  this._doReset();
+	}
+
+	AES.prototype._doReset = function() {
+	  var invKsRow, keySize, keyWords, ksRow, ksRows, t, _i, _j;
+	  keyWords = this._key;
+	  keySize = keyWords.length;
+	  this._nRounds = keySize + 6;
+	  ksRows = (this._nRounds + 1) * 4;
+	  this._keySchedule = [];
+	  for (ksRow = _i = 0; 0 <= ksRows ? _i < ksRows : _i > ksRows; ksRow = 0 <= ksRows ? ++_i : --_i) {
+	    this._keySchedule[ksRow] = ksRow < keySize ? keyWords[ksRow] : (t = this._keySchedule[ksRow - 1], (ksRow % keySize) === 0 ? (t = (t << 8) | (t >>> 24), t = (G.SBOX[t >>> 24] << 24) | (G.SBOX[(t >>> 16) & 0xff] << 16) | (G.SBOX[(t >>> 8) & 0xff] << 8) | G.SBOX[t & 0xff], t ^= G.RCON[(ksRow / keySize) | 0] << 24) : keySize > 6 && ksRow % keySize === 4 ? t = (G.SBOX[t >>> 24] << 24) | (G.SBOX[(t >>> 16) & 0xff] << 16) | (G.SBOX[(t >>> 8) & 0xff] << 8) | G.SBOX[t & 0xff] : void 0, this._keySchedule[ksRow - keySize] ^ t);
+	  }
+	  this._invKeySchedule = [];
+	  for (invKsRow = _j = 0; 0 <= ksRows ? _j < ksRows : _j > ksRows; invKsRow = 0 <= ksRows ? ++_j : --_j) {
+	    ksRow = ksRows - invKsRow;
+	    t = this._keySchedule[ksRow - (invKsRow % 4 ? 0 : 4)];
+	    this._invKeySchedule[invKsRow] = invKsRow < 4 || ksRow <= 4 ? t : G.INV_SUB_MIX[0][G.SBOX[t >>> 24]] ^ G.INV_SUB_MIX[1][G.SBOX[(t >>> 16) & 0xff]] ^ G.INV_SUB_MIX[2][G.SBOX[(t >>> 8) & 0xff]] ^ G.INV_SUB_MIX[3][G.SBOX[t & 0xff]];
+	  }
+	  return true;
+	};
+
+	AES.prototype.encryptBlock = function(M) {
+	  M = bufferToArray(new Buffer(M));
+	  var out = this._doCryptBlock(M, this._keySchedule, G.SUB_MIX, G.SBOX);
+	  var buf = new Buffer(16);
+	  buf.writeUInt32BE(out[0], 0);
+	  buf.writeUInt32BE(out[1], 4);
+	  buf.writeUInt32BE(out[2], 8);
+	  buf.writeUInt32BE(out[3], 12);
+	  return buf;
+	};
+
+	AES.prototype.decryptBlock = function(M) {
+	  M = bufferToArray(new Buffer(M));
+	  var temp = [M[3], M[1]];
+	  M[1] = temp[0];
+	  M[3] = temp[1];
+	  var out = this._doCryptBlock(M, this._invKeySchedule, G.INV_SUB_MIX, G.INV_SBOX);
+	  var buf = new Buffer(16);
+	  buf.writeUInt32BE(out[0], 0);
+	  buf.writeUInt32BE(out[3], 4);
+	  buf.writeUInt32BE(out[2], 8);
+	  buf.writeUInt32BE(out[1], 12);
+	  return buf;
+	};
+
+	AES.prototype.scrub = function() {
+	  scrub_vec(this._keySchedule);
+	  scrub_vec(this._invKeySchedule);
+	  scrub_vec(this._key);
+	};
+
+	AES.prototype._doCryptBlock = function(M, keySchedule, SUB_MIX, SBOX) {
+	  var ksRow, round, s0, s1, s2, s3, t0, t1, t2, t3, _i, _ref;
+
+	  s0 = M[0] ^ keySchedule[0];
+	  s1 = M[1] ^ keySchedule[1];
+	  s2 = M[2] ^ keySchedule[2];
+	  s3 = M[3] ^ keySchedule[3];
+	  ksRow = 4;
+	  for (round = _i = 1, _ref = this._nRounds; 1 <= _ref ? _i < _ref : _i > _ref; round = 1 <= _ref ? ++_i : --_i) {
+	    t0 = SUB_MIX[0][s0 >>> 24] ^ SUB_MIX[1][(s1 >>> 16) & 0xff] ^ SUB_MIX[2][(s2 >>> 8) & 0xff] ^ SUB_MIX[3][s3 & 0xff] ^ keySchedule[ksRow++];
+	    t1 = SUB_MIX[0][s1 >>> 24] ^ SUB_MIX[1][(s2 >>> 16) & 0xff] ^ SUB_MIX[2][(s3 >>> 8) & 0xff] ^ SUB_MIX[3][s0 & 0xff] ^ keySchedule[ksRow++];
+	    t2 = SUB_MIX[0][s2 >>> 24] ^ SUB_MIX[1][(s3 >>> 16) & 0xff] ^ SUB_MIX[2][(s0 >>> 8) & 0xff] ^ SUB_MIX[3][s1 & 0xff] ^ keySchedule[ksRow++];
+	    t3 = SUB_MIX[0][s3 >>> 24] ^ SUB_MIX[1][(s0 >>> 16) & 0xff] ^ SUB_MIX[2][(s1 >>> 8) & 0xff] ^ SUB_MIX[3][s2 & 0xff] ^ keySchedule[ksRow++];
+	    s0 = t0;
+	    s1 = t1;
+	    s2 = t2;
+	    s3 = t3;
+	  }
+	  t0 = ((SBOX[s0 >>> 24] << 24) | (SBOX[(s1 >>> 16) & 0xff] << 16) | (SBOX[(s2 >>> 8) & 0xff] << 8) | SBOX[s3 & 0xff]) ^ keySchedule[ksRow++];
+	  t1 = ((SBOX[s1 >>> 24] << 24) | (SBOX[(s2 >>> 16) & 0xff] << 16) | (SBOX[(s3 >>> 8) & 0xff] << 8) | SBOX[s0 & 0xff]) ^ keySchedule[ksRow++];
+	  t2 = ((SBOX[s2 >>> 24] << 24) | (SBOX[(s3 >>> 16) & 0xff] << 16) | (SBOX[(s0 >>> 8) & 0xff] << 8) | SBOX[s1 & 0xff]) ^ keySchedule[ksRow++];
+	  t3 = ((SBOX[s3 >>> 24] << 24) | (SBOX[(s0 >>> 16) & 0xff] << 16) | (SBOX[(s1 >>> 8) & 0xff] << 8) | SBOX[s2 & 0xff]) ^ keySchedule[ksRow++];
+	  return [
+	    fixup_uint32(t0),
+	    fixup_uint32(t1),
+	    fixup_uint32(t2),
+	    fixup_uint32(t3)
+	  ];
+
+	};
+
+
+
+
+	  exports.AES = AES;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1).Buffer))
+
+/***/ }),
+/* 10 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(Buffer) {var Transform = __webpack_require__(80).Transform;
+	var inherits = __webpack_require__(2);
+
+	module.exports = CipherBase;
+	inherits(CipherBase, Transform);
+	function CipherBase() {
+	  Transform.call(this);
+	}
+	CipherBase.prototype.update = function (data, inputEnd, outputEnc) {
+	  this.write(data, inputEnd);
+	  var outData = new Buffer('');
+	  var chunk;
+	  while ((chunk = this.read())) {
+	    outData = Buffer.concat([outData, chunk]);
+	  }
+	  if (outputEnc) {
+	    outData = outData.toString(outputEnc);
+	  }
+	  return outData;
+	};
+	CipherBase.prototype.final = function (outputEnc) {
+	  this.end();
+	  var outData = new Buffer('');
+	  var chunk;
+	  while ((chunk = this.read())) {
+	    outData = Buffer.concat([outData, chunk]);
+	  }
+	  if (outputEnc) {
+	    outData = outData.toString(outputEnc);
+	  }
+	  return outData;
+	};
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1).Buffer))
+
+/***/ }),
+/* 11 */
+/***/ (function(module, exports) {
+
+	exports['aes-128-ecb'] = {
+	  cipher: 'AES',
+	  key: 128,
+	  iv: 0,
+	  mode: 'ECB',
+	  type: 'block'
+	};
+	exports['aes-192-ecb'] = {
+	  cipher: 'AES',
+	  key: 192,
+	  iv: 0,
+	  mode: 'ECB',
+	  type: 'block'
+	};
+	exports['aes-256-ecb'] = {
+	  cipher: 'AES',
+	  key: 256,
+	  iv: 0,
+	  mode: 'ECB',
+	  type: 'block'
+	};
+	exports['aes-128-cbc'] = {
+	  cipher: 'AES',
+	  key: 128,
+	  iv: 16,
+	  mode: 'CBC',
+	  type: 'block'
+	};
+	exports['aes-192-cbc'] = {
+	  cipher: 'AES',
+	  key: 192,
+	  iv: 16,
+	  mode: 'CBC',
+	  type: 'block'
+	};
+	exports['aes-256-cbc'] = {
+	  cipher: 'AES',
+	  key: 256,
+	  iv: 16,
+	  mode: 'CBC',
+	  type: 'block'
+	};
+	exports['aes128'] = exports['aes-128-cbc'];
+	exports['aes192'] = exports['aes-192-cbc'];
+	exports['aes256'] = exports['aes-256-cbc'];
+	exports['aes-128-cfb'] = {
+	  cipher: 'AES',
+	  key: 128,
+	  iv: 16,
+	  mode: 'CFB',
+	  type: 'stream'
+	};
+	exports['aes-192-cfb'] = {
+	  cipher: 'AES',
+	  key: 192,
+	  iv: 16,
+	  mode: 'CFB',
+	  type: 'stream'
+	};
+	exports['aes-256-cfb'] = {
+	  cipher: 'AES',
+	  key: 256,
+	  iv: 16,
+	  mode: 'CFB',
+	  type: 'stream'
+	};
+	exports['aes-128-ofb'] = {
+	  cipher: 'AES',
+	  key: 128,
+	  iv: 16,
+	  mode: 'OFB',
+	  type: 'stream'
+	};
+	exports['aes-192-ofb'] = {
+	  cipher: 'AES',
+	  key: 192,
+	  iv: 16,
+	  mode: 'OFB',
+	  type: 'stream'
+	};
+	exports['aes-256-ofb'] = {
+	  cipher: 'AES',
+	  key: 256,
+	  iv: 16,
+	  mode: 'OFB',
+	  type: 'stream'
+	};
+	exports['aes-128-ctr'] = {
+	  cipher: 'AES',
+	  key: 128,
+	  iv: 16,
+	  mode: 'CTR',
+	  type: 'stream'
+	};
+	exports['aes-192-ctr'] = {
+	  cipher: 'AES',
+	  key: 192,
+	  iv: 16,
+	  mode: 'CTR',
+	  type: 'stream'
+	};
+	exports['aes-256-ctr'] = {
+	  cipher: 'AES',
+	  key: 256,
+	  iv: 16,
+	  mode: 'CTR',
+	  type: 'stream'
+	};
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports) {
+
+	// Copyright Joyent, Inc. and other Node contributors.
+	//
+	// Permission is hereby granted, free of charge, to any person obtaining a
+	// copy of this software and associated documentation files (the
+	// "Software"), to deal in the Software without restriction, including
+	// without limitation the rights to use, copy, modify, merge, publish,
+	// distribute, sublicense, and/or sell copies of the Software, and to permit
+	// persons to whom the Software is furnished to do so, subject to the
+	// following conditions:
+	//
+	// The above copyright notice and this permission notice shall be included
+	// in all copies or substantial portions of the Software.
+	//
+	// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+	// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+	// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+	// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+	// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+	// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+	function EventEmitter() {
+	  this._events = this._events || {};
+	  this._maxListeners = this._maxListeners || undefined;
+	}
+	module.exports = EventEmitter;
+
+	// Backwards-compat with node 0.10.x
+	EventEmitter.EventEmitter = EventEmitter;
+
+	EventEmitter.prototype._events = undefined;
+	EventEmitter.prototype._maxListeners = undefined;
+
+	// By default EventEmitters will print a warning if more than 10 listeners are
+	// added to it. This is a useful default which helps finding memory leaks.
+	EventEmitter.defaultMaxListeners = 10;
+
+	// Obviously not all Emitters should be limited to 10. This function allows
+	// that to be increased. Set to zero for unlimited.
+	EventEmitter.prototype.setMaxListeners = function(n) {
+	  if (!isNumber(n) || n < 0 || isNaN(n))
+	    throw TypeError('n must be a positive number');
+	  this._maxListeners = n;
+	  return this;
+	};
+
+	EventEmitter.prototype.emit = function(type) {
+	  var er, handler, len, args, i, listeners;
+
+	  if (!this._events)
+	    this._events = {};
+
+	  // If there is no 'error' event listener then throw.
+	  if (type === 'error') {
+	    if (!this._events.error ||
+	        (isObject(this._events.error) && !this._events.error.length)) {
+	      er = arguments[1];
+	      if (er instanceof Error) {
+	        throw er; // Unhandled 'error' event
+	      } else {
+	        // At least give some kind of context to the user
+	        var err = new Error('Uncaught, unspecified "error" event. (' + er + ')');
+	        err.context = er;
+	        throw err;
+	      }
+	    }
+	  }
+
+	  handler = this._events[type];
+
+	  if (isUndefined(handler))
+	    return false;
+
+	  if (isFunction(handler)) {
+	    switch (arguments.length) {
+	      // fast cases
+	      case 1:
+	        handler.call(this);
+	        break;
+	      case 2:
+	        handler.call(this, arguments[1]);
+	        break;
+	      case 3:
+	        handler.call(this, arguments[1], arguments[2]);
+	        break;
+	      // slower
+	      default:
+	        args = Array.prototype.slice.call(arguments, 1);
+	        handler.apply(this, args);
+	    }
+	  } else if (isObject(handler)) {
+	    args = Array.prototype.slice.call(arguments, 1);
+	    listeners = handler.slice();
+	    len = listeners.length;
+	    for (i = 0; i < len; i++)
+	      listeners[i].apply(this, args);
+	  }
+
+	  return true;
+	};
+
+	EventEmitter.prototype.addListener = function(type, listener) {
+	  var m;
+
+	  if (!isFunction(listener))
+	    throw TypeError('listener must be a function');
+
+	  if (!this._events)
+	    this._events = {};
+
+	  // To avoid recursion in the case that type === "newListener"! Before
+	  // adding it to the listeners, first emit "newListener".
+	  if (this._events.newListener)
+	    this.emit('newListener', type,
+	              isFunction(listener.listener) ?
+	              listener.listener : listener);
+
+	  if (!this._events[type])
+	    // Optimize the case of one listener. Don't need the extra array object.
+	    this._events[type] = listener;
+	  else if (isObject(this._events[type]))
+	    // If we've already got an array, just append.
+	    this._events[type].push(listener);
+	  else
+	    // Adding the second element, need to change to array.
+	    this._events[type] = [this._events[type], listener];
+
+	  // Check for listener leak
+	  if (isObject(this._events[type]) && !this._events[type].warned) {
+	    if (!isUndefined(this._maxListeners)) {
+	      m = this._maxListeners;
+	    } else {
+	      m = EventEmitter.defaultMaxListeners;
+	    }
+
+	    if (m && m > 0 && this._events[type].length > m) {
+	      this._events[type].warned = true;
+	      console.error('(node) warning: possible EventEmitter memory ' +
+	                    'leak detected. %d listeners added. ' +
+	                    'Use emitter.setMaxListeners() to increase limit.',
+	                    this._events[type].length);
+	      if (typeof console.trace === 'function') {
+	        // not supported in IE 10
+	        console.trace();
+	      }
+	    }
+	  }
+
+	  return this;
+	};
+
+	EventEmitter.prototype.on = EventEmitter.prototype.addListener;
+
+	EventEmitter.prototype.once = function(type, listener) {
+	  if (!isFunction(listener))
+	    throw TypeError('listener must be a function');
+
+	  var fired = false;
+
+	  function g() {
+	    this.removeListener(type, g);
+
+	    if (!fired) {
+	      fired = true;
+	      listener.apply(this, arguments);
+	    }
+	  }
+
+	  g.listener = listener;
+	  this.on(type, g);
+
+	  return this;
+	};
+
+	// emits a 'removeListener' event iff the listener was removed
+	EventEmitter.prototype.removeListener = function(type, listener) {
+	  var list, position, length, i;
+
+	  if (!isFunction(listener))
+	    throw TypeError('listener must be a function');
+
+	  if (!this._events || !this._events[type])
+	    return this;
+
+	  list = this._events[type];
+	  length = list.length;
+	  position = -1;
+
+	  if (list === listener ||
+	      (isFunction(list.listener) && list.listener === listener)) {
+	    delete this._events[type];
+	    if (this._events.removeListener)
+	      this.emit('removeListener', type, listener);
+
+	  } else if (isObject(list)) {
+	    for (i = length; i-- > 0;) {
+	      if (list[i] === listener ||
+	          (list[i].listener && list[i].listener === listener)) {
+	        position = i;
+	        break;
+	      }
+	    }
+
+	    if (position < 0)
+	      return this;
+
+	    if (list.length === 1) {
+	      list.length = 0;
+	      delete this._events[type];
+	    } else {
+	      list.splice(position, 1);
+	    }
+
+	    if (this._events.removeListener)
+	      this.emit('removeListener', type, listener);
+	  }
+
+	  return this;
+	};
+
+	EventEmitter.prototype.removeAllListeners = function(type) {
+	  var key, listeners;
+
+	  if (!this._events)
+	    return this;
+
+	  // not listening for removeListener, no need to emit
+	  if (!this._events.removeListener) {
+	    if (arguments.length === 0)
+	      this._events = {};
+	    else if (this._events[type])
+	      delete this._events[type];
+	    return this;
+	  }
+
+	  // emit removeListener for all listeners on all events
+	  if (arguments.length === 0) {
+	    for (key in this._events) {
+	      if (key === 'removeListener') continue;
+	      this.removeAllListeners(key);
+	    }
+	    this.removeAllListeners('removeListener');
+	    this._events = {};
+	    return this;
+	  }
+
+	  listeners = this._events[type];
+
+	  if (isFunction(listeners)) {
+	    this.removeListener(type, listeners);
+	  } else if (listeners) {
+	    // LIFO order
+	    while (listeners.length)
+	      this.removeListener(type, listeners[listeners.length - 1]);
+	  }
+	  delete this._events[type];
+
+	  return this;
+	};
+
+	EventEmitter.prototype.listeners = function(type) {
+	  var ret;
+	  if (!this._events || !this._events[type])
+	    ret = [];
+	  else if (isFunction(this._events[type]))
+	    ret = [this._events[type]];
+	  else
+	    ret = this._events[type].slice();
+	  return ret;
+	};
+
+	EventEmitter.prototype.listenerCount = function(type) {
+	  if (this._events) {
+	    var evlistener = this._events[type];
+
+	    if (isFunction(evlistener))
+	      return 1;
+	    else if (evlistener)
+	      return evlistener.length;
+	  }
+	  return 0;
+	};
+
+	EventEmitter.listenerCount = function(emitter, type) {
+	  return emitter.listenerCount(type);
+	};
+
+	function isFunction(arg) {
+	  return typeof arg === 'function';
+	}
+
+	function isNumber(arg) {
+	  return typeof arg === 'number';
+	}
+
+	function isObject(arg) {
+	  return typeof arg === 'object' && arg !== null;
+	}
+
+	function isUndefined(arg) {
+	  return arg === void 0;
+	}
+
+
+/***/ }),
+/* 13 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(process, setImmediate, global) {// Copyright Joyent, Inc. and other Node contributors.
+	//
+	// Permission is hereby granted, free of charge, to any person obtaining a
+	// copy of this software and associated documentation files (the
+	// "Software"), to deal in the Software without restriction, including
+	// without limitation the rights to use, copy, modify, merge, publish,
+	// distribute, sublicense, and/or sell copies of the Software, and to permit
+	// persons to whom the Software is furnished to do so, subject to the
+	// following conditions:
+	//
+	// The above copyright notice and this permission notice shall be included
+	// in all copies or substantial portions of the Software.
+	//
+	// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+	// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+	// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+	// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+	// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+	// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+	// A bit simpler than readable streams.
+	// Implement an async ._write(chunk, encoding, cb), and it'll handle all
+	// the drain event emission and buffering.
+
+	'use strict';
+
+	/*<replacement>*/
+
+	var processNextTick = __webpack_require__(7);
+	/*</replacement>*/
+
+	module.exports = Writable;
+
+	/* <replacement> */
+	function WriteReq(chunk, encoding, cb) {
+	  this.chunk = chunk;
+	  this.encoding = encoding;
+	  this.callback = cb;
+	  this.next = null;
+	}
+
+	// It seems a linked list but it is not
+	// there will be only 2 of these for each stream
+	function CorkedRequest(state) {
+	  var _this = this;
+
+	  this.next = null;
+	  this.entry = null;
+	  this.finish = function () {
+	    onCorkedFinish(_this, state);
+	  };
+	}
+	/* </replacement> */
+
+	/*<replacement>*/
+	var asyncWrite = !process.browser && ['v0.10', 'v0.9.'].indexOf(process.version.slice(0, 5)) > -1 ? setImmediate : processNextTick;
+	/*</replacement>*/
+
+	/*<replacement>*/
+	var Duplex;
+	/*</replacement>*/
+
+	Writable.WritableState = WritableState;
+
+	/*<replacement>*/
+	var util = __webpack_require__(5);
+	util.inherits = __webpack_require__(2);
+	/*</replacement>*/
+
+	/*<replacement>*/
+	var internalUtil = {
+	  deprecate: __webpack_require__(81)
+	};
+	/*</replacement>*/
+
+	/*<replacement>*/
+	var Stream = __webpack_require__(40);
+	/*</replacement>*/
+
+	/*<replacement>*/
+	var Buffer = __webpack_require__(8).Buffer;
+	var OurUint8Array = global.Uint8Array || function () {};
+	function _uint8ArrayToBuffer(chunk) {
+	  return Buffer.from(chunk);
+	}
+	function _isUint8Array(obj) {
+	  return Buffer.isBuffer(obj) || obj instanceof OurUint8Array;
+	}
+	/*</replacement>*/
+
+	var destroyImpl = __webpack_require__(39);
+
+	util.inherits(Writable, Stream);
+
+	function nop() {}
+
+	function WritableState(options, stream) {
+	  Duplex = Duplex || __webpack_require__(4);
+
+	  options = options || {};
+
+	  // object stream flag to indicate whether or not this stream
+	  // contains buffers or objects.
+	  this.objectMode = !!options.objectMode;
+
+	  if (stream instanceof Duplex) this.objectMode = this.objectMode || !!options.writableObjectMode;
+
+	  // the point at which write() starts returning false
+	  // Note: 0 is a valid value, means that we always return false if
+	  // the entire buffer is not flushed immediately on write()
+	  var hwm = options.highWaterMark;
+	  var defaultHwm = this.objectMode ? 16 : 16 * 1024;
+	  this.highWaterMark = hwm || hwm === 0 ? hwm : defaultHwm;
+
+	  // cast to ints.
+	  this.highWaterMark = Math.floor(this.highWaterMark);
+
+	  // if _final has been called
+	  this.finalCalled = false;
+
+	  // drain event flag.
+	  this.needDrain = false;
+	  // at the start of calling end()
+	  this.ending = false;
+	  // when end() has been called, and returned
+	  this.ended = false;
+	  // when 'finish' is emitted
+	  this.finished = false;
+
+	  // has it been destroyed
+	  this.destroyed = false;
+
+	  // should we decode strings into buffers before passing to _write?
+	  // this is here so that some node-core streams can optimize string
+	  // handling at a lower level.
+	  var noDecode = options.decodeStrings === false;
+	  this.decodeStrings = !noDecode;
+
+	  // Crypto is kind of old and crusty.  Historically, its default string
+	  // encoding is 'binary' so we have to make this configurable.
+	  // Everything else in the universe uses 'utf8', though.
+	  this.defaultEncoding = options.defaultEncoding || 'utf8';
+
+	  // not an actual buffer we keep track of, but a measurement
+	  // of how much we're waiting to get pushed to some underlying
+	  // socket or file.
+	  this.length = 0;
+
+	  // a flag to see when we're in the middle of a write.
+	  this.writing = false;
+
+	  // when true all writes will be buffered until .uncork() call
+	  this.corked = 0;
+
+	  // a flag to be able to tell if the onwrite cb is called immediately,
+	  // or on a later tick.  We set this to true at first, because any
+	  // actions that shouldn't happen until "later" should generally also
+	  // not happen before the first write call.
+	  this.sync = true;
+
+	  // a flag to know if we're processing previously buffered items, which
+	  // may call the _write() callback in the same tick, so that we don't
+	  // end up in an overlapped onwrite situation.
+	  this.bufferProcessing = false;
+
+	  // the callback that's passed to _write(chunk,cb)
+	  this.onwrite = function (er) {
+	    onwrite(stream, er);
+	  };
+
+	  // the callback that the user supplies to write(chunk,encoding,cb)
+	  this.writecb = null;
+
+	  // the amount that is being written when _write is called.
+	  this.writelen = 0;
+
+	  this.bufferedRequest = null;
+	  this.lastBufferedRequest = null;
+
+	  // number of pending user-supplied write callbacks
+	  // this must be 0 before 'finish' can be emitted
+	  this.pendingcb = 0;
+
+	  // emit prefinish if the only thing we're waiting for is _write cbs
+	  // This is relevant for synchronous Transform streams
+	  this.prefinished = false;
+
+	  // True if the error was already emitted and should not be thrown again
+	  this.errorEmitted = false;
+
+	  // count buffered requests
+	  this.bufferedRequestCount = 0;
+
+	  // allocate the first CorkedRequest, there is always
+	  // one allocated and free to use, and we maintain at most two
+	  this.corkedRequestsFree = new CorkedRequest(this);
+	}
+
+	WritableState.prototype.getBuffer = function getBuffer() {
+	  var current = this.bufferedRequest;
+	  var out = [];
+	  while (current) {
+	    out.push(current);
+	    current = current.next;
+	  }
+	  return out;
+	};
+
+	(function () {
+	  try {
+	    Object.defineProperty(WritableState.prototype, 'buffer', {
+	      get: internalUtil.deprecate(function () {
+	        return this.getBuffer();
+	      }, '_writableState.buffer is deprecated. Use _writableState.getBuffer ' + 'instead.', 'DEP0003')
+	    });
+	  } catch (_) {}
+	})();
+
+	// Test _writableState for inheritance to account for Duplex streams,
+	// whose prototype chain only points to Readable.
+	var realHasInstance;
+	if (typeof Symbol === 'function' && Symbol.hasInstance && typeof Function.prototype[Symbol.hasInstance] === 'function') {
+	  realHasInstance = Function.prototype[Symbol.hasInstance];
+	  Object.defineProperty(Writable, Symbol.hasInstance, {
+	    value: function (object) {
+	      if (realHasInstance.call(this, object)) return true;
+
+	      return object && object._writableState instanceof WritableState;
+	    }
+	  });
+	} else {
+	  realHasInstance = function (object) {
+	    return object instanceof this;
+	  };
+	}
+
+	function Writable(options) {
+	  Duplex = Duplex || __webpack_require__(4);
+
+	  // Writable ctor is applied to Duplexes, too.
+	  // `realHasInstance` is necessary because using plain `instanceof`
+	  // would return false, as no `_writableState` property is attached.
+
+	  // Trying to use the custom `instanceof` for Writable here will also break the
+	  // Node.js LazyTransform implementation, which has a non-trivial getter for
+	  // `_writableState` that would lead to infinite recursion.
+	  if (!realHasInstance.call(Writable, this) && !(this instanceof Duplex)) {
+	    return new Writable(options);
+	  }
+
+	  this._writableState = new WritableState(options, this);
+
+	  // legacy.
+	  this.writable = true;
+
+	  if (options) {
+	    if (typeof options.write === 'function') this._write = options.write;
+
+	    if (typeof options.writev === 'function') this._writev = options.writev;
+
+	    if (typeof options.destroy === 'function') this._destroy = options.destroy;
+
+	    if (typeof options.final === 'function') this._final = options.final;
+	  }
+
+	  Stream.call(this);
+	}
+
+	// Otherwise people can pipe Writable streams, which is just wrong.
+	Writable.prototype.pipe = function () {
+	  this.emit('error', new Error('Cannot pipe, not readable'));
+	};
+
+	function writeAfterEnd(stream, cb) {
+	  var er = new Error('write after end');
+	  // TODO: defer error events consistently everywhere, not just the cb
+	  stream.emit('error', er);
+	  processNextTick(cb, er);
+	}
+
+	// Checks that a user-supplied chunk is valid, especially for the particular
+	// mode the stream is in. Currently this means that `null` is never accepted
+	// and undefined/non-string values are only allowed in object mode.
+	function validChunk(stream, state, chunk, cb) {
+	  var valid = true;
+	  var er = false;
+
+	  if (chunk === null) {
+	    er = new TypeError('May not write null values to stream');
+	  } else if (typeof chunk !== 'string' && chunk !== undefined && !state.objectMode) {
+	    er = new TypeError('Invalid non-string/buffer chunk');
+	  }
+	  if (er) {
+	    stream.emit('error', er);
+	    processNextTick(cb, er);
+	    valid = false;
+	  }
+	  return valid;
+	}
+
+	Writable.prototype.write = function (chunk, encoding, cb) {
+	  var state = this._writableState;
+	  var ret = false;
+	  var isBuf = _isUint8Array(chunk) && !state.objectMode;
+
+	  if (isBuf && !Buffer.isBuffer(chunk)) {
+	    chunk = _uint8ArrayToBuffer(chunk);
+	  }
+
+	  if (typeof encoding === 'function') {
+	    cb = encoding;
+	    encoding = null;
+	  }
+
+	  if (isBuf) encoding = 'buffer';else if (!encoding) encoding = state.defaultEncoding;
+
+	  if (typeof cb !== 'function') cb = nop;
+
+	  if (state.ended) writeAfterEnd(this, cb);else if (isBuf || validChunk(this, state, chunk, cb)) {
+	    state.pendingcb++;
+	    ret = writeOrBuffer(this, state, isBuf, chunk, encoding, cb);
+	  }
+
+	  return ret;
+	};
+
+	Writable.prototype.cork = function () {
+	  var state = this._writableState;
+
+	  state.corked++;
+	};
+
+	Writable.prototype.uncork = function () {
+	  var state = this._writableState;
+
+	  if (state.corked) {
+	    state.corked--;
+
+	    if (!state.writing && !state.corked && !state.finished && !state.bufferProcessing && state.bufferedRequest) clearBuffer(this, state);
+	  }
+	};
+
+	Writable.prototype.setDefaultEncoding = function setDefaultEncoding(encoding) {
+	  // node::ParseEncoding() requires lower case.
+	  if (typeof encoding === 'string') encoding = encoding.toLowerCase();
+	  if (!(['hex', 'utf8', 'utf-8', 'ascii', 'binary', 'base64', 'ucs2', 'ucs-2', 'utf16le', 'utf-16le', 'raw'].indexOf((encoding + '').toLowerCase()) > -1)) throw new TypeError('Unknown encoding: ' + encoding);
+	  this._writableState.defaultEncoding = encoding;
+	  return this;
+	};
+
+	function decodeChunk(state, chunk, encoding) {
+	  if (!state.objectMode && state.decodeStrings !== false && typeof chunk === 'string') {
+	    chunk = Buffer.from(chunk, encoding);
+	  }
+	  return chunk;
+	}
+
+	// if we're already writing something, then just put this
+	// in the queue, and wait our turn.  Otherwise, call _write
+	// If we return false, then we need a drain event, so set that flag.
+	function writeOrBuffer(stream, state, isBuf, chunk, encoding, cb) {
+	  if (!isBuf) {
+	    var newChunk = decodeChunk(state, chunk, encoding);
+	    if (chunk !== newChunk) {
+	      isBuf = true;
+	      encoding = 'buffer';
+	      chunk = newChunk;
+	    }
+	  }
+	  var len = state.objectMode ? 1 : chunk.length;
+
+	  state.length += len;
+
+	  var ret = state.length < state.highWaterMark;
+	  // we must ensure that previous needDrain will not be reset to false.
+	  if (!ret) state.needDrain = true;
+
+	  if (state.writing || state.corked) {
+	    var last = state.lastBufferedRequest;
+	    state.lastBufferedRequest = {
+	      chunk: chunk,
+	      encoding: encoding,
+	      isBuf: isBuf,
+	      callback: cb,
+	      next: null
+	    };
+	    if (last) {
+	      last.next = state.lastBufferedRequest;
+	    } else {
+	      state.bufferedRequest = state.lastBufferedRequest;
+	    }
+	    state.bufferedRequestCount += 1;
+	  } else {
+	    doWrite(stream, state, false, len, chunk, encoding, cb);
+	  }
+
+	  return ret;
+	}
+
+	function doWrite(stream, state, writev, len, chunk, encoding, cb) {
+	  state.writelen = len;
+	  state.writecb = cb;
+	  state.writing = true;
+	  state.sync = true;
+	  if (writev) stream._writev(chunk, state.onwrite);else stream._write(chunk, encoding, state.onwrite);
+	  state.sync = false;
+	}
+
+	function onwriteError(stream, state, sync, er, cb) {
+	  --state.pendingcb;
+
+	  if (sync) {
+	    // defer the callback if we are being called synchronously
+	    // to avoid piling up things on the stack
+	    processNextTick(cb, er);
+	    // this can emit finish, and it will always happen
+	    // after error
+	    processNextTick(finishMaybe, stream, state);
+	    stream._writableState.errorEmitted = true;
+	    stream.emit('error', er);
+	  } else {
+	    // the caller expect this to happen before if
+	    // it is async
+	    cb(er);
+	    stream._writableState.errorEmitted = true;
+	    stream.emit('error', er);
+	    // this can emit finish, but finish must
+	    // always follow error
+	    finishMaybe(stream, state);
+	  }
+	}
+
+	function onwriteStateUpdate(state) {
+	  state.writing = false;
+	  state.writecb = null;
+	  state.length -= state.writelen;
+	  state.writelen = 0;
+	}
+
+	function onwrite(stream, er) {
+	  var state = stream._writableState;
+	  var sync = state.sync;
+	  var cb = state.writecb;
+
+	  onwriteStateUpdate(state);
+
+	  if (er) onwriteError(stream, state, sync, er, cb);else {
+	    // Check if we're actually ready to finish, but don't emit yet
+	    var finished = needFinish(state);
+
+	    if (!finished && !state.corked && !state.bufferProcessing && state.bufferedRequest) {
+	      clearBuffer(stream, state);
+	    }
+
+	    if (sync) {
+	      /*<replacement>*/
+	      asyncWrite(afterWrite, stream, state, finished, cb);
+	      /*</replacement>*/
+	    } else {
+	      afterWrite(stream, state, finished, cb);
+	    }
+	  }
+	}
+
+	function afterWrite(stream, state, finished, cb) {
+	  if (!finished) onwriteDrain(stream, state);
+	  state.pendingcb--;
+	  cb();
+	  finishMaybe(stream, state);
+	}
+
+	// Must force callback to be called on nextTick, so that we don't
+	// emit 'drain' before the write() consumer gets the 'false' return
+	// value, and has a chance to attach a 'drain' listener.
+	function onwriteDrain(stream, state) {
+	  if (state.length === 0 && state.needDrain) {
+	    state.needDrain = false;
+	    stream.emit('drain');
+	  }
+	}
+
+	// if there's something in the buffer waiting, then process it
+	function clearBuffer(stream, state) {
+	  state.bufferProcessing = true;
+	  var entry = state.bufferedRequest;
+
+	  if (stream._writev && entry && entry.next) {
+	    // Fast case, write everything using _writev()
+	    var l = state.bufferedRequestCount;
+	    var buffer = new Array(l);
+	    var holder = state.corkedRequestsFree;
+	    holder.entry = entry;
+
+	    var count = 0;
+	    var allBuffers = true;
+	    while (entry) {
+	      buffer[count] = entry;
+	      if (!entry.isBuf) allBuffers = false;
+	      entry = entry.next;
+	      count += 1;
+	    }
+	    buffer.allBuffers = allBuffers;
+
+	    doWrite(stream, state, true, state.length, buffer, '', holder.finish);
+
+	    // doWrite is almost always async, defer these to save a bit of time
+	    // as the hot path ends with doWrite
+	    state.pendingcb++;
+	    state.lastBufferedRequest = null;
+	    if (holder.next) {
+	      state.corkedRequestsFree = holder.next;
+	      holder.next = null;
+	    } else {
+	      state.corkedRequestsFree = new CorkedRequest(state);
+	    }
+	  } else {
+	    // Slow case, write chunks one-by-one
+	    while (entry) {
+	      var chunk = entry.chunk;
+	      var encoding = entry.encoding;
+	      var cb = entry.callback;
+	      var len = state.objectMode ? 1 : chunk.length;
+
+	      doWrite(stream, state, false, len, chunk, encoding, cb);
+	      entry = entry.next;
+	      // if we didn't call the onwrite immediately, then
+	      // it means that we need to wait until it does.
+	      // also, that means that the chunk and cb are currently
+	      // being processed, so move the buffer counter past them.
+	      if (state.writing) {
+	        break;
+	      }
+	    }
+
+	    if (entry === null) state.lastBufferedRequest = null;
+	  }
+
+	  state.bufferedRequestCount = 0;
+	  state.bufferedRequest = entry;
+	  state.bufferProcessing = false;
+	}
+
+	Writable.prototype._write = function (chunk, encoding, cb) {
+	  cb(new Error('_write() is not implemented'));
+	};
+
+	Writable.prototype._writev = null;
+
+	Writable.prototype.end = function (chunk, encoding, cb) {
+	  var state = this._writableState;
+
+	  if (typeof chunk === 'function') {
+	    cb = chunk;
+	    chunk = null;
+	    encoding = null;
+	  } else if (typeof encoding === 'function') {
+	    cb = encoding;
+	    encoding = null;
+	  }
+
+	  if (chunk !== null && chunk !== undefined) this.write(chunk, encoding);
+
+	  // .end() fully uncorks
+	  if (state.corked) {
+	    state.corked = 1;
+	    this.uncork();
+	  }
+
+	  // ignore unnecessary end() calls.
+	  if (!state.ending && !state.finished) endWritable(this, state, cb);
+	};
+
+	function needFinish(state) {
+	  return state.ending && state.length === 0 && state.bufferedRequest === null && !state.finished && !state.writing;
+	}
+	function callFinal(stream, state) {
+	  stream._final(function (err) {
+	    state.pendingcb--;
+	    if (err) {
+	      stream.emit('error', err);
+	    }
+	    state.prefinished = true;
+	    stream.emit('prefinish');
+	    finishMaybe(stream, state);
+	  });
+	}
+	function prefinish(stream, state) {
+	  if (!state.prefinished && !state.finalCalled) {
+	    if (typeof stream._final === 'function') {
+	      state.pendingcb++;
+	      state.finalCalled = true;
+	      processNextTick(callFinal, stream, state);
+	    } else {
+	      state.prefinished = true;
+	      stream.emit('prefinish');
+	    }
+	  }
+	}
+
+	function finishMaybe(stream, state) {
+	  var need = needFinish(state);
+	  if (need) {
+	    prefinish(stream, state);
+	    if (state.pendingcb === 0) {
+	      state.finished = true;
+	      stream.emit('finish');
+	    }
+	  }
+	  return need;
+	}
+
+	function endWritable(stream, state, cb) {
+	  state.ending = true;
+	  finishMaybe(stream, state);
+	  if (cb) {
+	    if (state.finished) processNextTick(cb);else stream.once('finish', cb);
+	  }
+	  state.ended = true;
+	  stream.writable = false;
+	}
+
+	function onCorkedFinish(corkReq, state, err) {
+	  var entry = corkReq.entry;
+	  corkReq.entry = null;
+	  while (entry) {
+	    var cb = entry.callback;
+	    state.pendingcb--;
+	    cb(err);
+	    entry = entry.next;
+	  }
+	  if (state.corkedRequestsFree) {
+	    state.corkedRequestsFree.next = corkReq;
+	  } else {
+	    state.corkedRequestsFree = corkReq;
+	  }
+	}
+
+	Object.defineProperty(Writable.prototype, 'destroyed', {
+	  get: function () {
+	    if (this._writableState === undefined) {
+	      return false;
+	    }
+	    return this._writableState.destroyed;
+	  },
+	  set: function (value) {
+	    // we ignore the value if the stream
+	    // has not been initialized yet
+	    if (!this._writableState) {
+	      return;
+	    }
+
+	    // backward compatibility, the user is explicitly
+	    // managing destroyed
+	    this._writableState.destroyed = value;
+	  }
+	});
+
+	Writable.prototype.destroy = destroyImpl.destroy;
+	Writable.prototype._undestroy = destroyImpl.undestroy;
+	Writable.prototype._destroy = function (err, cb) {
+	  this.end();
+	  cb(err);
+	};
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3), __webpack_require__(68).setImmediate, (function() { return this; }())))
+
+/***/ }),
+/* 14 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(37);
+	exports.Stream = exports;
+	exports.Readable = exports;
+	exports.Writable = __webpack_require__(13);
+	exports.Duplex = __webpack_require__(4);
+	exports.Transform = __webpack_require__(38);
+	exports.PassThrough = __webpack_require__(73);
+
+
+/***/ }),
+/* 15 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(global, process) {// Copyright Joyent, Inc. and other Node contributors.
+	//
+	// Permission is hereby granted, free of charge, to any person obtaining a
+	// copy of this software and associated documentation files (the
+	// "Software"), to deal in the Software without restriction, including
+	// without limitation the rights to use, copy, modify, merge, publish,
+	// distribute, sublicense, and/or sell copies of the Software, and to permit
+	// persons to whom the Software is furnished to do so, subject to the
+	// following conditions:
+	//
+	// The above copyright notice and this permission notice shall be included
+	// in all copies or substantial portions of the Software.
+	//
+	// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+	// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+	// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+	// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+	// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+	// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+	var formatRegExp = /%[sdj%]/g;
+	exports.format = function(f) {
+	  if (!isString(f)) {
+	    var objects = [];
+	    for (var i = 0; i < arguments.length; i++) {
+	      objects.push(inspect(arguments[i]));
+	    }
+	    return objects.join(' ');
+	  }
+
+	  var i = 1;
+	  var args = arguments;
+	  var len = args.length;
+	  var str = String(f).replace(formatRegExp, function(x) {
+	    if (x === '%%') return '%';
+	    if (i >= len) return x;
+	    switch (x) {
+	      case '%s': return String(args[i++]);
+	      case '%d': return Number(args[i++]);
+	      case '%j':
+	        try {
+	          return JSON.stringify(args[i++]);
+	        } catch (_) {
+	          return '[Circular]';
+	        }
+	      default:
+	        return x;
+	    }
+	  });
+	  for (var x = args[i]; i < len; x = args[++i]) {
+	    if (isNull(x) || !isObject(x)) {
+	      str += ' ' + x;
+	    } else {
+	      str += ' ' + inspect(x);
+	    }
+	  }
+	  return str;
+	};
+
+
+	// Mark that a method should not be used.
+	// Returns a modified function which warns once by default.
+	// If --no-deprecation is set, then it is a no-op.
+	exports.deprecate = function(fn, msg) {
+	  // Allow for deprecating things in the process of starting up.
+	  if (isUndefined(global.process)) {
+	    return function() {
+	      return exports.deprecate(fn, msg).apply(this, arguments);
+	    };
+	  }
+
+	  if (process.noDeprecation === true) {
+	    return fn;
+	  }
+
+	  var warned = false;
+	  function deprecated() {
+	    if (!warned) {
+	      if (process.throwDeprecation) {
+	        throw new Error(msg);
+	      } else if (process.traceDeprecation) {
+	        console.trace(msg);
+	      } else {
+	        console.error(msg);
+	      }
+	      warned = true;
+	    }
+	    return fn.apply(this, arguments);
+	  }
+
+	  return deprecated;
+	};
+
+
+	var debugs = {};
+	var debugEnviron;
+	exports.debuglog = function(set) {
+	  if (isUndefined(debugEnviron))
+	    debugEnviron = process.env.NODE_DEBUG || '';
+	  set = set.toUpperCase();
+	  if (!debugs[set]) {
+	    if (new RegExp('\\b' + set + '\\b', 'i').test(debugEnviron)) {
+	      var pid = process.pid;
+	      debugs[set] = function() {
+	        var msg = exports.format.apply(exports, arguments);
+	        console.error('%s %d: %s', set, pid, msg);
+	      };
+	    } else {
+	      debugs[set] = function() {};
+	    }
+	  }
+	  return debugs[set];
+	};
+
+
+	/**
+	 * Echos the value of a value. Trys to print the value out
+	 * in the best way possible given the different types.
+	 *
+	 * @param {Object} obj The object to print out.
+	 * @param {Object} opts Optional options object that alters the output.
+	 */
+	/* legacy: obj, showHidden, depth, colors*/
+	function inspect(obj, opts) {
+	  // default options
+	  var ctx = {
+	    seen: [],
+	    stylize: stylizeNoColor
+	  };
+	  // legacy...
+	  if (arguments.length >= 3) ctx.depth = arguments[2];
+	  if (arguments.length >= 4) ctx.colors = arguments[3];
+	  if (isBoolean(opts)) {
+	    // legacy...
+	    ctx.showHidden = opts;
+	  } else if (opts) {
+	    // got an "options" object
+	    exports._extend(ctx, opts);
+	  }
+	  // set default options
+	  if (isUndefined(ctx.showHidden)) ctx.showHidden = false;
+	  if (isUndefined(ctx.depth)) ctx.depth = 2;
+	  if (isUndefined(ctx.colors)) ctx.colors = false;
+	  if (isUndefined(ctx.customInspect)) ctx.customInspect = true;
+	  if (ctx.colors) ctx.stylize = stylizeWithColor;
+	  return formatValue(ctx, obj, ctx.depth);
+	}
+	exports.inspect = inspect;
+
+
+	// http://en.wikipedia.org/wiki/ANSI_escape_code#graphics
+	inspect.colors = {
+	  'bold' : [1, 22],
+	  'italic' : [3, 23],
+	  'underline' : [4, 24],
+	  'inverse' : [7, 27],
+	  'white' : [37, 39],
+	  'grey' : [90, 39],
+	  'black' : [30, 39],
+	  'blue' : [34, 39],
+	  'cyan' : [36, 39],
+	  'green' : [32, 39],
+	  'magenta' : [35, 39],
+	  'red' : [31, 39],
+	  'yellow' : [33, 39]
+	};
+
+	// Don't use 'blue' not visible on cmd.exe
+	inspect.styles = {
+	  'special': 'cyan',
+	  'number': 'yellow',
+	  'boolean': 'yellow',
+	  'undefined': 'grey',
+	  'null': 'bold',
+	  'string': 'green',
+	  'date': 'magenta',
+	  // "name": intentionally not styling
+	  'regexp': 'red'
+	};
+
+
+	function stylizeWithColor(str, styleType) {
+	  var style = inspect.styles[styleType];
+
+	  if (style) {
+	    return '\u001b[' + inspect.colors[style][0] + 'm' + str +
+	           '\u001b[' + inspect.colors[style][1] + 'm';
+	  } else {
+	    return str;
+	  }
+	}
+
+
+	function stylizeNoColor(str, styleType) {
+	  return str;
+	}
+
+
+	function arrayToHash(array) {
+	  var hash = {};
+
+	  array.forEach(function(val, idx) {
+	    hash[val] = true;
+	  });
+
+	  return hash;
+	}
+
+
+	function formatValue(ctx, value, recurseTimes) {
+	  // Provide a hook for user-specified inspect functions.
+	  // Check that value is an object with an inspect function on it
+	  if (ctx.customInspect &&
+	      value &&
+	      isFunction(value.inspect) &&
+	      // Filter out the util module, it's inspect function is special
+	      value.inspect !== exports.inspect &&
+	      // Also filter out any prototype objects using the circular check.
+	      !(value.constructor && value.constructor.prototype === value)) {
+	    var ret = value.inspect(recurseTimes, ctx);
+	    if (!isString(ret)) {
+	      ret = formatValue(ctx, ret, recurseTimes);
+	    }
+	    return ret;
+	  }
+
+	  // Primitive types cannot have properties
+	  var primitive = formatPrimitive(ctx, value);
+	  if (primitive) {
+	    return primitive;
+	  }
+
+	  // Look up the keys of the object.
+	  var keys = Object.keys(value);
+	  var visibleKeys = arrayToHash(keys);
+
+	  if (ctx.showHidden) {
+	    keys = Object.getOwnPropertyNames(value);
+	  }
+
+	  // IE doesn't make error fields non-enumerable
+	  // http://msdn.microsoft.com/en-us/library/ie/dww52sbt(v=vs.94).aspx
+	  if (isError(value)
+	      && (keys.indexOf('message') >= 0 || keys.indexOf('description') >= 0)) {
+	    return formatError(value);
+	  }
+
+	  // Some type of object without properties can be shortcutted.
+	  if (keys.length === 0) {
+	    if (isFunction(value)) {
+	      var name = value.name ? ': ' + value.name : '';
+	      return ctx.stylize('[Function' + name + ']', 'special');
+	    }
+	    if (isRegExp(value)) {
+	      return ctx.stylize(RegExp.prototype.toString.call(value), 'regexp');
+	    }
+	    if (isDate(value)) {
+	      return ctx.stylize(Date.prototype.toString.call(value), 'date');
+	    }
+	    if (isError(value)) {
+	      return formatError(value);
+	    }
+	  }
+
+	  var base = '', array = false, braces = ['{', '}'];
+
+	  // Make Array say that they are Array
+	  if (isArray(value)) {
+	    array = true;
+	    braces = ['[', ']'];
+	  }
+
+	  // Make functions say that they are functions
+	  if (isFunction(value)) {
+	    var n = value.name ? ': ' + value.name : '';
+	    base = ' [Function' + n + ']';
+	  }
+
+	  // Make RegExps say that they are RegExps
+	  if (isRegExp(value)) {
+	    base = ' ' + RegExp.prototype.toString.call(value);
+	  }
+
+	  // Make dates with properties first say the date
+	  if (isDate(value)) {
+	    base = ' ' + Date.prototype.toUTCString.call(value);
+	  }
+
+	  // Make error with message first say the error
+	  if (isError(value)) {
+	    base = ' ' + formatError(value);
+	  }
+
+	  if (keys.length === 0 && (!array || value.length == 0)) {
+	    return braces[0] + base + braces[1];
+	  }
+
+	  if (recurseTimes < 0) {
+	    if (isRegExp(value)) {
+	      return ctx.stylize(RegExp.prototype.toString.call(value), 'regexp');
+	    } else {
+	      return ctx.stylize('[Object]', 'special');
+	    }
+	  }
+
+	  ctx.seen.push(value);
+
+	  var output;
+	  if (array) {
+	    output = formatArray(ctx, value, recurseTimes, visibleKeys, keys);
+	  } else {
+	    output = keys.map(function(key) {
+	      return formatProperty(ctx, value, recurseTimes, visibleKeys, key, array);
+	    });
+	  }
+
+	  ctx.seen.pop();
+
+	  return reduceToSingleString(output, base, braces);
+	}
+
+
+	function formatPrimitive(ctx, value) {
+	  if (isUndefined(value))
+	    return ctx.stylize('undefined', 'undefined');
+	  if (isString(value)) {
+	    var simple = '\'' + JSON.stringify(value).replace(/^"|"$/g, '')
+	                                             .replace(/'/g, "\\'")
+	                                             .replace(/\\"/g, '"') + '\'';
+	    return ctx.stylize(simple, 'string');
+	  }
+	  if (isNumber(value))
+	    return ctx.stylize('' + value, 'number');
+	  if (isBoolean(value))
+	    return ctx.stylize('' + value, 'boolean');
+	  // For some reason typeof null is "object", so special case here.
+	  if (isNull(value))
+	    return ctx.stylize('null', 'null');
+	}
+
+
+	function formatError(value) {
+	  return '[' + Error.prototype.toString.call(value) + ']';
+	}
+
+
+	function formatArray(ctx, value, recurseTimes, visibleKeys, keys) {
+	  var output = [];
+	  for (var i = 0, l = value.length; i < l; ++i) {
+	    if (hasOwnProperty(value, String(i))) {
+	      output.push(formatProperty(ctx, value, recurseTimes, visibleKeys,
+	          String(i), true));
+	    } else {
+	      output.push('');
+	    }
+	  }
+	  keys.forEach(function(key) {
+	    if (!key.match(/^\d+$/)) {
+	      output.push(formatProperty(ctx, value, recurseTimes, visibleKeys,
+	          key, true));
+	    }
+	  });
+	  return output;
+	}
+
+
+	function formatProperty(ctx, value, recurseTimes, visibleKeys, key, array) {
+	  var name, str, desc;
+	  desc = Object.getOwnPropertyDescriptor(value, key) || { value: value[key] };
+	  if (desc.get) {
+	    if (desc.set) {
+	      str = ctx.stylize('[Getter/Setter]', 'special');
+	    } else {
+	      str = ctx.stylize('[Getter]', 'special');
+	    }
+	  } else {
+	    if (desc.set) {
+	      str = ctx.stylize('[Setter]', 'special');
+	    }
+	  }
+	  if (!hasOwnProperty(visibleKeys, key)) {
+	    name = '[' + key + ']';
+	  }
+	  if (!str) {
+	    if (ctx.seen.indexOf(desc.value) < 0) {
+	      if (isNull(recurseTimes)) {
+	        str = formatValue(ctx, desc.value, null);
+	      } else {
+	        str = formatValue(ctx, desc.value, recurseTimes - 1);
+	      }
+	      if (str.indexOf('\n') > -1) {
+	        if (array) {
+	          str = str.split('\n').map(function(line) {
+	            return '  ' + line;
+	          }).join('\n').substr(2);
+	        } else {
+	          str = '\n' + str.split('\n').map(function(line) {
+	            return '   ' + line;
+	          }).join('\n');
+	        }
+	      }
+	    } else {
+	      str = ctx.stylize('[Circular]', 'special');
+	    }
+	  }
+	  if (isUndefined(name)) {
+	    if (array && key.match(/^\d+$/)) {
+	      return str;
+	    }
+	    name = JSON.stringify('' + key);
+	    if (name.match(/^"([a-zA-Z_][a-zA-Z_0-9]*)"$/)) {
+	      name = name.substr(1, name.length - 2);
+	      name = ctx.stylize(name, 'name');
+	    } else {
+	      name = name.replace(/'/g, "\\'")
+	                 .replace(/\\"/g, '"')
+	                 .replace(/(^"|"$)/g, "'");
+	      name = ctx.stylize(name, 'string');
+	    }
+	  }
+
+	  return name + ': ' + str;
+	}
+
+
+	function reduceToSingleString(output, base, braces) {
+	  var numLinesEst = 0;
+	  var length = output.reduce(function(prev, cur) {
+	    numLinesEst++;
+	    if (cur.indexOf('\n') >= 0) numLinesEst++;
+	    return prev + cur.replace(/\u001b\[\d\d?m/g, '').length + 1;
+	  }, 0);
+
+	  if (length > 60) {
+	    return braces[0] +
+	           (base === '' ? '' : base + '\n ') +
+	           ' ' +
+	           output.join(',\n  ') +
+	           ' ' +
+	           braces[1];
+	  }
+
+	  return braces[0] + base + ' ' + output.join(', ') + ' ' + braces[1];
+	}
+
+
+	// NOTE: These type checking functions intentionally don't use `instanceof`
+	// because it is fragile and can be easily faked with `Object.create()`.
+	function isArray(ar) {
+	  return Array.isArray(ar);
+	}
+	exports.isArray = isArray;
+
+	function isBoolean(arg) {
+	  return typeof arg === 'boolean';
+	}
+	exports.isBoolean = isBoolean;
+
+	function isNull(arg) {
+	  return arg === null;
+	}
+	exports.isNull = isNull;
+
+	function isNullOrUndefined(arg) {
+	  return arg == null;
+	}
+	exports.isNullOrUndefined = isNullOrUndefined;
+
+	function isNumber(arg) {
+	  return typeof arg === 'number';
+	}
+	exports.isNumber = isNumber;
+
+	function isString(arg) {
+	  return typeof arg === 'string';
+	}
+	exports.isString = isString;
+
+	function isSymbol(arg) {
+	  return typeof arg === 'symbol';
+	}
+	exports.isSymbol = isSymbol;
+
+	function isUndefined(arg) {
+	  return arg === void 0;
+	}
+	exports.isUndefined = isUndefined;
+
+	function isRegExp(re) {
+	  return isObject(re) && objectToString(re) === '[object RegExp]';
+	}
+	exports.isRegExp = isRegExp;
+
+	function isObject(arg) {
+	  return typeof arg === 'object' && arg !== null;
+	}
+	exports.isObject = isObject;
+
+	function isDate(d) {
+	  return isObject(d) && objectToString(d) === '[object Date]';
+	}
+	exports.isDate = isDate;
+
+	function isError(e) {
+	  return isObject(e) &&
+	      (objectToString(e) === '[object Error]' || e instanceof Error);
+	}
+	exports.isError = isError;
+
+	function isFunction(arg) {
+	  return typeof arg === 'function';
+	}
+	exports.isFunction = isFunction;
+
+	function isPrimitive(arg) {
+	  return arg === null ||
+	         typeof arg === 'boolean' ||
+	         typeof arg === 'number' ||
+	         typeof arg === 'string' ||
+	         typeof arg === 'symbol' ||  // ES6 symbol
+	         typeof arg === 'undefined';
+	}
+	exports.isPrimitive = isPrimitive;
+
+	exports.isBuffer = __webpack_require__(83);
+
+	function objectToString(o) {
+	  return Object.prototype.toString.call(o);
+	}
+
+
+	function pad(n) {
+	  return n < 10 ? '0' + n.toString(10) : n.toString(10);
+	}
+
+
+	var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep',
+	              'Oct', 'Nov', 'Dec'];
+
+	// 26 Feb 16:19:34
+	function timestamp() {
+	  var d = new Date();
+	  var time = [pad(d.getHours()),
+	              pad(d.getMinutes()),
+	              pad(d.getSeconds())].join(':');
+	  return [d.getDate(), months[d.getMonth()], time].join(' ');
+	}
+
+
+	// log is just a thin wrapper to console.log that prepends a timestamp
+	exports.log = function() {
+	  console.log('%s - %s', timestamp(), exports.format.apply(exports, arguments));
+	};
+
+
+	/**
+	 * Inherit the prototype methods from one constructor into another.
+	 *
+	 * The Function.prototype.inherits from lang.js rewritten as a standalone
+	 * function (not on Function.prototype). NOTE: If this file is to be loaded
+	 * during bootstrapping this function needs to be rewritten using some native
+	 * functions as prototype setup using normal JavaScript does not work as
+	 * expected during bootstrapping (see mirror.js in r114903).
+	 *
+	 * @param {function} ctor Constructor function which needs to inherit the
+	 *     prototype.
+	 * @param {function} superCtor Constructor function to inherit prototype from.
+	 */
+	exports.inherits = __webpack_require__(82);
+
+	exports._extend = function(origin, add) {
+	  // Don't do anything if add isn't an object
+	  if (!add || !isObject(add)) return origin;
+
+	  var keys = Object.keys(add);
+	  var i = keys.length;
+	  while (i--) {
+	    origin[keys[i]] = add[keys[i]];
+	  }
+	  return origin;
+	};
+
+	function hasOwnProperty(obj, prop) {
+	  return Object.prototype.hasOwnProperty.call(obj, prop);
+	}
+
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(3)))
+
+/***/ }),
+/* 16 */
+/***/ (function(module, exports) {
+
+	module.exports = __WEBPACK_EXTERNAL_MODULE_16__;
+
+/***/ }),
+/* 17 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	exports.__esModule = true;
+
+	var _global = __webpack_require__(16);
+
+	var _reactNativeRandombytes = __webpack_require__(70);
+
+	var _reactNativeRandombytes2 = _interopRequireDefault(_reactNativeRandombytes);
+
+	var _BigInteger = __webpack_require__(18);
+
+	var _BigInteger2 = _interopRequireDefault(_BigInteger);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } } /*!
+	                                                                                                                                                           * Copyright 2016 Amazon.com,
+	                                                                                                                                                           * Inc. or its affiliates. All Rights Reserved.
+	                                                                                                                                                           *
+	                                                                                                                                                           * Licensed under the Amazon Software License (the "License").
+	                                                                                                                                                           * You may not use this file except in compliance with the
+	                                                                                                                                                           * License. A copy of the License is located at
+	                                                                                                                                                           *
+	                                                                                                                                                           *     http://aws.amazon.com/asl/
+	                                                                                                                                                           *
+	                                                                                                                                                           * or in the "license" file accompanying this file. This file is
+	                                                                                                                                                           * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+	                                                                                                                                                           * CONDITIONS OF ANY KIND, express or implied. See the License
+	                                                                                                                                                           * for the specific language governing permissions and
+	                                                                                                                                                           * limitations under the License.
+	                                                                                                                                                           */
+
+	_global.util.crypto.lib.randomBytes = _reactNativeRandombytes2.default;
+
+	var initN = "FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD1" + "29024E088A67CC74020BBEA63B139B22514A08798E3404DD" + "EF9519B3CD3A431B302B0A6DF25F14374FE1356D6D51C245" + "E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7ED" + "EE386BFB5A899FA5AE9F24117C4B1FE649286651ECE45B3D" + "C2007CB8A163BF0598DA48361C55D39A69163FA8FD24CF5F" + "83655D23DCA3AD961C62F356208552BB9ED529077096966D" + "670C354E4ABC9804F1746C08CA18217C32905E462E36CE3B" + "E39E772C180E86039B2783A2EC07A28FB5C55DF06F4C52C9" + "DE2BCBF6955817183995497CEA956AE515D2261898FA0510" + "15728E5A8AAAC42DAD33170D04507A33A85521ABDF1CBA64" + "ECFB850458DBEF0A8AEA71575D060C7DB3970F85A6E1E4C7" + "ABF5AE8CDB0933D71E8C94E04A25619DCEE3D2261AD2EE6B" + "F12FFA06D98A0864D87602733EC86A64521F2B18177B200C" + "BBE117577A615D6C770988C0BAD946E208E24FA074E5AB31" + "43DB5BFCE0FD108E4B82D120A93AD2CAFFFFFFFFFFFFFFFF";
+
+	var newPasswordRequiredChallengeUserAttributePrefix = "userAttributes.";
+
+	/** @class */
+
+	var AuthenticationHelper = function () {
+	  /**
+	   * Constructs a new AuthenticationHelper object
+	   * @param {string} PoolName Cognito user pool name.
+	   */
+	  function AuthenticationHelper(PoolName) {
+	    _classCallCheck(this, AuthenticationHelper);
+
+	    this.N = new _BigInteger2.default(initN, 16);
+	    this.g = new _BigInteger2.default("2", 16);
+	    this.k = new _BigInteger2.default(this.hexHash("00" + this.N.toString(16) + "0" + this.g.toString(16)), 16);
+
+	    this.smallAValue = this.generateRandomSmallA();
+	    this.getLargeAValue(function () {});
+
+	    this.infoBits = new _global.util.Buffer("Caldera Derived Key", "utf8");
+
+	    this.poolName = PoolName;
+	  }
+
+	  /**
+	   * @returns {BigInteger} small A, a random number
+	   */
+
+
+	  AuthenticationHelper.prototype.getSmallAValue = function getSmallAValue() {
+	    return this.smallAValue;
+	  };
+
+	  /**
+	   * @param {nodeCallback<BigInteger>} callback Called with (err, largeAValue)
+	   * @returns {void}
+	   */
+
+
+	  AuthenticationHelper.prototype.getLargeAValue = function getLargeAValue(callback) {
+	    var _this = this;
+
+	    if (this.largeAValue) {
+	      callback(null, this.largeAValue);
+	    } else {
+	      this.calculateA(this.smallAValue, function (err, largeAValue) {
+	        if (err) {
+	          callback(err, null);
+	        }
+
+	        _this.largeAValue = largeAValue;
+	        callback(null, _this.largeAValue);
+	      });
+	    }
+	  };
+
+	  /**
+	   * helper function to generate a random big integer
+	   * @returns {BigInteger} a random value.
+	   * @private
+	   */
+
+
+	  AuthenticationHelper.prototype.generateRandomSmallA = function generateRandomSmallA() {
+	    var hexRandom = _global.util.crypto.lib.randomBytes(128).toString("hex");
+
+	    var randomBigInt = new _BigInteger2.default(hexRandom, 16);
+	    var smallABigInt = randomBigInt.mod(this.N);
+
+	    return smallABigInt;
+	  };
+
+	  /**
+	   * helper function to generate a random string
+	   * @returns {string} a random value.
+	   * @private
+	   */
+
+
+	  AuthenticationHelper.prototype.generateRandomString = function generateRandomString() {
+	    return _global.util.crypto.lib.randomBytes(40).toString("base64");
+	  };
+
+	  /**
+	   * @returns {string} Generated random value included in password hash.
+	   */
+
+
+	  AuthenticationHelper.prototype.getRandomPassword = function getRandomPassword() {
+	    return this.randomPassword;
+	  };
+
+	  /**
+	   * @returns {string} Generated random value included in devices hash.
+	   */
+
+
+	  AuthenticationHelper.prototype.getSaltDevices = function getSaltDevices() {
+	    return this.SaltToHashDevices;
+	  };
+
+	  /**
+	   * @returns {string} Value used to verify devices.
+	   */
+
+
+	  AuthenticationHelper.prototype.getVerifierDevices = function getVerifierDevices() {
+	    return this.verifierDevices;
+	  };
+
+	  /**
+	   * Generate salts and compute verifier.
+	   * @param {string} deviceGroupKey Devices to generate verifier for.
+	   * @param {string} username User to generate verifier for.
+	   * @param {nodeCallback<null>} callback Called with (err, null)
+	   * @returns {void}
+	   */
+
+
+	  AuthenticationHelper.prototype.generateHashDevice = function generateHashDevice(deviceGroupKey, username, callback) {
+	    var _this2 = this;
+
+	    this.randomPassword = this.generateRandomString();
+	    var combinedString = "" + deviceGroupKey + username + ":" + this.randomPassword;
+	    var hashedString = this.hash(combinedString);
+
+	    var hexRandom = _global.util.crypto.lib.randomBytes(16).toString("hex");
+	    this.SaltToHashDevices = this.padHex(new _BigInteger2.default(hexRandom, 16));
+
+	    this.g.modPow(new _BigInteger2.default(this.hexHash(this.SaltToHashDevices + hashedString), 16), this.N, function (err, verifierDevicesNotPadded) {
+	      if (err) {
+	        callback(err, null);
+	      }
+
+	      _this2.verifierDevices = _this2.padHex(verifierDevicesNotPadded);
+	      callback(null, null);
+	    });
+	  };
+
+	  /**
+	   * Calculate the client's public value A = g^a%N
+	   * with the generated random number a
+	   * @param {BigInteger} a Randomly generated small A.
+	   * @param {nodeCallback<BigInteger>} callback Called with (err, largeAValue)
+	   * @returns {void}
+	   * @private
+	   */
+
+
+	  AuthenticationHelper.prototype.calculateA = function calculateA(a, callback) {
+	    var _this3 = this;
+
+	    this.g.modPow(a, this.N, function (err, A) {
+	      if (err) {
+	        callback(err, null);
+	      }
+
+	      if (A.mod(_this3.N).equals(_BigInteger2.default.ZERO)) {
+	        callback(new Error("Illegal paramater. A mod N cannot be 0."), null);
+	      }
+
+	      callback(null, A);
+	    });
+	  };
+
+	  /**
+	   * Calculate the client's value U which is the hash of A and B
+	   * @param {BigInteger} A Large A value.
+	   * @param {BigInteger} B Server B value.
+	   * @returns {BigInteger} Computed U value.
+	   * @private
+	   */
+
+
+	  AuthenticationHelper.prototype.calculateU = function calculateU(A, B) {
+	    this.UHexHash = this.hexHash(this.padHex(A) + this.padHex(B));
+	    var finalU = new _BigInteger2.default(this.UHexHash, 16);
+
+	    return finalU;
+	  };
+
+	  /**
+	   * Calculate a hash from a bitArray
+	   * @param {Buffer} buf Value to hash.
+	   * @returns {String} Hex-encoded hash.
+	   * @private
+	   */
+
+
+	  AuthenticationHelper.prototype.hash = function hash(buf) {
+	    var hashHex = _global.util.crypto.sha256(buf, "hex");
+	    return new Array(64 - hashHex.length).join("0") + hashHex;
+	  };
+
+	  /**
+	   * Calculate a hash from a hex string
+	   * @param {String} hexStr Value to hash.
+	   * @returns {String} Hex-encoded hash.
+	   * @private
+	   */
+
+
+	  AuthenticationHelper.prototype.hexHash = function hexHash(hexStr) {
+	    return this.hash(new _global.util.Buffer(hexStr, "hex"));
+	  };
+
+	  /**
+	   * Standard hkdf algorithm
+	   * @param {Buffer} ikm Input key material.
+	   * @param {Buffer} salt Salt value.
+	   * @returns {Buffer} Strong key material.
+	   * @private
+	   */
+
+
+	  AuthenticationHelper.prototype.computehkdf = function computehkdf(ikm, salt) {
+	    var prk = _global.util.crypto.hmac(salt, ikm, "buffer", "sha256");
+	    var infoBitsUpdate = _global.util.buffer.concat([this.infoBits, new _global.util.Buffer(String.fromCharCode(1), "utf8")]);
+	    var hmac = _global.util.crypto.hmac(prk, infoBitsUpdate, "buffer", "sha256");
+	    return hmac.slice(0, 16);
+	  };
+
+	  /**
+	   * Calculates the final hkdf based on computed S value, and computed U value and the key
+	   * @param {String} username Username.
+	   * @param {String} password Password.
+	   * @param {BigInteger} serverBValue Server B value.
+	   * @param {BigInteger} salt Generated salt.
+	   * @param {nodeCallback<Buffer>} callback Called with (err, hkdfValue)
+	   * @returns {void}
+	   */
+
+
+	  AuthenticationHelper.prototype.getPasswordAuthenticationKey = function getPasswordAuthenticationKey(username, password, serverBValue, salt, callback) {
+	    var _this4 = this;
+
+	    if (serverBValue.mod(this.N).equals(_BigInteger2.default.ZERO)) {
+	      throw new Error("B cannot be zero.");
+	    }
+
+	    this.UValue = this.calculateU(this.largeAValue, serverBValue);
+
+	    if (this.UValue.equals(_BigInteger2.default.ZERO)) {
+	      throw new Error("U cannot be zero.");
+	    }
+
+	    var usernamePassword = "" + this.poolName + username + ":" + password;
+	    var usernamePasswordHash = this.hash(usernamePassword);
+
+	    var xValue = new _BigInteger2.default(this.hexHash(this.padHex(salt) + usernamePasswordHash), 16);
+	    this.calculateS(xValue, serverBValue, function (err, sValue) {
+	      if (err) {
+	        callback(err, null);
+	      }
+
+	      var hkdf = _this4.computehkdf(new _global.util.Buffer(_this4.padHex(sValue), "hex"), new _global.util.Buffer(_this4.padHex(_this4.UValue.toString(16)), "hex"));
+
+	      callback(null, hkdf);
+	    });
+	  };
+
+	  /**
+	   * Calculates the S value used in getPasswordAuthenticationKey
+	   * @param {BigInteger} xValue Salted password hash value.
+	   * @param {BigInteger} serverBValue Server B value.
+	   * @param {nodeCallback<string>} callback Called on success or error.
+	   * @returns {void}
+	   */
+
+
+	  AuthenticationHelper.prototype.calculateS = function calculateS(xValue, serverBValue, callback) {
+	    var _this5 = this;
+
+	    this.g.modPow(xValue, this.N, function (err, gModPowXN) {
+	      if (err) {
+	        callback(err, null);
+	      }
+
+	      var intValue2 = serverBValue.subtract(_this5.k.multiply(gModPowXN));
+	      intValue2.modPow(_this5.smallAValue.add(_this5.UValue.multiply(xValue)), _this5.N, function (err2, result) {
+	        if (err2) {
+	          callback(err2, null);
+	        }
+
+	        callback(null, result.mod(_this5.N));
+	      });
+	    });
+	  };
+
+	  /**
+	   * Return constant newPasswordRequiredChallengeUserAttributePrefix
+	   * @return {newPasswordRequiredChallengeUserAttributePrefix} constant prefix value
+	   */
+
+
+	  AuthenticationHelper.prototype.getNewPasswordRequiredChallengeUserAttributePrefix = function getNewPasswordRequiredChallengeUserAttributePrefix() {
+	    return newPasswordRequiredChallengeUserAttributePrefix;
+	  };
+
+	  /**
+	   * Converts a BigInteger (or hex string) to hex format padded with zeroes for hashing
+	   * @param {BigInteger|String} bigInt Number or string to pad.
+	   * @returns {String} Padded hex string.
+	   */
+
+
+	  AuthenticationHelper.prototype.padHex = function padHex(bigInt) {
+	    var hashStr = bigInt.toString(16);
+	    if (hashStr.length % 2 === 1) {
+	      hashStr = "0" + hashStr;
+	    } else if ("89ABCDEFabcdef".indexOf(hashStr[0]) !== -1) {
+	      hashStr = "00" + hashStr;
+	    }
+	    return hashStr;
+	  };
+
+	  return AuthenticationHelper;
+	}();
+
+	exports.default = AuthenticationHelper;
+
+/***/ }),
+/* 18 */
+/***/ (function(module, exports) {
+
+	"use strict";
+
+	exports.__esModule = true;
+	// A small implementation of BigInteger based on http://www-cs-students.stanford.edu/~tjw/jsbn/
+	//
+	// All public methods have been removed except the following:
+	//   new BigInteger(a, b) (only radix 2, 4, 8, 16 and 32 supported)
+	//   toString (only radix 2, 4, 8, 16 and 32 supported)
+	//   negate
+	//   abs
+	//   compareTo
+	//   bitLength
+	//   mod
+	//   equals
+	//   add
+	//   subtract
+	//   multiply
+	//   divide
+	//   modPow
+
+	exports.default = BigInteger;
+
+	/*
+	 * Copyright (c) 2003-2005  Tom Wu
+	 * All Rights Reserved.
+	 *
+	 * Permission is hereby granted, free of charge, to any person obtaining
+	 * a copy of this software and associated documentation files (the
+	 * "Software"), to deal in the Software without restriction, including
+	 * without limitation the rights to use, copy, modify, merge, publish,
+	 * distribute, sublicense, and/or sell copies of the Software, and to
+	 * permit persons to whom the Software is furnished to do so, subject to
+	 * the following conditions:
+	 *
+	 * The above copyright notice and this permission notice shall be
+	 * included in all copies or substantial portions of the Software.
+	 *
+	 * THE SOFTWARE IS PROVIDED "AS-IS" AND WITHOUT WARRANTY OF ANY KIND,
+	 * EXPRESS, IMPLIED OR OTHERWISE, INCLUDING WITHOUT LIMITATION, ANY
+	 * WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
+	 *
+	 * IN NO EVENT SHALL TOM WU BE LIABLE FOR ANY SPECIAL, INCIDENTAL,
+	 * INDIRECT OR CONSEQUENTIAL DAMAGES OF ANY KIND, OR ANY DAMAGES WHATSOEVER
+	 * RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER OR NOT ADVISED OF
+	 * THE POSSIBILITY OF DAMAGE, AND ON ANY THEORY OF LIABILITY, ARISING OUT
+	 * OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+	 *
+	 * In addition, the following condition applies:
+	 *
+	 * All redistributions must retain an intact copy of this copyright notice
+	 * and disclaimer.
+	 */
+
+	// (public) Constructor
+
+	function BigInteger(a, b) {
+	  if (a != null) this.fromString(a, b);
+	}
+
+	// return new, unset BigInteger
+	function nbi() {
+	  return new BigInteger(null);
+	}
+
+	// Bits per digit
+	var dbits;
+
+	// JavaScript engine analysis
+	var canary = 0xdeadbeefcafe;
+	var j_lm = (canary & 0xffffff) == 0xefcafe;
+
+	// am: Compute w_j += (x*this_i), propagate carries,
+	// c is initial carry, returns final carry.
+	// c < 3*dvalue, x < 2*dvalue, this_i < dvalue
+	// We need to select the fastest one that works in this environment.
+
+	// am1: use a single mult and divide to get the high bits,
+	// max digit bits should be 26 because
+	// max internal value = 2*dvalue^2-2*dvalue (< 2^53)
+	function am1(i, x, w, j, c, n) {
+	  while (--n >= 0) {
+	    var v = x * this[i++] + w[j] + c;
+	    c = Math.floor(v / 0x4000000);
+	    w[j++] = v & 0x3ffffff;
+	  }
+	  return c;
+	}
+	// am2 avoids a big mult-and-extract completely.
+	// Max digit bits should be <= 30 because we do bitwise ops
+	// on values up to 2*hdvalue^2-hdvalue-1 (< 2^31)
+	function am2(i, x, w, j, c, n) {
+	  var xl = x & 0x7fff,
+	      xh = x >> 15;
+	  while (--n >= 0) {
+	    var l = this[i] & 0x7fff;
+	    var h = this[i++] >> 15;
+	    var m = xh * l + h * xl;
+	    l = xl * l + ((m & 0x7fff) << 15) + w[j] + (c & 0x3fffffff);
+	    c = (l >>> 30) + (m >>> 15) + xh * h + (c >>> 30);
+	    w[j++] = l & 0x3fffffff;
+	  }
+	  return c;
+	}
+	// Alternately, set max digit bits to 28 since some
+	// browsers slow down when dealing with 32-bit numbers.
+	function am3(i, x, w, j, c, n) {
+	  var xl = x & 0x3fff,
+	      xh = x >> 14;
+	  while (--n >= 0) {
+	    var l = this[i] & 0x3fff;
+	    var h = this[i++] >> 14;
+	    var m = xh * l + h * xl;
+	    l = xl * l + ((m & 0x3fff) << 14) + w[j] + c;
+	    c = (l >> 28) + (m >> 14) + xh * h;
+	    w[j++] = l & 0xfffffff;
+	  }
+	  return c;
+	}
+	var inBrowser = typeof navigator !== "undefined";
+	if (inBrowser && j_lm && navigator.appName == "Microsoft Internet Explorer") {
+	  BigInteger.prototype.am = am2;
+	  dbits = 30;
+	} else if (inBrowser && j_lm && navigator.appName != "Netscape") {
+	  BigInteger.prototype.am = am1;
+	  dbits = 26;
+	} else {
+	  // Mozilla/Netscape seems to prefer am3
+	  BigInteger.prototype.am = am3;
+	  dbits = 28;
+	}
+
+	BigInteger.prototype.DB = dbits;
+	BigInteger.prototype.DM = (1 << dbits) - 1;
+	BigInteger.prototype.DV = 1 << dbits;
+
+	var BI_FP = 52;
+	BigInteger.prototype.FV = Math.pow(2, BI_FP);
+	BigInteger.prototype.F1 = BI_FP - dbits;
+	BigInteger.prototype.F2 = 2 * dbits - BI_FP;
+
+	// Digit conversions
+	var BI_RM = "0123456789abcdefghijklmnopqrstuvwxyz";
+	var BI_RC = new Array();
+	var rr, vv;
+	rr = "0".charCodeAt(0);
+	for (vv = 0; vv <= 9; ++vv) {
+	  BI_RC[rr++] = vv;
+	}rr = "a".charCodeAt(0);
+	for (vv = 10; vv < 36; ++vv) {
+	  BI_RC[rr++] = vv;
+	}rr = "A".charCodeAt(0);
+	for (vv = 10; vv < 36; ++vv) {
+	  BI_RC[rr++] = vv;
+	}function int2char(n) {
+	  return BI_RM.charAt(n);
+	}
+	function intAt(s, i) {
+	  var c = BI_RC[s.charCodeAt(i)];
+	  return c == null ? -1 : c;
+	}
+
+	// (protected) copy this to r
+	function bnpCopyTo(r) {
+	  for (var i = this.t - 1; i >= 0; --i) {
+	    r[i] = this[i];
+	  }r.t = this.t;
+	  r.s = this.s;
+	}
+
+	// (protected) set from integer value x, -DV <= x < DV
+	function bnpFromInt(x) {
+	  this.t = 1;
+	  this.s = x < 0 ? -1 : 0;
+	  if (x > 0) this[0] = x;else if (x < -1) this[0] = x + this.DV;else this.t = 0;
+	}
+
+	// return bigint initialized to value
+	function nbv(i) {
+	  var r = nbi();
+
+	  r.fromInt(i);
+
+	  return r;
+	}
+
+	// (protected) set from string and radix
+	function bnpFromString(s, b) {
+	  var k;
+	  if (b == 16) k = 4;else if (b == 8) k = 3;else if (b == 2) k = 1;else if (b == 32) k = 5;else if (b == 4) k = 2;else throw new Error("Only radix 2, 4, 8, 16, 32 are supported");
+	  this.t = 0;
+	  this.s = 0;
+	  var i = s.length,
+	      mi = false,
+	      sh = 0;
+	  while (--i >= 0) {
+	    var x = intAt(s, i);
+	    if (x < 0) {
+	      if (s.charAt(i) == "-") mi = true;
+	      continue;
+	    }
+	    mi = false;
+	    if (sh == 0) this[this.t++] = x;else if (sh + k > this.DB) {
+	      this[this.t - 1] |= (x & (1 << this.DB - sh) - 1) << sh;
+	      this[this.t++] = x >> this.DB - sh;
+	    } else this[this.t - 1] |= x << sh;
+	    sh += k;
+	    if (sh >= this.DB) sh -= this.DB;
+	  }
+	  this.clamp();
+	  if (mi) BigInteger.ZERO.subTo(this, this);
+	}
+
+	// (protected) clamp off excess high words
+	function bnpClamp() {
+	  var c = this.s & this.DM;
+	  while (this.t > 0 && this[this.t - 1] == c) {
+	    --this.t;
+	  }
+	}
+
+	// (public) return string representation in given radix
+	function bnToString(b) {
+	  if (this.s < 0) return "-" + this.negate().toString();
+	  var k;
+	  if (b == 16) k = 4;else if (b == 8) k = 3;else if (b == 2) k = 1;else if (b == 32) k = 5;else if (b == 4) k = 2;else throw new Error("Only radix 2, 4, 8, 16, 32 are supported");
+	  var km = (1 << k) - 1,
+	      d,
+	      m = false,
+	      r = "",
+	      i = this.t;
+	  var p = this.DB - i * this.DB % k;
+	  if (i-- > 0) {
+	    if (p < this.DB && (d = this[i] >> p) > 0) {
+	      m = true;
+	      r = int2char(d);
+	    }
+	    while (i >= 0) {
+	      if (p < k) {
+	        d = (this[i] & (1 << p) - 1) << k - p;
+	        d |= this[--i] >> (p += this.DB - k);
+	      } else {
+	        d = this[i] >> (p -= k) & km;
+	        if (p <= 0) {
+	          p += this.DB;
+	          --i;
+	        }
+	      }
+	      if (d > 0) m = true;
+	      if (m) r += int2char(d);
+	    }
+	  }
+	  return m ? r : "0";
+	}
+
+	// (public) -this
+	function bnNegate() {
+	  var r = nbi();
+
+	  BigInteger.ZERO.subTo(this, r);
+
+	  return r;
+	}
+
+	// (public) |this|
+	function bnAbs() {
+	  return this.s < 0 ? this.negate() : this;
+	}
+
+	// (public) return + if this > a, - if this < a, 0 if equal
+	function bnCompareTo(a) {
+	  var r = this.s - a.s;
+	  if (r != 0) return r;
+	  var i = this.t;
+	  r = i - a.t;
+	  if (r != 0) return this.s < 0 ? -r : r;
+	  while (--i >= 0) {
+	    if ((r = this[i] - a[i]) != 0) return r;
+	  }return 0;
+	}
+
+	// returns bit length of the integer x
+	function nbits(x) {
+	  var r = 1,
+	      t;
+	  if ((t = x >>> 16) != 0) {
+	    x = t;
+	    r += 16;
+	  }
+	  if ((t = x >> 8) != 0) {
+	    x = t;
+	    r += 8;
+	  }
+	  if ((t = x >> 4) != 0) {
+	    x = t;
+	    r += 4;
+	  }
+	  if ((t = x >> 2) != 0) {
+	    x = t;
+	    r += 2;
+	  }
+	  if ((t = x >> 1) != 0) {
+	    x = t;
+	    r += 1;
+	  }
+	  return r;
+	}
+
+	// (public) return the number of bits in "this"
+	function bnBitLength() {
+	  if (this.t <= 0) return 0;
+	  return this.DB * (this.t - 1) + nbits(this[this.t - 1] ^ this.s & this.DM);
+	}
+
+	// (protected) r = this << n*DB
+	function bnpDLShiftTo(n, r) {
+	  var i;
+	  for (i = this.t - 1; i >= 0; --i) {
+	    r[i + n] = this[i];
+	  }for (i = n - 1; i >= 0; --i) {
+	    r[i] = 0;
+	  }r.t = this.t + n;
+	  r.s = this.s;
+	}
+
+	// (protected) r = this >> n*DB
+	function bnpDRShiftTo(n, r) {
+	  for (var i = n; i < this.t; ++i) {
+	    r[i - n] = this[i];
+	  }r.t = Math.max(this.t - n, 0);
+	  r.s = this.s;
+	}
+
+	// (protected) r = this << n
+	function bnpLShiftTo(n, r) {
+	  var bs = n % this.DB;
+	  var cbs = this.DB - bs;
+	  var bm = (1 << cbs) - 1;
+	  var ds = Math.floor(n / this.DB),
+	      c = this.s << bs & this.DM,
+	      i;
+	  for (i = this.t - 1; i >= 0; --i) {
+	    r[i + ds + 1] = this[i] >> cbs | c;
+	    c = (this[i] & bm) << bs;
+	  }
+	  for (i = ds - 1; i >= 0; --i) {
+	    r[i] = 0;
+	  }r[ds] = c;
+	  r.t = this.t + ds + 1;
+	  r.s = this.s;
+	  r.clamp();
+	}
+
+	// (protected) r = this >> n
+	function bnpRShiftTo(n, r) {
+	  r.s = this.s;
+	  var ds = Math.floor(n / this.DB);
+	  if (ds >= this.t) {
+	    r.t = 0;
+	    return;
+	  }
+	  var bs = n % this.DB;
+	  var cbs = this.DB - bs;
+	  var bm = (1 << bs) - 1;
+	  r[0] = this[ds] >> bs;
+	  for (var i = ds + 1; i < this.t; ++i) {
+	    r[i - ds - 1] |= (this[i] & bm) << cbs;
+	    r[i - ds] = this[i] >> bs;
+	  }
+	  if (bs > 0) r[this.t - ds - 1] |= (this.s & bm) << cbs;
+	  r.t = this.t - ds;
+	  r.clamp();
+	}
+
+	// (protected) r = this - a
+	function bnpSubTo(a, r) {
+	  var i = 0,
+	      c = 0,
+	      m = Math.min(a.t, this.t);
+	  while (i < m) {
+	    c += this[i] - a[i];
+	    r[i++] = c & this.DM;
+	    c >>= this.DB;
+	  }
+	  if (a.t < this.t) {
+	    c -= a.s;
+	    while (i < this.t) {
+	      c += this[i];
+	      r[i++] = c & this.DM;
+	      c >>= this.DB;
+	    }
+	    c += this.s;
+	  } else {
+	    c += this.s;
+	    while (i < a.t) {
+	      c -= a[i];
+	      r[i++] = c & this.DM;
+	      c >>= this.DB;
+	    }
+	    c -= a.s;
+	  }
+	  r.s = c < 0 ? -1 : 0;
+	  if (c < -1) r[i++] = this.DV + c;else if (c > 0) r[i++] = c;
+	  r.t = i;
+	  r.clamp();
+	}
+
+	// (protected) r = this * a, r != this,a (HAC 14.12)
+	// "this" should be the larger one if appropriate.
+	function bnpMultiplyTo(a, r) {
+	  var x = this.abs(),
+	      y = a.abs();
+	  var i = x.t;
+	  r.t = i + y.t;
+	  while (--i >= 0) {
+	    r[i] = 0;
+	  }for (i = 0; i < y.t; ++i) {
+	    r[i + x.t] = x.am(0, y[i], r, i, 0, x.t);
+	  }r.s = 0;
+	  r.clamp();
+	  if (this.s != a.s) BigInteger.ZERO.subTo(r, r);
+	}
+
+	// (protected) r = this^2, r != this (HAC 14.16)
+	function bnpSquareTo(r) {
+	  var x = this.abs();
+	  var i = r.t = 2 * x.t;
+	  while (--i >= 0) {
+	    r[i] = 0;
+	  }for (i = 0; i < x.t - 1; ++i) {
+	    var c = x.am(i, x[i], r, 2 * i, 0, 1);
+	    if ((r[i + x.t] += x.am(i + 1, 2 * x[i], r, 2 * i + 1, c, x.t - i - 1)) >= x.DV) {
+	      r[i + x.t] -= x.DV;
+	      r[i + x.t + 1] = 1;
+	    }
+	  }
+	  if (r.t > 0) r[r.t - 1] += x.am(i, x[i], r, 2 * i, 0, 1);
+	  r.s = 0;
+	  r.clamp();
+	}
+
+	// (protected) divide this by m, quotient and remainder to q, r (HAC 14.20)
+	// r != q, this != m.  q or r may be null.
+	function bnpDivRemTo(m, q, r) {
+	  var pm = m.abs();
+	  if (pm.t <= 0) return;
+	  var pt = this.abs();
+	  if (pt.t < pm.t) {
+	    if (q != null) q.fromInt(0);
+	    if (r != null) this.copyTo(r);
+	    return;
+	  }
+	  if (r == null) r = nbi();
+	  var y = nbi(),
+	      ts = this.s,
+	      ms = m.s;
+	  var nsh = this.DB - nbits(pm[pm.t - 1]);
+	  // normalize modulus
+	  if (nsh > 0) {
+	    pm.lShiftTo(nsh, y);
+	    pt.lShiftTo(nsh, r);
+	  } else {
+	    pm.copyTo(y);
+	    pt.copyTo(r);
+	  }
+	  var ys = y.t;
+	  var y0 = y[ys - 1];
+	  if (y0 == 0) return;
+	  var yt = y0 * (1 << this.F1) + (ys > 1 ? y[ys - 2] >> this.F2 : 0);
+	  var d1 = this.FV / yt,
+	      d2 = (1 << this.F1) / yt,
+	      e = 1 << this.F2;
+	  var i = r.t,
+	      j = i - ys,
+	      t = q == null ? nbi() : q;
+	  y.dlShiftTo(j, t);
+	  if (r.compareTo(t) >= 0) {
+	    r[r.t++] = 1;
+	    r.subTo(t, r);
+	  }
+	  BigInteger.ONE.dlShiftTo(ys, t);
+	  t.subTo(y, y);
+	  // "negative" y so we can replace sub with am later
+	  while (y.t < ys) {
+	    y[y.t++] = 0;
+	  }while (--j >= 0) {
+	    // Estimate quotient digit
+	    var qd = r[--i] == y0 ? this.DM : Math.floor(r[i] * d1 + (r[i - 1] + e) * d2);
+	    if ((r[i] += y.am(0, qd, r, j, 0, ys)) < qd) {
+	      // Try it out
+	      y.dlShiftTo(j, t);
+	      r.subTo(t, r);
+	      while (r[i] < --qd) {
+	        r.subTo(t, r);
+	      }
+	    }
+	  }
+	  if (q != null) {
+	    r.drShiftTo(ys, q);
+	    if (ts != ms) BigInteger.ZERO.subTo(q, q);
+	  }
+	  r.t = ys;
+	  r.clamp();
+	  if (nsh > 0) r.rShiftTo(nsh, r);
+	  // Denormalize remainder
+	  if (ts < 0) BigInteger.ZERO.subTo(r, r);
+	}
+
+	// (public) this mod a
+	function bnMod(a) {
+	  var r = nbi();
+	  this.abs().divRemTo(a, null, r);
+	  if (this.s < 0 && r.compareTo(BigInteger.ZERO) > 0) a.subTo(r, r);
+	  return r;
+	}
+
+	// (protected) return "-1/this % 2^DB"; useful for Mont. reduction
+	// justification:
+	//         xy == 1 (mod m)
+	//         xy =  1+km
+	//   xy(2-xy) = (1+km)(1-km)
+	// x[y(2-xy)] = 1-k^2m^2
+	// x[y(2-xy)] == 1 (mod m^2)
+	// if y is 1/x mod m, then y(2-xy) is 1/x mod m^2
+	// should reduce x and y(2-xy) by m^2 at each step to keep size bounded.
+	// JS multiply "overflows" differently from C/C++, so care is needed here.
+	function bnpInvDigit() {
+	  if (this.t < 1) return 0;
+	  var x = this[0];
+	  if ((x & 1) == 0) return 0;
+	  var y = x & 3;
+	  // y == 1/x mod 2^2
+	  y = y * (2 - (x & 0xf) * y) & 0xf;
+	  // y == 1/x mod 2^4
+	  y = y * (2 - (x & 0xff) * y) & 0xff;
+	  // y == 1/x mod 2^8
+	  y = y * (2 - ((x & 0xffff) * y & 0xffff)) & 0xffff;
+	  // y == 1/x mod 2^16
+	  // last step - calculate inverse mod DV directly;
+	  // assumes 16 < DB <= 32 and assumes ability to handle 48-bit ints
+	  y = y * (2 - x * y % this.DV) % this.DV;
+	  // y == 1/x mod 2^dbits
+	  // we really want the negative inverse, and -DV < y < DV
+	  return y > 0 ? this.DV - y : -y;
+	}
+
+	function bnEquals(a) {
+	  return this.compareTo(a) == 0;
+	}
+
+	// (protected) r = this + a
+	function bnpAddTo(a, r) {
+	  var i = 0,
+	      c = 0,
+	      m = Math.min(a.t, this.t);
+	  while (i < m) {
+	    c += this[i] + a[i];
+	    r[i++] = c & this.DM;
+	    c >>= this.DB;
+	  }
+	  if (a.t < this.t) {
+	    c += a.s;
+	    while (i < this.t) {
+	      c += this[i];
+	      r[i++] = c & this.DM;
+	      c >>= this.DB;
+	    }
+	    c += this.s;
+	  } else {
+	    c += this.s;
+	    while (i < a.t) {
+	      c += a[i];
+	      r[i++] = c & this.DM;
+	      c >>= this.DB;
+	    }
+	    c += a.s;
+	  }
+	  r.s = c < 0 ? -1 : 0;
+	  if (c > 0) r[i++] = c;else if (c < -1) r[i++] = this.DV + c;
+	  r.t = i;
+	  r.clamp();
+	}
+
+	// (public) this + a
+	function bnAdd(a) {
+	  var r = nbi();
+
+	  this.addTo(a, r);
+
+	  return r;
+	}
+
+	// (public) this - a
+	function bnSubtract(a) {
+	  var r = nbi();
+
+	  this.subTo(a, r);
+
+	  return r;
+	}
+
+	// (public) this * a
+	function bnMultiply(a) {
+	  var r = nbi();
+
+	  this.multiplyTo(a, r);
+
+	  return r;
+	}
+
+	// (public) this / a
+	function bnDivide(a) {
+	  var r = nbi();
+
+	  this.divRemTo(a, r, null);
+
+	  return r;
+	}
+
+	// Montgomery reduction
+	function Montgomery(m) {
+	  this.m = m;
+	  this.mp = m.invDigit();
+	  this.mpl = this.mp & 0x7fff;
+	  this.mph = this.mp >> 15;
+	  this.um = (1 << m.DB - 15) - 1;
+	  this.mt2 = 2 * m.t;
+	}
+
+	// xR mod m
+	function montConvert(x) {
+	  var r = nbi();
+	  x.abs().dlShiftTo(this.m.t, r);
+	  r.divRemTo(this.m, null, r);
+	  if (x.s < 0 && r.compareTo(BigInteger.ZERO) > 0) this.m.subTo(r, r);
+	  return r;
+	}
+
+	// x/R mod m
+	function montRevert(x) {
+	  var r = nbi();
+	  x.copyTo(r);
+	  this.reduce(r);
+	  return r;
+	}
+
+	// x = x/R mod m (HAC 14.32)
+	function montReduce(x) {
+	  while (x.t <= this.mt2) {
+	    // pad x so am has enough room later
+	    x[x.t++] = 0;
+	  }for (var i = 0; i < this.m.t; ++i) {
+	    // faster way of calculating u0 = x[i]*mp mod DV
+	    var j = x[i] & 0x7fff;
+	    var u0 = j * this.mpl + ((j * this.mph + (x[i] >> 15) * this.mpl & this.um) << 15) & x.DM;
+	    // use am to combine the multiply-shift-add into one call
+	    j = i + this.m.t;
+	    x[j] += this.m.am(0, u0, x, i, 0, this.m.t);
+	    // propagate carry
+	    while (x[j] >= x.DV) {
+	      x[j] -= x.DV;
+	      x[++j]++;
+	    }
+	  }
+	  x.clamp();
+	  x.drShiftTo(this.m.t, x);
+	  if (x.compareTo(this.m) >= 0) x.subTo(this.m, x);
+	}
+
+	// r = "x^2/R mod m"; x != r
+	function montSqrTo(x, r) {
+	  x.squareTo(r);
+
+	  this.reduce(r);
+	}
+
+	// r = "xy/R mod m"; x,y != r
+	function montMulTo(x, y, r) {
+	  x.multiplyTo(y, r);
+
+	  this.reduce(r);
+	}
+
+	Montgomery.prototype.convert = montConvert;
+	Montgomery.prototype.revert = montRevert;
+	Montgomery.prototype.reduce = montReduce;
+	Montgomery.prototype.mulTo = montMulTo;
+	Montgomery.prototype.sqrTo = montSqrTo;
+
+	// (public) this^e % m (HAC 14.85)
+	function bnModPow(e, m, callback) {
+	  var i = e.bitLength(),
+	      k,
+	      r = nbv(1),
+	      z = new Montgomery(m);
+	  if (i <= 0) return r;else if (i < 18) k = 1;else if (i < 48) k = 3;else if (i < 144) k = 4;else if (i < 768) k = 5;else k = 6;
+
+	  // precomputation
+	  var g = new Array(),
+	      n = 3,
+	      k1 = k - 1,
+	      km = (1 << k) - 1;
+	  g[1] = z.convert(this);
+	  if (k > 1) {
+	    var g2 = nbi();
+	    z.sqrTo(g[1], g2);
+	    while (n <= km) {
+	      g[n] = nbi();
+	      z.mulTo(g2, g[n - 2], g[n]);
+	      n += 2;
+	    }
+	  }
+
+	  var j = e.t - 1,
+	      w,
+	      is1 = true,
+	      r2 = nbi(),
+	      t;
+	  i = nbits(e[j]) - 1;
+	  while (j >= 0) {
+	    if (i >= k1) w = e[j] >> i - k1 & km;else {
+	      w = (e[j] & (1 << i + 1) - 1) << k1 - i;
+	      if (j > 0) w |= e[j - 1] >> this.DB + i - k1;
+	    }
+
+	    n = k;
+	    while ((w & 1) == 0) {
+	      w >>= 1;
+	      --n;
+	    }
+	    if ((i -= n) < 0) {
+	      i += this.DB;
+	      --j;
+	    }
+	    if (is1) {
+	      // ret == 1, don't bother squaring or multiplying it
+	      g[w].copyTo(r);
+	      is1 = false;
+	    } else {
+	      while (n > 1) {
+	        z.sqrTo(r, r2);
+	        z.sqrTo(r2, r);
+	        n -= 2;
+	      }
+	      if (n > 0) z.sqrTo(r, r2);else {
+	        t = r;
+	        r = r2;
+	        r2 = t;
+	      }
+	      z.mulTo(r2, g[w], r);
+	    }
+
+	    while (j >= 0 && (e[j] & 1 << i) == 0) {
+	      z.sqrTo(r, r2);
+	      t = r;
+	      r = r2;
+	      r2 = t;
+	      if (--i < 0) {
+	        i = this.DB - 1;
+	        --j;
+	      }
+	    }
+	  }
+	  var result = z.revert(r);
+	  callback(null, result);
+	  return result;
+	}
+
+	// protected
+	BigInteger.prototype.copyTo = bnpCopyTo;
+	BigInteger.prototype.fromInt = bnpFromInt;
+	BigInteger.prototype.fromString = bnpFromString;
+	BigInteger.prototype.clamp = bnpClamp;
+	BigInteger.prototype.dlShiftTo = bnpDLShiftTo;
+	BigInteger.prototype.drShiftTo = bnpDRShiftTo;
+	BigInteger.prototype.lShiftTo = bnpLShiftTo;
+	BigInteger.prototype.rShiftTo = bnpRShiftTo;
+	BigInteger.prototype.subTo = bnpSubTo;
+	BigInteger.prototype.multiplyTo = bnpMultiplyTo;
+	BigInteger.prototype.squareTo = bnpSquareTo;
+	BigInteger.prototype.divRemTo = bnpDivRemTo;
+	BigInteger.prototype.invDigit = bnpInvDigit;
+	BigInteger.prototype.addTo = bnpAddTo;
+
+	// public
+	BigInteger.prototype.toString = bnToString;
+	BigInteger.prototype.negate = bnNegate;
+	BigInteger.prototype.abs = bnAbs;
+	BigInteger.prototype.compareTo = bnCompareTo;
+	BigInteger.prototype.bitLength = bnBitLength;
+	BigInteger.prototype.mod = bnMod;
+	BigInteger.prototype.equals = bnEquals;
+	BigInteger.prototype.add = bnAdd;
+	BigInteger.prototype.subtract = bnSubtract;
+	BigInteger.prototype.multiply = bnMultiply;
+	BigInteger.prototype.divide = bnDivide;
+	BigInteger.prototype.modPow = bnModPow;
+
+	// "constants"
+	BigInteger.ZERO = nbv(0);
+	BigInteger.ONE = nbv(1);
+
+/***/ }),
+/* 19 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	exports.__esModule = true;
+
+	var _CognitoJwtToken2 = __webpack_require__(21);
+
+	var _CognitoJwtToken3 = _interopRequireDefault(_CognitoJwtToken2);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } /*
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * Copyright 2016 Amazon.com,
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * Inc. or its affiliates. All Rights Reserved.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                *
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * Licensed under the Amazon Software License (the "License").
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * You may not use this file except in compliance with the
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * License. A copy of the License is located at
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                *
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                *     http://aws.amazon.com/asl/
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                *
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * or in the "license" file accompanying this file. This file is
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * CONDITIONS OF ANY KIND, express or implied. See the License
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * for the specific language governing permissions and
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * limitations under the License.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                */
+
+	/** @class */
+	var CognitoAccessToken = function (_CognitoJwtToken) {
+	  _inherits(CognitoAccessToken, _CognitoJwtToken);
+
+	  /**
+	   * Constructs a new CognitoAccessToken object
+	   * @param {string=} AccessToken The JWT access token.
+	   */
+	  function CognitoAccessToken() {
+	    var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+	        AccessToken = _ref.AccessToken;
+
+	    _classCallCheck(this, CognitoAccessToken);
+
+	    return _possibleConstructorReturn(this, _CognitoJwtToken.call(this, AccessToken || ''));
+	  }
+
+	  return CognitoAccessToken;
+	}(_CognitoJwtToken3.default);
+
+	exports.default = CognitoAccessToken;
+
+/***/ }),
+/* 20 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	exports.__esModule = true;
+
+	var _CognitoJwtToken2 = __webpack_require__(21);
+
+	var _CognitoJwtToken3 = _interopRequireDefault(_CognitoJwtToken2);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } /*!
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * Copyright 2016 Amazon.com,
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * Inc. or its affiliates. All Rights Reserved.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                *
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * Licensed under the Amazon Software License (the "License").
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * You may not use this file except in compliance with the
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * License. A copy of the License is located at
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                *
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                *     http://aws.amazon.com/asl/
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                *
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * or in the "license" file accompanying this file. This file is
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * CONDITIONS OF ANY KIND, express or implied. See the License
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * for the specific language governing permissions and
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * limitations under the License.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                */
+
+	/** @class */
+	var CognitoIdToken = function (_CognitoJwtToken) {
+	  _inherits(CognitoIdToken, _CognitoJwtToken);
+
+	  /**
+	   * Constructs a new CognitoIdToken object
+	   * @param {string=} IdToken The JWT Id token
+	   */
+	  function CognitoIdToken() {
+	    var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+	        IdToken = _ref.IdToken;
+
+	    _classCallCheck(this, CognitoIdToken);
+
+	    return _possibleConstructorReturn(this, _CognitoJwtToken.call(this, IdToken || ''));
+	  }
+
+	  return CognitoIdToken;
+	}(_CognitoJwtToken3.default);
+
+	exports.default = CognitoIdToken;
+
+/***/ }),
+/* 21 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	exports.__esModule = true;
+
+	var _global = __webpack_require__(16);
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } } /*!
+	                                                                                                                                                           * Copyright 2016 Amazon.com,
+	                                                                                                                                                           * Inc. or its affiliates. All Rights Reserved.
+	                                                                                                                                                           *
+	                                                                                                                                                           * Licensed under the Amazon Software License (the "License").
+	                                                                                                                                                           * You may not use this file except in compliance with the
+	                                                                                                                                                           * License. A copy of the License is located at
+	                                                                                                                                                           *
+	                                                                                                                                                           *     http://aws.amazon.com/asl/
+	                                                                                                                                                           *
+	                                                                                                                                                           * or in the "license" file accompanying this file. This file is
+	                                                                                                                                                           * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+	                                                                                                                                                           * CONDITIONS OF ANY KIND, express or implied. See the License
+	                                                                                                                                                           * for the specific language governing permissions and
+	                                                                                                                                                           * limitations under the License.
+	                                                                                                                                                           */
+
+	/** @class */
+	var CognitoJwtToken = function () {
+	  /**
+	   * Constructs a new CognitoJwtToken object
+	   * @param {string=} token The JWT token.
+	   */
+	  function CognitoJwtToken(token) {
+	    _classCallCheck(this, CognitoJwtToken);
+
+	    // Assign object
+	    this.jwtToken = token || '';
+	    this.payload = this.decodePayload();
+	  }
+
+	  /**
+	   * @returns {string} the record's token.
+	   */
+
+
+	  CognitoJwtToken.prototype.getJwtToken = function getJwtToken() {
+	    return this.jwtToken;
+	  };
+
+	  /**
+	   * @returns {int} the token's expiration (exp member).
+	   */
+
+
+	  CognitoJwtToken.prototype.getExpiration = function getExpiration() {
+	    return this.payload.exp;
+	  };
+
+	  /**
+	   * @returns {int} the token's "issued at" (iat member).
+	   */
+
+
+	  CognitoJwtToken.prototype.getIssuedAt = function getIssuedAt() {
+	    return this.payload.iat;
+	  };
+
+	  /**
+	   * @returns {object} the token's payload.
+	   */
+
+
+	  CognitoJwtToken.prototype.decodePayload = function decodePayload() {
+	    var payload = this.jwtToken.split('.')[1];
+	    try {
+	      return JSON.parse(_global.util.base64.decode(payload).toString('utf8'));
+	    } catch (err) {
+	      return {};
+	    }
+	  };
+
+	  return CognitoJwtToken;
+	}();
+
+	exports.default = CognitoJwtToken;
+
+/***/ }),
+/* 22 */
+/***/ (function(module, exports) {
+
+	'use strict';
+
+	exports.__esModule = true;
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	/*!
+	 * Copyright 2016 Amazon.com,
+	 * Inc. or its affiliates. All Rights Reserved.
+	 *
+	 * Licensed under the Amazon Software License (the "License").
+	 * You may not use this file except in compliance with the
+	 * License. A copy of the License is located at
+	 *
+	 *     http://aws.amazon.com/asl/
+	 *
+	 * or in the "license" file accompanying this file. This file is
+	 * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+	 * CONDITIONS OF ANY KIND, express or implied. See the License
+	 * for the specific language governing permissions and
+	 * limitations under the License.
+	 */
+
+	/** @class */
+	var CognitoRefreshToken = function () {
+	  /**
+	   * Constructs a new CognitoRefreshToken object
+	   * @param {string=} RefreshToken The JWT refresh token.
+	   */
+	  function CognitoRefreshToken() {
+	    var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+	        RefreshToken = _ref.RefreshToken;
+
+	    _classCallCheck(this, CognitoRefreshToken);
+
+	    // Assign object
+	    this.token = RefreshToken || '';
+	  }
+
+	  /**
+	   * @returns {string} the record's token.
+	   */
+
+
+	  CognitoRefreshToken.prototype.getToken = function getToken() {
+	    return this.token;
+	  };
+
+	  return CognitoRefreshToken;
+	}();
+
+	exports.default = CognitoRefreshToken;
+
+/***/ }),
+/* 23 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	exports.__esModule = true;
+
+	var _global = __webpack_require__(16);
+
+	var _BigInteger = __webpack_require__(18);
+
+	var _BigInteger2 = _interopRequireDefault(_BigInteger);
+
+	var _AuthenticationHelper = __webpack_require__(17);
+
+	var _AuthenticationHelper2 = _interopRequireDefault(_AuthenticationHelper);
+
+	var _CognitoAccessToken = __webpack_require__(19);
+
+	var _CognitoAccessToken2 = _interopRequireDefault(_CognitoAccessToken);
+
+	var _CognitoIdToken = __webpack_require__(20);
+
+	var _CognitoIdToken2 = _interopRequireDefault(_CognitoIdToken);
+
+	var _CognitoRefreshToken = __webpack_require__(22);
+
+	var _CognitoRefreshToken2 = _interopRequireDefault(_CognitoRefreshToken);
+
+	var _CognitoUserSession = __webpack_require__(25);
+
+	var _CognitoUserSession2 = _interopRequireDefault(_CognitoUserSession);
+
+	var _DateHelper = __webpack_require__(26);
+
+	var _DateHelper2 = _interopRequireDefault(_DateHelper);
+
+	var _CognitoUserAttribute = __webpack_require__(24);
+
+	var _CognitoUserAttribute2 = _interopRequireDefault(_CognitoUserAttribute);
+
+	var _StorageHelper = __webpack_require__(27);
+
+	var _StorageHelper2 = _interopRequireDefault(_StorageHelper);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } } /*!
+	                                                                                                                                                           * Copyright 2016 Amazon.com,
+	                                                                                                                                                           * Inc. or its affiliates. All Rights Reserved.
+	                                                                                                                                                           *
+	                                                                                                                                                           * Licensed under the Amazon Software License (the "License").
+	                                                                                                                                                           * You may not use this file except in compliance with the
+	                                                                                                                                                           * License. A copy of the License is located at
+	                                                                                                                                                           *
+	                                                                                                                                                           *     http://aws.amazon.com/asl/
+	                                                                                                                                                           *
+	                                                                                                                                                           * or in the "license" file accompanying this file. This file is
+	                                                                                                                                                           * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+	                                                                                                                                                           * CONDITIONS OF ANY KIND, express or implied. See the License
+	                                                                                                                                                           * for the specific language governing permissions and
+	                                                                                                                                                           * limitations under the License.
+	                                                                                                                                                           */
+
+	/**
+	 * @callback nodeCallback
+	 * @template T result
+	 * @param {*} err The operation failure reason, or null.
+	 * @param {T} result The operation result.
+	 */
+
+	/**
+	 * @callback onFailure
+	 * @param {*} err Failure reason.
+	 */
+
+	/**
+	 * @callback onSuccess
+	 * @template T result
+	 * @param {T} result The operation result.
+	 */
+
+	/**
+	 * @callback mfaRequired
+	 * @param {*} details MFA challenge details.
+	 */
+
+	/**
+	 * @callback customChallenge
+	 * @param {*} details Custom challenge details.
+	 */
+
+	/**
+	 * @callback inputVerificationCode
+	 * @param {*} data Server response.
+	 */
+
+	/**
+	 * @callback authSuccess
+	 * @param {CognitoUserSession} session The new session.
+	 * @param {bool=} userConfirmationNecessary User must be confirmed.
+	 */
+
+	/** @class */
+	var CognitoUser = function () {
+	  /**
+	   * Constructs a new CognitoUser object
+	   * @param {object} data Creation options
+	   * @param {string} data.Username The user's username.
+	   * @param {CognitoUserPool} data.Pool Pool containing the user.
+	   * @param {object} data.Storage Optional storage object.
+	   */
+	  function CognitoUser(data) {
+	    _classCallCheck(this, CognitoUser);
+
+	    if (data == null || data.Username == null || data.Pool == null) {
+	      throw new Error("Username and pool information are required.");
+	    }
+
+	    this.username = data.Username || "";
+	    this.pool = data.Pool;
+	    this.Session = null;
+
+	    this.client = data.Pool.client;
+
+	    this.signInUserSession = null;
+	    this.authenticationFlowType = "USER_SRP_AUTH";
+
+	    this.storage = data.Storage || new _StorageHelper2.default().getStorage();
+	  }
+
+	  /**
+	   * Sets the session for this user
+	   * @param {CognitoUserSession} signInUserSession the session
+	   * @returns {void}
+	   */
+
+
+	  CognitoUser.prototype.setSignInUserSession = function setSignInUserSession(signInUserSession) {
+	    this.clearCachedTokens();
+	    this.signInUserSession = signInUserSession;
+	    this.cacheTokens();
+	  };
+
+	  /**
+	   * @returns {CognitoUserSession} the current session for this user
+	   */
+
+
+	  CognitoUser.prototype.getSignInUserSession = function getSignInUserSession() {
+	    return this.signInUserSession;
+	  };
+
+	  /**
+	   * @returns {string} the user's username
+	   */
+
+
+	  CognitoUser.prototype.getUsername = function getUsername() {
+	    return this.username;
+	  };
+
+	  /**
+	   * @returns {String} the authentication flow type
+	   */
+
+
+	  CognitoUser.prototype.getAuthenticationFlowType = function getAuthenticationFlowType() {
+	    return this.authenticationFlowType;
+	  };
+
+	  /**
+	   * sets authentication flow type
+	   * @param {string} authenticationFlowType New value.
+	   * @returns {void}
+	   */
+
+
+	  CognitoUser.prototype.setAuthenticationFlowType = function setAuthenticationFlowType(authenticationFlowType) {
+	    this.authenticationFlowType = authenticationFlowType;
+	  };
+
+	  /**
+	   * This is used for authenticating the user through the custom authentication flow.
+	   * @param {AuthenticationDetails} authDetails Contains the authentication data
+	   * @param {object} callback Result callback map.
+	   * @param {onFailure} callback.onFailure Called on any error.
+	   * @param {customChallenge} callback.customChallenge Custom challenge
+	   *        response required to continue.
+	   * @param {authSuccess} callback.onSuccess Called on success with the new session.
+	   * @returns {void}
+	   */
+
+
+	  CognitoUser.prototype.initiateAuth = function initiateAuth(authDetails, callback) {
+	    var _this = this;
+
+	    var authParameters = authDetails.getAuthParameters();
+	    authParameters.USERNAME = this.username;
+
+	    var jsonReq = {
+	      AuthFlow: "CUSTOM_AUTH",
+	      ClientId: this.pool.getClientId(),
+	      AuthParameters: authParameters,
+	      ClientMetadata: authDetails.getValidationData()
+	    };
+	    if (this.getUserContextData()) {
+	      jsonReq.UserContextData = this.getUserContextData();
+	    }
+
+	    this.client.makeUnauthenticatedRequest("initiateAuth", jsonReq, function (err, data) {
+	      if (err) {
+	        return callback.onFailure(err);
+	      }
+	      var challengeName = data.ChallengeName;
+	      var challengeParameters = data.ChallengeParameters;
+
+	      if (challengeName === "CUSTOM_CHALLENGE") {
+	        _this.Session = data.Session;
+	        return callback.customChallenge(challengeParameters);
+	      }
+	      _this.signInUserSession = _this.getCognitoUserSession(data.AuthenticationResult);
+	      _this.cacheTokens();
+	      return callback.onSuccess(_this.signInUserSession);
+	    });
+	  };
+
+	  /**
+	   * This is used for authenticating the user. it calls the AuthenticationHelper for SRP related
+	   * stuff
+	   * @param {AuthenticationDetails} authDetails Contains the authentication data
+	   * @param {object} callback Result callback map.
+	   * @param {onFailure} callback.onFailure Called on any error.
+	   * @param {newPasswordRequired} callback.newPasswordRequired new
+	   *        password and any required attributes are required to continue
+	   * @param {mfaRequired} callback.mfaRequired MFA code
+	   *        required to continue.
+	   * @param {customChallenge} callback.customChallenge Custom challenge
+	   *        response required to continue.
+	   * @param {authSuccess} callback.onSuccess Called on success with the new session.
+	   * @returns {void}
+	   */
+
+
+	  CognitoUser.prototype.authenticateUser = function authenticateUser(authDetails, callback) {
+	    var _this2 = this;
+
+	    var authenticationHelper = new _AuthenticationHelper2.default(this.pool.getUserPoolId().split("_")[1]);
+	    var dateHelper = new _DateHelper2.default();
+
+	    var serverBValue = void 0;
+	    var salt = void 0;
+	    var authParameters = {};
+
+	    if (this.deviceKey != null) {
+	      authParameters.DEVICE_KEY = this.deviceKey;
+	    }
+
+	    authParameters.USERNAME = this.username;
+	    authenticationHelper.getLargeAValue(function (errOnAValue, aValue) {
+	      // getLargeAValue callback start
+	      if (errOnAValue) {
+	        callback.onFailure(errOnAValue);
+	      }
+
+	      authParameters.SRP_A = aValue.toString(16);
+
+	      if (_this2.authenticationFlowType === "CUSTOM_AUTH") {
+	        authParameters.CHALLENGE_NAME = "SRP_A";
+	      }
+
+	      var jsonReq = {
+	        AuthFlow: _this2.authenticationFlowType,
+	        ClientId: _this2.pool.getClientId(),
+	        AuthParameters: authParameters,
+	        ClientMetadata: authDetails.getValidationData()
+	      };
+	      if (_this2.getUserContextData(_this2.username)) {
+	        jsonReq.UserContextData = _this2.getUserContextData(_this2.username);
+	      }
+
+	      _this2.client.makeUnauthenticatedRequest("initiateAuth", jsonReq, function (err, data) {
+	        if (err) {
+	          return callback.onFailure(err);
+	        }
+
+	        var challengeParameters = data.ChallengeParameters;
+
+	        _this2.username = challengeParameters.USER_ID_FOR_SRP;
+	        serverBValue = new _BigInteger2.default(challengeParameters.SRP_B, 16);
+	        salt = new _BigInteger2.default(challengeParameters.SALT, 16);
+	        _this2.getCachedDeviceKeyAndPassword();
+
+	        authenticationHelper.getPasswordAuthenticationKey(_this2.username, authDetails.getPassword(), serverBValue, salt, function (errOnHkdf, hkdf) {
+	          // getPasswordAuthenticationKey callback start
+	          if (errOnHkdf) {
+	            callback.onFailure(errOnHkdf);
+	          }
+
+	          var dateNow = dateHelper.getNowString();
+
+	          var signatureString = _global.util.crypto.hmac(hkdf, _global.util.buffer.concat([new _global.util.Buffer(_this2.pool.getUserPoolId().split("_")[1], "utf8"), new _global.util.Buffer(_this2.username, "utf8"), new _global.util.Buffer(challengeParameters.SECRET_BLOCK, "base64"), new _global.util.Buffer(dateNow, "utf8")]), "base64", "sha256");
+
+	          var challengeResponses = {};
+
+	          challengeResponses.USERNAME = _this2.username;
+	          challengeResponses.PASSWORD_CLAIM_SECRET_BLOCK = challengeParameters.SECRET_BLOCK;
+	          challengeResponses.TIMESTAMP = dateNow;
+	          challengeResponses.PASSWORD_CLAIM_SIGNATURE = signatureString;
+
+	          if (_this2.deviceKey != null) {
+	            challengeResponses.DEVICE_KEY = _this2.deviceKey;
+	          }
+
+	          var respondToAuthChallenge = function respondToAuthChallenge(challenge, challengeCallback) {
+	            return _this2.client.makeUnauthenticatedRequest("respondToAuthChallenge", challenge, function (errChallenge, dataChallenge) {
+	              if (errChallenge && errChallenge.code === "ResourceNotFoundException" && errChallenge.message.toLowerCase().indexOf("device") !== -1) {
+	                challengeResponses.DEVICE_KEY = null;
+	                _this2.deviceKey = null;
+	                _this2.randomPassword = null;
+	                _this2.deviceGroupKey = null;
+	                _this2.clearCachedDeviceKeyAndPassword();
+	                return respondToAuthChallenge(challenge, challengeCallback);
+	              }
+	              return challengeCallback(errChallenge, dataChallenge);
+	            });
+	          };
+
+	          var jsonReqResp = {
+	            ChallengeName: "PASSWORD_VERIFIER",
+	            ClientId: _this2.pool.getClientId(),
+	            ChallengeResponses: challengeResponses,
+	            Session: data.Session
+	          };
+	          if (_this2.getUserContextData()) {
+	            jsonReqResp.UserContextData = _this2.getUserContextData();
+	          }
+	          respondToAuthChallenge(jsonReqResp, function (errAuthenticate, dataAuthenticate) {
+	            if (errAuthenticate) {
+	              return callback.onFailure(errAuthenticate);
+	            }
+
+	            var challengeName = dataAuthenticate.ChallengeName;
+	            if (challengeName === "NEW_PASSWORD_REQUIRED") {
+	              _this2.Session = dataAuthenticate.Session;
+	              var userAttributes = null;
+	              var rawRequiredAttributes = null;
+	              var requiredAttributes = [];
+	              var userAttributesPrefix = authenticationHelper.getNewPasswordRequiredChallengeUserAttributePrefix();
+
+	              if (dataAuthenticate.ChallengeParameters) {
+	                userAttributes = JSON.parse(dataAuthenticate.ChallengeParameters.userAttributes);
+	                rawRequiredAttributes = JSON.parse(dataAuthenticate.ChallengeParameters.requiredAttributes);
+	              }
+
+	              if (rawRequiredAttributes) {
+	                for (var i = 0; i < rawRequiredAttributes.length; i++) {
+	                  requiredAttributes[i] = rawRequiredAttributes[i].substr(userAttributesPrefix.length);
+	                }
+	              }
+	              return callback.newPasswordRequired(userAttributes, requiredAttributes);
+	            }
+	            return _this2.authenticateUserInternal(dataAuthenticate, authenticationHelper, callback);
+	          });
+	          return undefined;
+	          // getPasswordAuthenticationKey callback end
+	        });
+	        return undefined;
+	      });
+	      // getLargeAValue callback end
+	    });
+	  };
+
+	  /**
+	   * PRIVATE ONLY: This is an internal only method and should not
+	   * be directly called by the consumers.
+	   * @param {object} dataAuthenticate authentication data
+	   * @param {object} authenticationHelper helper created
+	   * @param {callback} callback passed on from caller
+	   * @returns {void}
+	   */
+
+
+	  CognitoUser.prototype.authenticateUserInternal = function authenticateUserInternal(dataAuthenticate, authenticationHelper, callback) {
+	    var _this3 = this;
+
+	    var challengeName = dataAuthenticate.ChallengeName;
+	    var challengeParameters = dataAuthenticate.ChallengeParameters;
+
+	    if (challengeName === "SMS_MFA") {
+	      this.Session = dataAuthenticate.Session;
+	      return callback.mfaRequired(challengeName, challengeParameters);
+	    }
+
+	    if (challengeName === "SELECT_MFA_TYPE") {
+	      this.Session = dataAuthenticate.Session;
+	      return callback.selectMFAType(challengeName, challengeParameters);
+	    }
+
+	    if (challengeName === "MFA_SETUP") {
+	      this.Session = dataAuthenticate.Session;
+	      return callback.mfaSetup(challengeName, challengeParameters);
+	    }
+
+	    if (challengeName === "SOFTWARE_TOKEN_MFA") {
+	      this.Session = dataAuthenticate.Session;
+	      return callback.totpRequired(challengeName, challengeParameters);
+	    }
+
+	    if (challengeName === "CUSTOM_CHALLENGE") {
+	      this.Session = dataAuthenticate.Session;
+	      return callback.customChallenge(challengeParameters);
+	    }
+
+	    if (challengeName === "DEVICE_SRP_AUTH") {
+	      this.getDeviceResponse(callback);
+	      return undefined;
+	    }
+
+	    this.signInUserSession = this.getCognitoUserSession(dataAuthenticate.AuthenticationResult);
+	    this.cacheTokens();
+
+	    var newDeviceMetadata = dataAuthenticate.AuthenticationResult.NewDeviceMetadata;
+	    if (newDeviceMetadata == null) {
+	      return callback.onSuccess(this.signInUserSession);
+	    }
+
+	    authenticationHelper.generateHashDevice(dataAuthenticate.AuthenticationResult.NewDeviceMetadata.DeviceGroupKey, dataAuthenticate.AuthenticationResult.NewDeviceMetadata.DeviceKey, function (errGenHash) {
+	      if (errGenHash) {
+	        return callback.onFailure(errGenHash);
+	      }
+
+	      var deviceSecretVerifierConfig = {
+	        Salt: new _global.util.Buffer(authenticationHelper.getSaltDevices(), "hex").toString("base64"),
+	        PasswordVerifier: new _global.util.Buffer(authenticationHelper.getVerifierDevices(), "hex").toString("base64")
+	      };
+
+	      _this3.verifierDevices = deviceSecretVerifierConfig.PasswordVerifier;
+	      _this3.deviceGroupKey = newDeviceMetadata.DeviceGroupKey;
+	      _this3.randomPassword = authenticationHelper.getRandomPassword();
+
+	      _this3.client.makeUnauthenticatedRequest("confirmDevice", {
+	        DeviceKey: newDeviceMetadata.DeviceKey,
+	        AccessToken: _this3.signInUserSession.getAccessToken().getJwtToken(),
+	        DeviceSecretVerifierConfig: deviceSecretVerifierConfig,
+	        DeviceName: navigator.userAgent
+	      }, function (errConfirm, dataConfirm) {
+	        if (errConfirm) {
+	          return callback.onFailure(errConfirm);
+	        }
+	        _this3.signInUserSession.deviceKey = dataAuthenticate.AuthenticationResult.NewDeviceMetadata.DeviceKey;
+	        _this3.deviceKey = dataAuthenticate.AuthenticationResult.NewDeviceMetadata.DeviceKey;
+	        _this3.cacheDeviceKeyAndPassword();
+	        if (dataConfirm.UserConfirmationNecessary === true) {
+	          return callback.onSuccess(_this3.signInUserSession, dataConfirm.UserConfirmationNecessary);
+	        }
+	        return callback.onSuccess(_this3.signInUserSession);
+	      });
+	      return undefined;
+	    });
+	    return undefined;
+	  };
+
+	  /**
+	   * This method is user to complete the NEW_PASSWORD_REQUIRED challenge.
+	   * Pass the new password with any new user attributes to be updated.
+	   * User attribute keys must be of format userAttributes.<attribute_name>.
+	   * @param {string} newPassword new password for this user
+	   * @param {object} requiredAttributeData map with values for all required attributes
+	   * @param {object} callback Result callback map.
+	   * @param {onFailure} callback.onFailure Called on any error.
+	   * @param {mfaRequired} callback.mfaRequired MFA code required to continue.
+	   * @param {customChallenge} callback.customChallenge Custom challenge
+	   *         response required to continue.
+	   * @param {authSuccess} callback.onSuccess Called on success with the new session.
+	   * @returns {void}
+	   */
+
+
+	  CognitoUser.prototype.completeNewPasswordChallenge = function completeNewPasswordChallenge(newPassword, requiredAttributeData, callback) {
+	    var _this4 = this;
+
+	    if (!newPassword) {
+	      return callback.onFailure(new Error("New password is required."));
+	    }
+	    var authenticationHelper = new _AuthenticationHelper2.default(this.pool.getUserPoolId().split("_")[1]);
+	    var userAttributesPrefix = authenticationHelper.getNewPasswordRequiredChallengeUserAttributePrefix();
+
+	    var finalUserAttributes = {};
+	    if (requiredAttributeData) {
+	      Object.keys(requiredAttributeData).forEach(function (key) {
+	        finalUserAttributes[userAttributesPrefix + key] = requiredAttributeData[key];
+	      });
+	    }
+
+	    finalUserAttributes.NEW_PASSWORD = newPassword;
+	    finalUserAttributes.USERNAME = this.username;
+	    var jsonReq = {
+	      ChallengeName: "NEW_PASSWORD_REQUIRED",
+	      ClientId: this.pool.getClientId(),
+	      ChallengeResponses: finalUserAttributes,
+	      Session: this.Session
+	    };
+	    if (this.getUserContextData()) {
+	      jsonReq.UserContextData = this.getUserContextData();
+	    }
+
+	    this.client.makeUnauthenticatedRequest("respondToAuthChallenge", jsonReq, function (errAuthenticate, dataAuthenticate) {
+	      if (errAuthenticate) {
+	        return callback.onFailure(errAuthenticate);
+	      }
+	      return _this4.authenticateUserInternal(dataAuthenticate, authenticationHelper, callback);
+	    });
+	    return undefined;
+	  };
+
+	  /**
+	   * This is used to get a session using device authentication. It is called at the end of user
+	   * authentication
+	   *
+	   * @param {object} callback Result callback map.
+	   * @param {onFailure} callback.onFailure Called on any error.
+	   * @param {authSuccess} callback.onSuccess Called on success with the new session.
+	   * @returns {void}
+	   * @private
+	   */
+
+
+	  CognitoUser.prototype.getDeviceResponse = function getDeviceResponse(callback) {
+	    var _this5 = this;
+
+	    var authenticationHelper = new _AuthenticationHelper2.default(this.deviceGroupKey);
+	    var dateHelper = new _DateHelper2.default();
+
+	    var authParameters = {};
+
+	    authParameters.USERNAME = this.username;
+	    authParameters.DEVICE_KEY = this.deviceKey;
+	    authenticationHelper.getLargeAValue(function (errAValue, aValue) {
+	      // getLargeAValue callback start
+	      if (errAValue) {
+	        callback.onFailure(errAValue);
+	      }
+
+	      authParameters.SRP_A = aValue.toString(16);
+
+	      var jsonReq = {
+	        ChallengeName: "DEVICE_SRP_AUTH",
+	        ClientId: _this5.pool.getClientId(),
+	        ChallengeResponses: authParameters
+	      };
+	      if (_this5.getUserContextData()) {
+	        jsonReq.UserContextData = _this5.getUserContextData();
+	      }
+	      _this5.client.makeUnauthenticatedRequest("respondToAuthChallenge", jsonReq, function (err, data) {
+	        if (err) {
+	          return callback.onFailure(err);
+	        }
+
+	        var challengeParameters = data.ChallengeParameters;
+
+	        var serverBValue = new _BigInteger2.default(challengeParameters.SRP_B, 16);
+	        var salt = new _BigInteger2.default(challengeParameters.SALT, 16);
+
+	        authenticationHelper.getPasswordAuthenticationKey(_this5.deviceKey, _this5.randomPassword, serverBValue, salt, function (errHkdf, hkdf) {
+	          // getPasswordAuthenticationKey callback start
+	          if (errHkdf) {
+	            return callback.onFailure(errHkdf);
+	          }
+
+	          var dateNow = dateHelper.getNowString();
+
+	          var signatureString = _global.util.crypto.hmac(hkdf, _global.util.buffer.concat([new _global.util.Buffer(_this5.deviceGroupKey, "utf8"), new _global.util.Buffer(_this5.deviceKey, "utf8"), new _global.util.Buffer(challengeParameters.SECRET_BLOCK, "base64"), new _global.util.Buffer(dateNow, "utf8")]), "base64", "sha256");
+
+	          var challengeResponses = {};
+
+	          challengeResponses.USERNAME = _this5.username;
+	          challengeResponses.PASSWORD_CLAIM_SECRET_BLOCK = challengeParameters.SECRET_BLOCK;
+	          challengeResponses.TIMESTAMP = dateNow;
+	          challengeResponses.PASSWORD_CLAIM_SIGNATURE = signatureString;
+	          challengeResponses.DEVICE_KEY = _this5.deviceKey;
+
+	          var jsonReqResp = {
+	            ChallengeName: "DEVICE_PASSWORD_VERIFIER",
+	            ClientId: _this5.pool.getClientId(),
+	            ChallengeResponses: challengeResponses,
+	            Session: data.Session
+	          };
+	          if (_this5.getUserContextData()) {
+	            jsonReqResp.UserContextData = _this5.getUserContextData();
+	          }
+
+	          _this5.client.makeUnauthenticatedRequest("respondToAuthChallenge", jsonReqResp, function (errAuthenticate, dataAuthenticate) {
+	            if (errAuthenticate) {
+	              return callback.onFailure(errAuthenticate);
+	            }
+
+	            _this5.signInUserSession = _this5.getCognitoUserSession(dataAuthenticate.AuthenticationResult);
+	            _this5.cacheTokens();
+
+	            return callback.onSuccess(_this5.signInUserSession);
+	          });
+	          return undefined;
+	          // getPasswordAuthenticationKey callback end
+	        });
+	        return undefined;
+	      });
+	      // getLargeAValue callback end
+	    });
+	  };
+
+	  /**
+	   * This is used for a certain user to confirm the registration by using a confirmation code
+	   * @param {string} confirmationCode Code entered by user.
+	   * @param {bool} forceAliasCreation Allow migrating from an existing email / phone number.
+	   * @param {nodeCallback<string>} callback Called on success or error.
+	   * @returns {void}
+	   */
+
+
+	  CognitoUser.prototype.confirmRegistration = function confirmRegistration(confirmationCode, forceAliasCreation, callback) {
+	    var jsonReq = {
+	      ClientId: this.pool.getClientId(),
+	      ConfirmationCode: confirmationCode,
+	      Username: this.username,
+	      ForceAliasCreation: forceAliasCreation
+	    };
+	    if (this.getUserContextData()) {
+	      jsonReq.UserContextData = this.getUserContextData();
+	    }
+	    this.client.makeUnauthenticatedRequest("confirmSignUp", jsonReq, function (err) {
+	      if (err) {
+	        return callback(err, null);
+	      }
+	      return callback(null, "SUCCESS");
+	    });
+	  };
+
+	  /**
+	   * This is used by the user once he has the responses to a custom challenge
+	   * @param {string} answerChallenge The custom challange answer.
+	   * @param {object} callback Result callback map.
+	   * @param {onFailure} callback.onFailure Called on any error.
+	   * @param {customChallenge} callback.customChallenge
+	   *    Custom challenge response required to continue.
+	   * @param {authSuccess} callback.onSuccess Called on success with the new session.
+	   * @returns {void}
+	   */
+
+
+	  CognitoUser.prototype.sendCustomChallengeAnswer = function sendCustomChallengeAnswer(answerChallenge, callback) {
+	    var _this6 = this;
+
+	    var challengeResponses = {};
+	    challengeResponses.USERNAME = this.username;
+	    challengeResponses.ANSWER = answerChallenge;
+	    var jsonReq = {
+	      ChallengeName: "CUSTOM_CHALLENGE",
+	      ChallengeResponses: challengeResponses,
+	      ClientId: this.pool.getClientId(),
+	      Session: this.Session
+	    };
+	    if (this.getUserContextData()) {
+	      jsonReq.UserContextData = this.getUserContextData();
+	    }
+	    this.client.makeUnauthenticatedRequest("respondToAuthChallenge", jsonReq, function (err, data) {
+	      if (err) {
+	        return callback.onFailure(err);
+	      }
+
+	      var challengeName = data.ChallengeName;
+
+	      if (challengeName === "CUSTOM_CHALLENGE") {
+	        _this6.Session = data.Session;
+	        return callback.customChallenge(data.ChallengeParameters);
+	      }
+
+	      _this6.signInUserSession = _this6.getCognitoUserSession(data.AuthenticationResult);
+	      _this6.cacheTokens();
+	      return callback.onSuccess(_this6.signInUserSession);
+	    });
+	  };
+
+	  /**
+	   * This is used by the user once he has an MFA code
+	   * @param {string} confirmationCode The MFA code entered by the user.
+	   * @param {object} callback Result callback map.
+	   * @param {string} mfaType The mfa we are replying to.
+	   * @param {onFailure} callback.onFailure Called on any error.
+	   * @param {authSuccess} callback.onSuccess Called on success with the new session.
+	   * @returns {void}
+	   */
+
+
+	  CognitoUser.prototype.sendMFACode = function sendMFACode(confirmationCode, callback, mfaType) {
+	    var _this7 = this;
+
+	    var challengeResponses = {};
+	    challengeResponses.USERNAME = this.username;
+	    challengeResponses.SMS_MFA_CODE = confirmationCode;
+	    var mfaTypeSelection = mfaType || "SMS_MFA";
+	    if (mfaTypeSelection === "SOFTWARE_TOKEN_MFA") {
+	      challengeResponses.SOFTWARE_TOKEN_MFA_CODE = confirmationCode;
+	    }
+
+	    if (this.deviceKey != null) {
+	      challengeResponses.DEVICE_KEY = this.deviceKey;
+	    }
+
+	    var jsonReq = {
+	      ChallengeName: mfaTypeSelection,
+	      ChallengeResponses: challengeResponses,
+	      ClientId: this.pool.getClientId(),
+	      Session: this.Session
+	    };
+	    if (this.getUserContextData()) {
+	      jsonReq.UserContextData = this.getUserContextData();
+	    }
+
+	    this.client.makeUnauthenticatedRequest("respondToAuthChallenge", jsonReq, function (err, dataAuthenticate) {
+	      if (err) {
+	        return callback.onFailure(err);
+	      }
+
+	      var challengeName = dataAuthenticate.ChallengeName;
+
+	      if (challengeName === "DEVICE_SRP_AUTH") {
+	        _this7.getDeviceResponse(callback);
+	        return undefined;
+	      }
+
+	      _this7.signInUserSession = _this7.getCognitoUserSession(dataAuthenticate.AuthenticationResult);
+	      _this7.cacheTokens();
+
+	      if (dataAuthenticate.AuthenticationResult.NewDeviceMetadata == null) {
+	        return callback.onSuccess(_this7.signInUserSession);
+	      }
+
+	      var authenticationHelper = new _AuthenticationHelper2.default(_this7.pool.getUserPoolId().split("_")[1]);
+	      authenticationHelper.generateHashDevice(dataAuthenticate.AuthenticationResult.NewDeviceMetadata.DeviceGroupKey, dataAuthenticate.AuthenticationResult.NewDeviceMetadata.DeviceKey, function (errGenHash) {
+	        if (errGenHash) {
+	          return callback.onFailure(errGenHash);
+	        }
+
+	        var deviceSecretVerifierConfig = {
+	          Salt: new _global.util.Buffer(authenticationHelper.getSaltDevices(), "hex").toString("base64"),
+	          PasswordVerifier: new _global.util.Buffer(authenticationHelper.getVerifierDevices(), "hex").toString("base64")
+	        };
+
+	        _this7.verifierDevices = deviceSecretVerifierConfig.PasswordVerifier;
+	        _this7.deviceGroupKey = dataAuthenticate.AuthenticationResult.NewDeviceMetadata.DeviceGroupKey;
+	        _this7.randomPassword = authenticationHelper.getRandomPassword();
+
+	        _this7.client.makeUnauthenticatedRequest("confirmDevice", {
+	          DeviceKey: dataAuthenticate.AuthenticationResult.NewDeviceMetadata.DeviceKey,
+	          AccessToken: _this7.signInUserSession.getAccessToken().getJwtToken(),
+	          DeviceSecretVerifierConfig: deviceSecretVerifierConfig,
+	          DeviceName: navigator.userAgent
+	        }, function (errConfirm, dataConfirm) {
+	          if (errConfirm) {
+	            return callback.onFailure(errConfirm);
+	          }
+
+	          _this7.deviceKey = dataAuthenticate.AuthenticationResult.NewDeviceMetadata.DeviceKey;
+	          _this7.cacheDeviceKeyAndPassword();
+	          if (dataConfirm.UserConfirmationNecessary === true) {
+	            return callback.onSuccess(_this7.signInUserSession, dataConfirm.UserConfirmationNecessary);
+	          }
+	          return callback.onSuccess(_this7.signInUserSession);
+	        });
+	        return undefined;
+	      });
+	      return undefined;
+	    });
+	  };
+
+	  /**
+	   * This is used by an authenticated user to change the current password
+	   * @param {string} oldUserPassword The current password.
+	   * @param {string} newUserPassword The requested new password.
+	   * @param {nodeCallback<string>} callback Called on success or error.
+	   * @returns {void}
+	   */
+
+
+	  CognitoUser.prototype.changePassword = function changePassword(oldUserPassword, newUserPassword, callback) {
+	    if (!(this.signInUserSession != null && this.signInUserSession.isValid())) {
+	      return callback(new Error("User is not authenticated"), null);
+	    }
+
+	    this.client.makeUnauthenticatedRequest("changePassword", {
+	      PreviousPassword: oldUserPassword,
+	      ProposedPassword: newUserPassword,
+	      AccessToken: this.signInUserSession.getAccessToken().getJwtToken()
+	    }, function (err) {
+	      if (err) {
+	        return callback(err, null);
+	      }
+	      return callback(null, "SUCCESS");
+	    });
+	    return undefined;
+	  };
+
+	  /**
+	   * This is used by an authenticated user to enable MFA for himself
+	   * @param {nodeCallback<string>} callback Called on success or error.
+	   * @returns {void}
+	   */
+
+
+	  CognitoUser.prototype.enableMFA = function enableMFA(callback) {
+	    if (this.signInUserSession == null || !this.signInUserSession.isValid()) {
+	      return callback(new Error("User is not authenticated"), null);
+	    }
+
+	    var mfaOptions = [];
+	    var mfaEnabled = {
+	      DeliveryMedium: "SMS",
+	      AttributeName: "phone_number"
+	    };
+	    mfaOptions.push(mfaEnabled);
+
+	    this.client.makeUnauthenticatedRequest("setUserSettings", {
+	      MFAOptions: mfaOptions,
+	      AccessToken: this.signInUserSession.getAccessToken().getJwtToken()
+	    }, function (err) {
+	      if (err) {
+	        return callback(err, null);
+	      }
+	      return callback(null, "SUCCESS");
+	    });
+	    return undefined;
+	  };
+
+	  /**
+	   * This is used by an authenticated user to enable MFA for himself
+	   * @param {string[]} smsMfaSettings the sms mfa settings
+	   * @param {string[]} softwareTokenMfaSettings the software token mfa settings
+	   * @param {nodeCallback<string>} callback Called on success or error.
+	   * @returns {void}
+	   */
+
+
+	  CognitoUser.prototype.setUserMfaPreference = function setUserMfaPreference(smsMfaSettings, softwareTokenMfaSettings, callback) {
+	    if (this.signInUserSession == null || !this.signInUserSession.isValid()) {
+	      return callback(new Error("User is not authenticated"), null);
+	    }
+
+	    this.client.makeUnauthenticatedRequest("setUserMFAPreference", {
+	      SMSMfaSettings: smsMfaSettings,
+	      SoftwareTokenMfaSettings: softwareTokenMfaSettings,
+	      AccessToken: this.signInUserSession.getAccessToken().getJwtToken()
+	    }, function (err) {
+	      if (err) {
+	        return callback(err, null);
+	      }
+	      return callback(null, "SUCCESS");
+	    });
+	    return undefined;
+	  };
+
+	  /**
+	   * This is used by an authenticated user to disable MFA for himself
+	   * @param {nodeCallback<string>} callback Called on success or error.
+	   * @returns {void}
+	   */
+
+
+	  CognitoUser.prototype.disableMFA = function disableMFA(callback) {
+	    if (this.signInUserSession == null || !this.signInUserSession.isValid()) {
+	      return callback(new Error("User is not authenticated"), null);
+	    }
+
+	    var mfaOptions = [];
+
+	    this.client.makeUnauthenticatedRequest("setUserSettings", {
+	      MFAOptions: mfaOptions,
+	      AccessToken: this.signInUserSession.getAccessToken().getJwtToken()
+	    }, function (err) {
+	      if (err) {
+	        return callback(err, null);
+	      }
+	      return callback(null, "SUCCESS");
+	    });
+	    return undefined;
+	  };
+
+	  /**
+	   * This is used by an authenticated user to delete himself
+	   * @param {nodeCallback<string>} callback Called on success or error.
+	   * @returns {void}
+	   */
+
+
+	  CognitoUser.prototype.deleteUser = function deleteUser(callback) {
+	    var _this8 = this;
+
+	    if (this.signInUserSession == null || !this.signInUserSession.isValid()) {
+	      return callback(new Error("User is not authenticated"), null);
+	    }
+
+	    this.client.makeUnauthenticatedRequest("deleteUser", {
+	      AccessToken: this.signInUserSession.getAccessToken().getJwtToken()
+	    }, function (err) {
+	      if (err) {
+	        return callback(err, null);
+	      }
+	      _this8.clearCachedTokens();
+	      return callback(null, "SUCCESS");
+	    });
+	    return undefined;
+	  };
+
+	  /**
+	   * @typedef {CognitoUserAttribute | { Name:string, Value:string }} AttributeArg
+	   */
+	  /**
+	   * This is used by an authenticated user to change a list of attributes
+	   * @param {AttributeArg[]} attributes A list of the new user attributes.
+	   * @param {nodeCallback<string>} callback Called on success or error.
+	   * @returns {void}
+	   */
+
+
+	  CognitoUser.prototype.updateAttributes = function updateAttributes(attributes, callback) {
+	    if (this.signInUserSession == null || !this.signInUserSession.isValid()) {
+	      return callback(new Error("User is not authenticated"), null);
+	    }
+
+	    this.client.makeUnauthenticatedRequest("updateUserAttributes", {
+	      AccessToken: this.signInUserSession.getAccessToken().getJwtToken(),
+	      UserAttributes: attributes
+	    }, function (err) {
+	      if (err) {
+	        return callback(err, null);
+	      }
+	      return callback(null, "SUCCESS");
+	    });
+	    return undefined;
+	  };
+
+	  /**
+	   * This is used by an authenticated user to get a list of attributes
+	   * @param {nodeCallback<CognitoUserAttribute[]>} callback Called on success or error.
+	   * @returns {void}
+	   */
+
+
+	  CognitoUser.prototype.getUserAttributes = function getUserAttributes(callback) {
+	    if (!(this.signInUserSession != null && this.signInUserSession.isValid())) {
+	      return callback(new Error("User is not authenticated"), null);
+	    }
+
+	    this.client.makeUnauthenticatedRequest("getUser", {
+	      AccessToken: this.signInUserSession.getAccessToken().getJwtToken()
+	    }, function (err, userData) {
+	      if (err) {
+	        return callback(err, null);
+	      }
+
+	      var attributeList = [];
+
+	      for (var i = 0; i < userData.UserAttributes.length; i++) {
+	        var attribute = {
+	          Name: userData.UserAttributes[i].Name,
+	          Value: userData.UserAttributes[i].Value
+	        };
+	        var userAttribute = new _CognitoUserAttribute2.default(attribute);
+	        attributeList.push(userAttribute);
+	      }
+
+	      return callback(null, attributeList);
+	    });
+	    return undefined;
+	  };
+
+	  /**
+	   * This is used by an authenticated user to get the MFAOptions
+	   * @param {nodeCallback<MFAOptions>} callback Called on success or error.
+	   * @returns {void}
+	   */
+
+
+	  CognitoUser.prototype.getMFAOptions = function getMFAOptions(callback) {
+	    if (!(this.signInUserSession != null && this.signInUserSession.isValid())) {
+	      return callback(new Error("User is not authenticated"), null);
+	    }
+
+	    this.client.makeUnauthenticatedRequest("getUser", {
+	      AccessToken: this.signInUserSession.getAccessToken().getJwtToken()
+	    }, function (err, userData) {
+	      if (err) {
+	        return callback(err, null);
+	      }
+
+	      return callback(null, userData.MFAOptions);
+	    });
+	    return undefined;
+	  };
+
+	  /**
+	   * This is used by an authenticated user to delete a list of attributes
+	   * @param {string[]} attributeList Names of the attributes to delete.
+	   * @param {nodeCallback<string>} callback Called on success or error.
+	   * @returns {void}
+	   */
+
+
+	  CognitoUser.prototype.deleteAttributes = function deleteAttributes(attributeList, callback) {
+	    if (!(this.signInUserSession != null && this.signInUserSession.isValid())) {
+	      return callback(new Error("User is not authenticated"), null);
+	    }
+
+	    this.client.makeUnauthenticatedRequest("deleteUserAttributes", {
+	      UserAttributeNames: attributeList,
+	      AccessToken: this.signInUserSession.getAccessToken().getJwtToken()
+	    }, function (err) {
+	      if (err) {
+	        return callback(err, null);
+	      }
+	      return callback(null, "SUCCESS");
+	    });
+	    return undefined;
+	  };
+
+	  /**
+	   * This is used by a user to resend a confirmation code
+	   * @param {nodeCallback<string>} callback Called on success or error.
+	   * @returns {void}
+	   */
+
+
+	  CognitoUser.prototype.resendConfirmationCode = function resendConfirmationCode(callback) {
+	    var jsonReq = {
+	      ClientId: this.pool.getClientId(),
+	      Username: this.username
+	    };
+
+	    this.client.makeUnauthenticatedRequest("resendConfirmationCode", jsonReq, function (err, result) {
+	      if (err) {
+	        return callback(err, null);
+	      }
+	      return callback(null, result);
+	    });
+	  };
+
+	  /**
+	   * This is used to get a session, either from the session object
+	   * or from  the local storage, or by using a refresh token
+	   *
+	   * @param {nodeCallback<CognitoUserSession>} callback Called on success or error.
+	   * @returns {void}
+	   */
+
+
+	  CognitoUser.prototype.getSession = function getSession(callback) {
+	    if (this.username == null) {
+	      return callback(new Error("Username is null. Cannot retrieve a new session"), null);
+	    }
+
+	    if (this.signInUserSession != null && this.signInUserSession.isValid()) {
+	      return callback(null, this.signInUserSession);
+	    }
+
+	    var keyPrefix = "CognitoIdentityServiceProvider." + this.pool.getClientId() + "." + this.username;
+	    var idTokenKey = keyPrefix + ".idToken";
+	    var accessTokenKey = keyPrefix + ".accessToken";
+	    var refreshTokenKey = keyPrefix + ".refreshToken";
+	    var clockDriftKey = keyPrefix + ".clockDrift";
+
+	    if (this.storage.getItem(idTokenKey)) {
+	      var idToken = new _CognitoIdToken2.default({
+	        IdToken: this.storage.getItem(idTokenKey)
+	      });
+	      var accessToken = new _CognitoAccessToken2.default({
+	        AccessToken: this.storage.getItem(accessTokenKey)
+	      });
+	      var refreshToken = new _CognitoRefreshToken2.default({
+	        RefreshToken: this.storage.getItem(refreshTokenKey)
+	      });
+	      var clockDrift = parseInt(this.storage.getItem(clockDriftKey), 0) || 0;
+
+	      var sessionData = {
+	        IdToken: idToken,
+	        AccessToken: accessToken,
+	        RefreshToken: refreshToken,
+	        ClockDrift: clockDrift
+	      };
+	      var cachedSession = new _CognitoUserSession2.default(sessionData);
+	      if (cachedSession.isValid()) {
+	        this.signInUserSession = cachedSession;
+	        return callback(null, this.signInUserSession);
+	      }
+
+	      if (refreshToken.getToken() == null) {
+	        return callback(new Error("Cannot retrieve a new session. Please authenticate."), null);
+	      }
+
+	      this.refreshSession(refreshToken, callback);
+	    } else {
+	      callback(new Error("Local storage is missing an ID Token, Please authenticate"), null);
+	    }
+
+	    return undefined;
+	  };
+
+	  /**
+	   * This uses the refreshToken to retrieve a new session
+	   * @param {CognitoRefreshToken} refreshToken A previous session's refresh token.
+	   * @param {nodeCallback<CognitoUserSession>} callback Called on success or error.
+	   * @returns {void}
+	   */
+
+
+	  CognitoUser.prototype.refreshSession = function refreshSession(refreshToken, callback) {
+	    var _this9 = this;
+
+	    var authParameters = {};
+	    authParameters.REFRESH_TOKEN = refreshToken.getToken();
+	    var keyPrefix = "CognitoIdentityServiceProvider." + this.pool.getClientId();
+	    var lastUserKey = keyPrefix + ".LastAuthUser";
+
+	    if (this.storage.getItem(lastUserKey)) {
+	      this.username = this.storage.getItem(lastUserKey);
+	      var deviceKeyKey = keyPrefix + "." + this.username + ".deviceKey";
+	      this.deviceKey = this.storage.getItem(deviceKeyKey);
+	      authParameters.DEVICE_KEY = this.deviceKey;
+	    }
+
+	    var jsonReq = {
+	      ClientId: this.pool.getClientId(),
+	      AuthFlow: "REFRESH_TOKEN_AUTH",
+	      AuthParameters: authParameters
+	    };
+	    if (this.getUserContextData()) {
+	      jsonReq.UserContextData = this.getUserContextData();
+	    }
+	    this.client.makeUnauthenticatedRequest("initiateAuth", jsonReq, function (err, authResult) {
+	      if (err) {
+	        if (err.code === "NotAuthorizedException") {
+	          _this9.clearCachedTokens();
+	        }
+	        return callback(err, null);
+	      }
+	      if (authResult) {
+	        var authenticationResult = authResult.AuthenticationResult;
+	        if (!Object.prototype.hasOwnProperty.call(authenticationResult, "RefreshToken")) {
+	          authenticationResult.RefreshToken = refreshToken.getToken();
+	        }
+	        _this9.signInUserSession = _this9.getCognitoUserSession(authenticationResult);
+	        _this9.cacheTokens();
+	        return callback(null, _this9.signInUserSession);
+	      }
+	      return undefined;
+	    });
+	  };
+
+	  /**
+	   * This is used to save the session tokens to local storage
+	   * @returns {void}
+	   */
+
+
+	  CognitoUser.prototype.cacheTokens = function cacheTokens() {
+	    var keyPrefix = "CognitoIdentityServiceProvider." + this.pool.getClientId();
+	    var idTokenKey = keyPrefix + "." + this.username + ".idToken";
+	    var accessTokenKey = keyPrefix + "." + this.username + ".accessToken";
+	    var refreshTokenKey = keyPrefix + "." + this.username + ".refreshToken";
+	    var clockDriftKey = keyPrefix + "." + this.username + ".clockDrift";
+	    var lastUserKey = keyPrefix + ".LastAuthUser";
+
+	    this.storage.setItem(idTokenKey, this.signInUserSession.getIdToken().getJwtToken());
+	    this.storage.setItem(accessTokenKey, this.signInUserSession.getAccessToken().getJwtToken());
+	    this.storage.setItem(refreshTokenKey, this.signInUserSession.getRefreshToken().getToken());
+	    this.storage.setItem(clockDriftKey, "" + this.signInUserSession.getClockDrift());
+	    this.storage.setItem(lastUserKey, this.username);
+	  };
+
+	  /**
+	   * This is used to cache the device key and device group and device password
+	   * @returns {void}
+	   */
+
+
+	  CognitoUser.prototype.cacheDeviceKeyAndPassword = function cacheDeviceKeyAndPassword() {
+	    var keyPrefix = "CognitoIdentityServiceProvider." + this.pool.getClientId() + "." + this.username;
+	    var deviceKeyKey = keyPrefix + ".deviceKey";
+	    var randomPasswordKey = keyPrefix + ".randomPasswordKey";
+	    var deviceGroupKeyKey = keyPrefix + ".deviceGroupKey";
+
+	    this.storage.setItem(deviceKeyKey, this.deviceKey);
+	    this.storage.setItem(randomPasswordKey, this.randomPassword);
+	    this.storage.setItem(deviceGroupKeyKey, this.deviceGroupKey);
+	  };
+
+	  /**
+	   * This is used to get current device key and device group and device password
+	   * @returns {void}
+	   */
+
+
+	  CognitoUser.prototype.getCachedDeviceKeyAndPassword = function getCachedDeviceKeyAndPassword() {
+	    var keyPrefix = "CognitoIdentityServiceProvider." + this.pool.getClientId() + "." + this.username;
+	    var deviceKeyKey = keyPrefix + ".deviceKey";
+	    var randomPasswordKey = keyPrefix + ".randomPasswordKey";
+	    var deviceGroupKeyKey = keyPrefix + ".deviceGroupKey";
+
+	    if (this.storage.getItem(deviceKeyKey)) {
+	      this.deviceKey = this.storage.getItem(deviceKeyKey);
+	      this.randomPassword = this.storage.getItem(randomPasswordKey);
+	      this.deviceGroupKey = this.storage.getItem(deviceGroupKeyKey);
+	    }
+	  };
+
+	  /**
+	   * This is used to clear the device key info from local storage
+	   * @returns {void}
+	   */
+
+
+	  CognitoUser.prototype.clearCachedDeviceKeyAndPassword = function clearCachedDeviceKeyAndPassword() {
+	    var keyPrefix = "CognitoIdentityServiceProvider." + this.pool.getClientId() + "." + this.username;
+	    var deviceKeyKey = keyPrefix + ".deviceKey";
+	    var randomPasswordKey = keyPrefix + ".randomPasswordKey";
+	    var deviceGroupKeyKey = keyPrefix + ".deviceGroupKey";
+
+	    this.storage.removeItem(deviceKeyKey);
+	    this.storage.removeItem(randomPasswordKey);
+	    this.storage.removeItem(deviceGroupKeyKey);
+	  };
+
+	  /**
+	   * This is used to clear the session tokens from local storage
+	   * @returns {void}
+	   */
+
+
+	  CognitoUser.prototype.clearCachedTokens = function clearCachedTokens() {
+	    var keyPrefix = "CognitoIdentityServiceProvider." + this.pool.getClientId();
+	    var idTokenKey = keyPrefix + "." + this.username + ".idToken";
+	    var accessTokenKey = keyPrefix + "." + this.username + ".accessToken";
+	    var refreshTokenKey = keyPrefix + "." + this.username + ".refreshToken";
+	    var lastUserKey = keyPrefix + ".LastAuthUser";
+
+	    this.storage.removeItem(idTokenKey);
+	    this.storage.removeItem(accessTokenKey);
+	    this.storage.removeItem(refreshTokenKey);
+	    this.storage.removeItem(lastUserKey);
+	  };
+
+	  /**
+	   * This is used to build a user session from tokens retrieved in the authentication result
+	   * @param {object} authResult Successful auth response from server.
+	   * @returns {CognitoUserSession} The new user session.
+	   * @private
+	   */
+
+
+	  CognitoUser.prototype.getCognitoUserSession = function getCognitoUserSession(authResult) {
+	    var idToken = new _CognitoIdToken2.default(authResult);
+	    var accessToken = new _CognitoAccessToken2.default(authResult);
+	    var refreshToken = new _CognitoRefreshToken2.default(authResult);
+
+	    var sessionData = {
+	      IdToken: idToken,
+	      AccessToken: accessToken,
+	      RefreshToken: refreshToken
+	    };
+
+	    return new _CognitoUserSession2.default(sessionData);
+	  };
+
+	  /**
+	   * This is used to initiate a forgot password request
+	   * @param {object} callback Result callback map.
+	   * @param {onFailure} callback.onFailure Called on any error.
+	   * @param {inputVerificationCode?} callback.inputVerificationCode
+	   *    Optional callback raised instead of onSuccess with response data.
+	   * @param {onSuccess} callback.onSuccess Called on success.
+	   * @returns {void}
+	   */
+
+
+	  CognitoUser.prototype.forgotPassword = function forgotPassword(callback) {
+	    var jsonReq = {
+	      ClientId: this.pool.getClientId(),
+	      Username: this.username
+	    };
+	    if (this.getUserContextData()) {
+	      jsonReq.UserContextData = this.getUserContextData();
+	    }
+	    this.client.makeUnauthenticatedRequest("forgotPassword", jsonReq, function (err, data) {
+	      if (err) {
+	        return callback.onFailure(err);
+	      }
+	      if (typeof callback.inputVerificationCode === "function") {
+	        return callback.inputVerificationCode(data);
+	      }
+	      return callback.onSuccess(data);
+	    });
+	  };
+
+	  /**
+	   * This is used to confirm a new password using a confirmationCode
+	   * @param {string} confirmationCode Code entered by user.
+	   * @param {string} newPassword Confirm new password.
+	   * @param {object} callback Result callback map.
+	   * @param {onFailure} callback.onFailure Called on any error.
+	   * @param {onSuccess<void>} callback.onSuccess Called on success.
+	   * @returns {void}
+	   */
+
+
+	  CognitoUser.prototype.confirmPassword = function confirmPassword(confirmationCode, newPassword, callback) {
+	    var jsonReq = {
+	      ClientId: this.pool.getClientId(),
+	      Username: this.username,
+	      ConfirmationCode: confirmationCode,
+	      Password: newPassword
+	    };
+	    if (this.getUserContextData()) {
+	      jsonReq.UserContextData = this.getUserContextData();
+	    }
+	    this.client.makeUnauthenticatedRequest("confirmForgotPassword", jsonReq, function (err) {
+	      if (err) {
+	        return callback.onFailure(err);
+	      }
+	      return callback.onSuccess();
+	    });
+	  };
+
+	  /**
+	   * This is used to initiate an attribute confirmation request
+	   * @param {string} attributeName User attribute that needs confirmation.
+	   * @param {object} callback Result callback map.
+	   * @param {onFailure} callback.onFailure Called on any error.
+	   * @param {inputVerificationCode} callback.inputVerificationCode Called on success.
+	   * @returns {void}
+	   */
+
+
+	  CognitoUser.prototype.getAttributeVerificationCode = function getAttributeVerificationCode(attributeName, callback) {
+	    if (this.signInUserSession == null || !this.signInUserSession.isValid()) {
+	      return callback.onFailure(new Error("User is not authenticated"));
+	    }
+
+	    this.client.makeUnauthenticatedRequest("getUserAttributeVerificationCode", {
+	      AttributeName: attributeName,
+	      AccessToken: this.signInUserSession.getAccessToken().getJwtToken()
+	    }, function (err, data) {
+	      if (err) {
+	        return callback.onFailure(err);
+	      }
+	      if (typeof callback.inputVerificationCode === "function") {
+	        return callback.inputVerificationCode(data);
+	      }
+	      return callback.onSuccess();
+	    });
+	    return undefined;
+	  };
+
+	  /**
+	   * This is used to confirm an attribute using a confirmation code
+	   * @param {string} attributeName Attribute being confirmed.
+	   * @param {string} confirmationCode Code entered by user.
+	   * @param {object} callback Result callback map.
+	   * @param {onFailure} callback.onFailure Called on any error.
+	   * @param {onSuccess<string>} callback.onSuccess Called on success.
+	   * @returns {void}
+	   */
+
+
+	  CognitoUser.prototype.verifyAttribute = function verifyAttribute(attributeName, confirmationCode, callback) {
+	    if (this.signInUserSession == null || !this.signInUserSession.isValid()) {
+	      return callback.onFailure(new Error("User is not authenticated"));
+	    }
+
+	    this.client.makeUnauthenticatedRequest("verifyUserAttribute", {
+	      AttributeName: attributeName,
+	      Code: confirmationCode,
+	      AccessToken: this.signInUserSession.getAccessToken().getJwtToken()
+	    }, function (err) {
+	      if (err) {
+	        return callback.onFailure(err);
+	      }
+	      return callback.onSuccess("SUCCESS");
+	    });
+	    return undefined;
+	  };
+
+	  /**
+	   * This is used to get the device information using the current device key
+	   * @param {object} callback Result callback map.
+	   * @param {onFailure} callback.onFailure Called on any error.
+	   * @param {onSuccess<*>} callback.onSuccess Called on success with device data.
+	   * @returns {void}
+	   */
+
+
+	  CognitoUser.prototype.getDevice = function getDevice(callback) {
+	    if (this.signInUserSession == null || !this.signInUserSession.isValid()) {
+	      return callback.onFailure(new Error("User is not authenticated"));
+	    }
+
+	    this.client.makeUnauthenticatedRequest("getDevice", {
+	      AccessToken: this.signInUserSession.getAccessToken().getJwtToken(),
+	      DeviceKey: this.deviceKey
+	    }, function (err, data) {
+	      if (err) {
+	        return callback.onFailure(err);
+	      }
+	      return callback.onSuccess(data);
+	    });
+	    return undefined;
+	  };
+
+	  /**
+	   * This is used to forget a specific device
+	   * @param {string} deviceKey Device key.
+	   * @param {object} callback Result callback map.
+	   * @param {onFailure} callback.onFailure Called on any error.
+	   * @param {onSuccess<string>} callback.onSuccess Called on success.
+	   * @returns {void}
+	   */
+
+
+	  CognitoUser.prototype.forgetSpecificDevice = function forgetSpecificDevice(deviceKey, callback) {
+	    if (this.signInUserSession == null || !this.signInUserSession.isValid()) {
+	      return callback.onFailure(new Error("User is not authenticated"));
+	    }
+
+	    this.client.makeUnauthenticatedRequest("forgetDevice", {
+	      AccessToken: this.signInUserSession.getAccessToken().getJwtToken(),
+	      DeviceKey: deviceKey
+	    }, function (err) {
+	      if (err) {
+	        return callback.onFailure(err);
+	      }
+	      return callback.onSuccess("SUCCESS");
+	    });
+	    return undefined;
+	  };
+
+	  /**
+	   * This is used to forget the current device
+	   * @param {object} callback Result callback map.
+	   * @param {onFailure} callback.onFailure Called on any error.
+	   * @param {onSuccess<string>} callback.onSuccess Called on success.
+	   * @returns {void}
+	   */
+
+
+	  CognitoUser.prototype.forgetDevice = function forgetDevice(callback) {
+	    var _this10 = this;
+
+	    this.forgetSpecificDevice(this.deviceKey, {
+	      onFailure: callback.onFailure,
+	      onSuccess: function onSuccess(result) {
+	        _this10.deviceKey = null;
+	        _this10.deviceGroupKey = null;
+	        _this10.randomPassword = null;
+	        _this10.clearCachedDeviceKeyAndPassword();
+	        return callback.onSuccess(result);
+	      }
+	    });
+	  };
+
+	  /**
+	   * This is used to set the device status as remembered
+	   * @param {object} callback Result callback map.
+	   * @param {onFailure} callback.onFailure Called on any error.
+	   * @param {onSuccess<string>} callback.onSuccess Called on success.
+	   * @returns {void}
+	   */
+
+
+	  CognitoUser.prototype.setDeviceStatusRemembered = function setDeviceStatusRemembered(callback) {
+	    if (this.signInUserSession == null || !this.signInUserSession.isValid()) {
+	      return callback.onFailure(new Error("User is not authenticated"));
+	    }
+
+	    this.client.makeUnauthenticatedRequest("updateDeviceStatus", {
+	      AccessToken: this.signInUserSession.getAccessToken().getJwtToken(),
+	      DeviceKey: this.deviceKey,
+	      DeviceRememberedStatus: "remembered"
+	    }, function (err) {
+	      if (err) {
+	        return callback.onFailure(err);
+	      }
+	      return callback.onSuccess("SUCCESS");
+	    });
+	    return undefined;
+	  };
+
+	  /**
+	   * This is used to set the device status as not remembered
+	   * @param {object} callback Result callback map.
+	   * @param {onFailure} callback.onFailure Called on any error.
+	   * @param {onSuccess<string>} callback.onSuccess Called on success.
+	   * @returns {void}
+	   */
+
+
+	  CognitoUser.prototype.setDeviceStatusNotRemembered = function setDeviceStatusNotRemembered(callback) {
+	    if (this.signInUserSession == null || !this.signInUserSession.isValid()) {
+	      return callback.onFailure(new Error("User is not authenticated"));
+	    }
+
+	    this.client.makeUnauthenticatedRequest("updateDeviceStatus", {
+	      AccessToken: this.signInUserSession.getAccessToken().getJwtToken(),
+	      DeviceKey: this.deviceKey,
+	      DeviceRememberedStatus: "not_remembered"
+	    }, function (err) {
+	      if (err) {
+	        return callback.onFailure(err);
+	      }
+	      return callback.onSuccess("SUCCESS");
+	    });
+	    return undefined;
+	  };
+
+	  /**
+	   * This is used to list all devices for a user
+	   *
+	   * @param {int} limit the number of devices returned in a call
+	   * @param {string} paginationToken the pagination token in case any was returned before
+	   * @param {object} callback Result callback map.
+	   * @param {onFailure} callback.onFailure Called on any error.
+	   * @param {onSuccess<*>} callback.onSuccess Called on success with device list.
+	   * @returns {void}
+	   */
+
+
+	  CognitoUser.prototype.listDevices = function listDevices(limit, paginationToken, callback) {
+	    if (this.signInUserSession == null || !this.signInUserSession.isValid()) {
+	      return callback.onFailure(new Error("User is not authenticated"));
+	    }
+
+	    this.client.makeUnauthenticatedRequest("listDevices", {
+	      AccessToken: this.signInUserSession.getAccessToken().getJwtToken(),
+	      Limit: limit,
+	      PaginationToken: paginationToken
+	    }, function (err, data) {
+	      if (err) {
+	        return callback.onFailure(err);
+	      }
+	      return callback.onSuccess(data);
+	    });
+	    return undefined;
+	  };
+
+	  /**
+	   * This is used to globally revoke all tokens issued to a user
+	   * @param {object} callback Result callback map.
+	   * @param {onFailure} callback.onFailure Called on any error.
+	   * @param {onSuccess<string>} callback.onSuccess Called on success.
+	   * @returns {void}
+	   */
+
+
+	  CognitoUser.prototype.globalSignOut = function globalSignOut(callback) {
+	    var _this11 = this;
+
+	    if (this.signInUserSession == null || !this.signInUserSession.isValid()) {
+	      return callback.onFailure(new Error("User is not authenticated"));
+	    }
+
+	    this.client.makeUnauthenticatedRequest("globalSignOut", {
+	      AccessToken: this.signInUserSession.getAccessToken().getJwtToken()
+	    }, function (err) {
+	      if (err) {
+	        return callback.onFailure(err);
+	      }
+	      _this11.clearCachedTokens();
+	      return callback.onSuccess("SUCCESS");
+	    });
+	    return undefined;
+	  };
+
+	  /**
+	   * This is used for the user to signOut of the application and clear the cached tokens.
+	   * @returns {void}
+	   */
+
+
+	  CognitoUser.prototype.signOut = function signOut() {
+	    this.signInUserSession = null;
+	    this.clearCachedTokens();
+	  };
+
+	  /**
+	   * This is used by a user trying to select a given MFA
+	   * @param {string} answerChallenge the mfa the user wants
+	   * @param {nodeCallback<string>} callback Called on success or error.
+	   * @returns {void}
+	   */
+
+
+	  CognitoUser.prototype.sendMFASelectionAnswer = function sendMFASelectionAnswer(answerChallenge, callback) {
+	    var _this12 = this;
+
+	    var challengeResponses = {};
+	    challengeResponses.USERNAME = this.username;
+	    challengeResponses.ANSWER = answerChallenge;
+
+	    var jsonReq = {
+	      ChallengeName: "SELECT_MFA_TYPE",
+	      ChallengeResponses: challengeResponses,
+	      ClientId: this.pool.getClientId(),
+	      Session: this.Session
+	    };
+	    if (this.getUserContextData()) {
+	      jsonReq.UserContextData = this.getUserContextData();
+	    }
+	    this.client.makeUnauthenticatedRequest("respondToAuthChallenge", jsonReq, function (err, data) {
+	      if (err) {
+	        return callback.onFailure(err);
+	      }
+	      _this12.Session = data.Session;
+	      if (answerChallenge === "SMS_MFA") {
+	        return callback.mfaRequired(data.challengeName, data.challengeParameters);
+	      }
+	      if (answerChallenge === "SOFTWARE_TOKEN_MFA") {
+	        return callback.totpRequired(data.challengeName, data.challengeParameters);
+	      }
+	      return undefined;
+	    });
+	  };
+
+	  /**
+	   * This returns the user context data for advanced security feature.
+	   * @returns {void}
+	   */
+
+
+	  CognitoUser.prototype.getUserContextData = function getUserContextData() {
+	    var pool = this.pool;
+	    return pool.getUserContextData(this.username);
+	  };
+
+	  /**
+	   * This is used by an authenticated or a user trying to authenticate to associate a TOTP MFA
+	   * @param {nodeCallback<string>} callback Called on success or error.
+	   * @returns {void}
+	   */
+
+
+	  CognitoUser.prototype.associateSoftwareToken = function associateSoftwareToken(callback) {
+	    var _this13 = this;
+
+	    if (!(this.signInUserSession != null && this.signInUserSession.isValid())) {
+	      this.client.makeUnauthenticatedRequest("associateSoftwareToken", {
+	        Session: this.Session
+	      }, function (err, data) {
+	        if (err) {
+	          return callback.onFailure(err);
+	        }
+	        _this13.Session = data.Session;
+	        return callback.associateSecretCode(data.SecretCode);
+	      });
+	    } else {
+	      this.client.makeUnauthenticatedRequest("associateSoftwareToken", {
+	        AccessToken: this.signInUserSession.getAccessToken().getJwtToken()
+	      }, function (err, data) {
+	        if (err) {
+	          return callback.onFailure(err);
+	        }
+	        return callback.associateSecretCode(data.SecretCode);
+	      });
+	    }
+	  };
+
+	  /**
+	   * This is used by an authenticated or a user trying to authenticate to associate a TOTP MFA
+	   * @param {string} totpCode The MFA code entered by the user.
+	   * @param {string} friendlyDeviceName The device name we are assigning to the device.
+	   * @param {nodeCallback<string>} callback Called on success or error.
+	   * @returns {void}
+	   */
+
+
+	  CognitoUser.prototype.verifySoftwareToken = function verifySoftwareToken(totpCode, friendlyDeviceName, callback) {
+	    var _this14 = this;
+
+	    if (!(this.signInUserSession != null && this.signInUserSession.isValid())) {
+	      this.client.makeUnauthenticatedRequest("verifySoftwareToken", {
+	        Session: this.Session,
+	        UserCode: totpCode,
+	        FriendlyDeviceName: friendlyDeviceName
+	      }, function (err, data) {
+	        if (err) {
+	          return callback.onFailure(err);
+	        }
+	        _this14.Session = data.Session;
+	        var challengeResponses = {};
+	        challengeResponses.USERNAME = _this14.username;
+	        var jsonReq = {
+	          ChallengeName: "MFA_SETUP",
+	          ClientId: _this14.pool.getClientId(),
+	          ChallengeResponses: challengeResponses,
+	          Session: _this14.Session
+	        };
+	        if (_this14.getUserContextData()) {
+	          jsonReq.UserContextData = _this14.getUserContextData();
+	        }
+	        _this14.client.makeUnauthenticatedRequest("respondToAuthChallenge", jsonReq, function (errRespond, dataRespond) {
+	          if (errRespond) {
+	            return callback.onFailure(errRespond);
+	          }
+	          _this14.signInUserSession = _this14.getCognitoUserSession(dataRespond.AuthenticationResult);
+	          _this14.cacheTokens();
+	          return callback.onSuccess(_this14.signInUserSession);
+	        });
+	        return undefined;
+	      });
+	    } else {
+	      this.client.makeUnauthenticatedRequest("verifySoftwareToken", {
+	        AccessToken: this.signInUserSession.getAccessToken().getJwtToken(),
+	        UserCode: totpCode,
+	        FriendlyDeviceName: friendlyDeviceName
+	      }, function (err, data) {
+	        if (err) {
+	          return callback.onFailure(err);
+	        }
+	        return callback(null, data);
+	      });
+	    }
+	  };
+
+	  return CognitoUser;
+	}();
+
+	exports.default = CognitoUser;
+
+/***/ }),
+/* 24 */
+/***/ (function(module, exports) {
+
+	'use strict';
+
+	exports.__esModule = true;
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	/*!
+	 * Copyright 2016 Amazon.com,
+	 * Inc. or its affiliates. All Rights Reserved.
+	 *
+	 * Licensed under the Amazon Software License (the "License").
+	 * You may not use this file except in compliance with the
+	 * License. A copy of the License is located at
+	 *
+	 *     http://aws.amazon.com/asl/
+	 *
+	 * or in the "license" file accompanying this file. This file is
+	 * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+	 * CONDITIONS OF ANY KIND, express or implied. See the License
+	 * for the specific language governing permissions and
+	 * limitations under the License.
+	 */
+
+	/** @class */
+	var CognitoUserAttribute = function () {
+	  /**
+	   * Constructs a new CognitoUserAttribute object
+	   * @param {string=} Name The record's name
+	   * @param {string=} Value The record's value
+	   */
+	  function CognitoUserAttribute() {
+	    var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+	        Name = _ref.Name,
+	        Value = _ref.Value;
+
+	    _classCallCheck(this, CognitoUserAttribute);
+
+	    this.Name = Name || '';
+	    this.Value = Value || '';
+	  }
+
+	  /**
+	   * @returns {string} the record's value.
+	   */
+
+
+	  CognitoUserAttribute.prototype.getValue = function getValue() {
+	    return this.Value;
+	  };
+
+	  /**
+	   * Sets the record's value.
+	   * @param {string} value The new value.
+	   * @returns {CognitoUserAttribute} The record for method chaining.
+	   */
+
+
+	  CognitoUserAttribute.prototype.setValue = function setValue(value) {
+	    this.Value = value;
+	    return this;
+	  };
+
+	  /**
+	   * @returns {string} the record's name.
+	   */
+
+
+	  CognitoUserAttribute.prototype.getName = function getName() {
+	    return this.Name;
+	  };
+
+	  /**
+	   * Sets the record's name
+	   * @param {string} name The new name.
+	   * @returns {CognitoUserAttribute} The record for method chaining.
+	   */
+
+
+	  CognitoUserAttribute.prototype.setName = function setName(name) {
+	    this.Name = name;
+	    return this;
+	  };
+
+	  /**
+	   * @returns {string} a string representation of the record.
+	   */
+
+
+	  CognitoUserAttribute.prototype.toString = function toString() {
+	    return JSON.stringify(this);
+	  };
+
+	  /**
+	   * @returns {object} a flat object representing the record.
+	   */
+
+
+	  CognitoUserAttribute.prototype.toJSON = function toJSON() {
+	    return {
+	      Name: this.Name,
+	      Value: this.Value
+	    };
+	  };
+
+	  return CognitoUserAttribute;
+	}();
+
+	exports.default = CognitoUserAttribute;
+
+/***/ }),
+/* 25 */
+/***/ (function(module, exports) {
+
+	'use strict';
+
+	exports.__esModule = true;
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	/*!
+	 * Copyright 2016 Amazon.com,
+	 * Inc. or its affiliates. All Rights Reserved.
+	 *
+	 * Licensed under the Amazon Software License (the "License").
+	 * You may not use this file except in compliance with the
+	 * License. A copy of the License is located at
+	 *
+	 *     http://aws.amazon.com/asl/
+	 *
+	 * or in the "license" file accompanying this file. This file is
+	 * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+	 * CONDITIONS OF ANY KIND, express or implied. See the License
+	 * for the specific language governing permissions and
+	 * limitations under the License.
+	 */
+
+	/** @class */
+	var CognitoUserSession = function () {
+	  /**
+	   * Constructs a new CognitoUserSession object
+	   * @param {CognitoIdToken} IdToken The session's Id token.
+	   * @param {CognitoRefreshToken=} RefreshToken The session's refresh token.
+	   * @param {CognitoAccessToken} AccessToken The session's access token.
+	   * @param {int} ClockDrift The saved computer's clock drift or undefined to force calculation.
+	   */
+	  function CognitoUserSession() {
+	    var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+	        IdToken = _ref.IdToken,
+	        RefreshToken = _ref.RefreshToken,
+	        AccessToken = _ref.AccessToken,
+	        ClockDrift = _ref.ClockDrift;
+
+	    _classCallCheck(this, CognitoUserSession);
+
+	    if (AccessToken == null || IdToken == null) {
+	      throw new Error('Id token and Access Token must be present.');
+	    }
+
+	    this.idToken = IdToken;
+	    this.refreshToken = RefreshToken;
+	    this.accessToken = AccessToken;
+	    this.clockDrift = ClockDrift === undefined ? this.calculateClockDrift() : ClockDrift;
+	  }
+
+	  /**
+	   * @returns {CognitoIdToken} the session's Id token
+	   */
+
+
+	  CognitoUserSession.prototype.getIdToken = function getIdToken() {
+	    return this.idToken;
+	  };
+
+	  /**
+	   * @returns {CognitoRefreshToken} the session's refresh token
+	   */
+
+
+	  CognitoUserSession.prototype.getRefreshToken = function getRefreshToken() {
+	    return this.refreshToken;
+	  };
+
+	  /**
+	   * @returns {CognitoAccessToken} the session's access token
+	   */
+
+
+	  CognitoUserSession.prototype.getAccessToken = function getAccessToken() {
+	    return this.accessToken;
+	  };
+
+	  /**
+	   * @returns {int} the session's clock drift
+	   */
+
+
+	  CognitoUserSession.prototype.getClockDrift = function getClockDrift() {
+	    return this.clockDrift;
+	  };
+
+	  /**
+	   * @returns {int} the computer's clock drift
+	   */
+
+
+	  CognitoUserSession.prototype.calculateClockDrift = function calculateClockDrift() {
+	    var now = Math.floor(new Date() / 1000);
+	    var iat = Math.min(this.accessToken.getIssuedAt(), this.idToken.getIssuedAt());
+
+	    return now - iat;
+	  };
+
+	  /**
+	   * Checks to see if the session is still valid based on session expiry information found
+	   * in tokens and the current time (adjusted with clock drift)
+	   * @returns {boolean} if the session is still valid
+	   */
+
+
+	  CognitoUserSession.prototype.isValid = function isValid() {
+	    var now = Math.floor(new Date() / 1000);
+	    var adjusted = now - this.clockDrift;
+
+	    return adjusted < this.accessToken.getExpiration() && adjusted < this.idToken.getExpiration();
+	  };
+
+	  return CognitoUserSession;
+	}();
+
+	exports.default = CognitoUserSession;
+
+/***/ }),
+/* 26 */
+/***/ (function(module, exports) {
+
+	'use strict';
+
+	exports.__esModule = true;
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	/*!
+	 * Copyright 2016 Amazon.com,
+	 * Inc. or its affiliates. All Rights Reserved.
+	 *
+	 * Licensed under the Amazon Software License (the "License").
+	 * You may not use this file except in compliance with the
+	 * License. A copy of the License is located at
+	 *
+	 *     http://aws.amazon.com/asl/
+	 *
+	 * or in the "license" file accompanying this file. This file is
+	 * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+	 * CONDITIONS OF ANY KIND, express or implied. See the License
+	 * for the specific language governing permissions and
+	 * limitations under the License.
+	 */
+
+	var monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+	var weekNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+	/** @class */
+
+	var DateHelper = function () {
+	  function DateHelper() {
+	    _classCallCheck(this, DateHelper);
+	  }
+
+	  /**
+	   * @returns {string} The current time in "ddd MMM D HH:mm:ss UTC YYYY" format.
+	   */
+	  DateHelper.prototype.getNowString = function getNowString() {
+	    var now = new Date();
+
+	    var weekDay = weekNames[now.getUTCDay()];
+	    var month = monthNames[now.getUTCMonth()];
+	    var day = now.getUTCDate();
+
+	    var hours = now.getUTCHours();
+	    if (hours < 10) {
+	      hours = '0' + hours;
+	    }
+
+	    var minutes = now.getUTCMinutes();
+	    if (minutes < 10) {
+	      minutes = '0' + minutes;
+	    }
+
+	    var seconds = now.getUTCSeconds();
+	    if (seconds < 10) {
+	      seconds = '0' + seconds;
+	    }
+
+	    var year = now.getUTCFullYear();
+
+	    // ddd MMM D HH:mm:ss UTC YYYY
+	    var dateNow = weekDay + ' ' + month + ' ' + day + ' ' + hours + ':' + minutes + ':' + seconds + ' UTC ' + year;
+
+	    return dateNow;
+	  };
+
+	  return DateHelper;
+	}();
+
+	exports.default = DateHelper;
+
+/***/ }),
+/* 27 */
+/***/ (function(module, exports) {
+
+	'use strict';
+
+	exports.__esModule = true;
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	/*!
+	 * Copyright 2016 Amazon.com,
+	 * Inc. or its affiliates. All Rights Reserved.
+	 *
+	 * Licensed under the Amazon Software License (the "License").
+	 * You may not use this file except in compliance with the
+	 * License. A copy of the License is located at
+	 *
+	 *     http://aws.amazon.com/asl/
+	 *
+	 * or in the "license" file accompanying this file. This file is
+	 * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+	 * CONDITIONS OF ANY KIND, express or implied. See the License
+	 * for the specific language governing permissions and
+	 * limitations under the License.
+	 */
+
+	var dataMemory = {};
+
+	/** @class */
+
+	var MemoryStorage = function () {
+	  function MemoryStorage() {
+	    _classCallCheck(this, MemoryStorage);
+	  }
+
+	  /**
+	   * This is used to set a specific item in storage
+	   * @param {string} key - the key for the item
+	   * @param {object} value - the value
+	   * @returns {string} value that was set
+	   */
+	  MemoryStorage.setItem = function setItem(key, value) {
+	    dataMemory[key] = value;
+	    return dataMemory[key];
+	  };
+
+	  /**
+	   * This is used to get a specific key from storage
+	   * @param {string} key - the key for the item
+	   * This is used to clear the storage
+	   * @returns {string} the data item
+	   */
+
+
+	  MemoryStorage.getItem = function getItem(key) {
+	    return Object.prototype.hasOwnProperty.call(dataMemory, key) ? dataMemory[key] : undefined;
+	  };
+
+	  /**
+	   * This is used to remove an item from storage
+	   * @param {string} key - the key being set
+	   * @returns {string} value - value that was deleted
+	   */
+
+
+	  MemoryStorage.removeItem = function removeItem(key) {
+	    return delete dataMemory[key];
+	  };
+
+	  /**
+	   * This is used to clear the storage
+	   * @returns {string} nothing
+	   */
+
+
+	  MemoryStorage.clear = function clear() {
+	    dataMemory = {};
+	    return dataMemory;
+	  };
+
+	  return MemoryStorage;
+	}();
+
+	/** @class */
+
+
+	var StorageHelper = function () {
+
+	  /**
+	   * This is used to get a storage object
+	   * @returns {object} the storage
+	   */
+	  function StorageHelper() {
+	    _classCallCheck(this, StorageHelper);
+
+	    try {
+	      this.storageWindow = window.localStorage;
+	      this.storageWindow.setItem('aws.cognito.test-ls', 1);
+	      this.storageWindow.removeItem('aws.cognito.test-ls');
+	    } catch (exception) {
+	      this.storageWindow = MemoryStorage;
+	    }
+	  }
+
+	  /**
+	   * This is used to return the storage
+	   * @returns {object} the storage
+	   */
+
+
+	  StorageHelper.prototype.getStorage = function getStorage() {
+	    return this.storageWindow;
+	  };
+
+	  return StorageHelper;
+	}();
+
+	exports.default = StorageHelper;
+
+/***/ }),
+/* 28 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(Buffer) {var createHash = __webpack_require__(57)
+
+	var md5 = toConstructor(__webpack_require__(51))
+	var rmd160 = toConstructor(__webpack_require__(55))
+
+	function toConstructor (fn) {
+	  return function () {
+	    var buffers = []
+	    var m= {
+	      update: function (data, enc) {
+	        if(!Buffer.isBuffer(data)) data = new Buffer(data, enc)
+	        buffers.push(data)
+	        return this
+	      },
+	      digest: function (enc) {
+	        var buf = Buffer.concat(buffers)
+	        var r = fn(buf)
+	        buffers = null
+	        return enc ? r.toString(enc) : r
+	      }
+	    }
+	    return m
+	  }
+	}
+
+	module.exports = function (alg) {
+	  if('md5' === alg) return new md5()
+	  if('rmd160' === alg) return new rmd160()
+	  return createHash(alg)
+	}
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1).Buffer))
+
+/***/ }),
+/* 29 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(Buffer) {
+	module.exports = function (crypto, password, keyLen, ivLen) {
+	  keyLen = keyLen/8;
+	  ivLen = ivLen || 0;
+	  var ki = 0;
+	  var ii = 0;
+	  var key = new Buffer(keyLen);
+	  var iv = new Buffer(ivLen);
+	  var addmd = 0;
+	  var md, md_buf;
+	  var i;
+	  while (true) {
+	    md = crypto.createHash('md5');
+	    if(addmd++ > 0) {
+	       md.update(md_buf);
+	    }
+	    md.update(password);
+	    md_buf = md.digest();
+	    i = 0;
+	    if(keyLen > 0) {
+	      while(true) {
+	        if(keyLen === 0) {
+	          break;
+	        }
+	        if(i === md_buf.length) {
+	          break;
+	        }
+	        key[ki++] = md_buf[i];
+	        keyLen--;
+	        i++;
+	       }
+	    }
+	    if(ivLen > 0 && i !== md_buf.length) {
+	      while(true) {
+	        if(ivLen === 0) {
+	          break;
+	        }
+	        if(i === md_buf.length) {
+	          break;
+	        }
+	       iv[ii++] = md_buf[i];
+	       ivLen--;
+	       i++;
+	     }
+	   }
+	   if(keyLen === 0 && ivLen === 0) {
+	      break;
+	    }
+	  }
+	  for(i=0;i<md_buf.length;i++) {
+	    md_buf[i] = 0;
+	  }
+	  return {
+	    key: key,
+	    iv: iv
+	  };
+	};
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1).Buffer))
+
+/***/ }),
+/* 30 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	var xor = __webpack_require__(6);
+	exports.encrypt = function (self, block) {
+	  var data = xor(block, self._prev);
+	  self._prev = self._cipher.encryptBlock(data);
+	  return self._prev;
+	};
+	exports.decrypt = function (self, block) {
+	  var pad = self._prev;
+	  self._prev = block;
+	  var out = self._cipher.decryptBlock(block);
+	  return xor(out, pad);
+	};
+
+/***/ }),
+/* 31 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(Buffer) {var xor = __webpack_require__(6);
+	exports.encrypt = function (self, data, decrypt) {
+	  var out = new Buffer('');
+	  var len;
+	  while (data.length) {
+	    if (self._cache.length === 0) {
+	      self._cache = self._cipher.encryptBlock(self._prev);
+	      self._prev = new Buffer('');
+	    }
+	    if (self._cache.length <= data.length) {
+	      len = self._cache.length;
+	      out = Buffer.concat([out, encryptStart(self, data.slice(0, len), decrypt)]);
+	      data = data.slice(len);
+	    } else {
+	      out = Buffer.concat([out, encryptStart(self, data, decrypt)]);
+	      break;
+	    }
+	  }
+	  return out;
+	};
+	function encryptStart(self, data, decrypt) {
+	  var len = data.length;
+	  var out = xor(data, self._cache);
+	  self._cache = self._cache.slice(len);
+	  self._prev = Buffer.concat([self._prev, decrypt?data:out]);
+	  return out;
+	}
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1).Buffer))
+
+/***/ }),
+/* 32 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(Buffer) {var xor = __webpack_require__(6);
+	function getBlock(self) {
+	  var out = self._cipher.encryptBlock(self._prev);
+	  incr32(self._prev);
+	  return out;
+	}
+	exports.encrypt = function (self, chunk) {
+	  while (self._cache.length < chunk.length) {
+	    self._cache = Buffer.concat([self._cache, getBlock(self)]);
+	  }
+	  var pad = self._cache.slice(0, chunk.length);
+	  self._cache = self._cache.slice(chunk.length);
+	  return xor(chunk, pad);
+	};
+	function incr32(iv) {
+	  var len = iv.length;
+	  var item;
+	  while (len--) {
+	    item = iv.readUInt8(len);
+	    if (item === 255) {
+	      iv.writeUInt8(0, len);
+	    } else {
+	      item++;
+	      iv.writeUInt8(item, len);
+	      break;
+	    }
+	  }
+	}
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1).Buffer))
+
+/***/ }),
+/* 33 */
+/***/ (function(module, exports) {
+
+	exports.encrypt = function (self, block) {
+	  return self._cipher.encryptBlock(block);
+	};
+	exports.decrypt = function (self, block) {
+	  return self._cipher.decryptBlock(block);
+	};
+
+/***/ }),
+/* 34 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(Buffer) {var xor = __webpack_require__(6);
+	function getBlock(self) {
+	  self._prev = self._cipher.encryptBlock(self._prev);
+	  return self._prev;
+	}
+	exports.encrypt = function (self, chunk) {
+	  while (self._cache.length < chunk.length) {
+	    self._cache = Buffer.concat([self._cache, getBlock(self)]);
+	  }
+	  var pad = self._cache.slice(0, chunk.length);
+	  self._cache = self._cache.slice(chunk.length);
+	  return xor(chunk, pad);
+	};
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1).Buffer))
+
+/***/ }),
+/* 35 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(Buffer) {var aes = __webpack_require__(9);
+	var Transform = __webpack_require__(10);
+	var inherits = __webpack_require__(2);
+
+	inherits(StreamCipher, Transform);
+	module.exports = StreamCipher;
+	function StreamCipher(mode, key, iv, decrypt) {
+	  if (!(this instanceof StreamCipher)) {
+	    return new StreamCipher(mode, key, iv);
+	  }
+	  Transform.call(this);
+	  this._cipher = new aes.AES(key);
+	  this._prev = new Buffer(iv.length);
+	  this._cache = new Buffer('');
+	  this._secCache = new Buffer('');
+	  this._decrypt = decrypt;
+	  iv.copy(this._prev);
+	  this._mode = mode;
+	}
+	StreamCipher.prototype._transform = function (chunk, _, next) {
+	  next(null, this._mode.encrypt(this, chunk, this._decrypt));
+	};
+	StreamCipher.prototype._flush = function (next) {
+	  this._cipher.scrub();
+	  next();
+	};
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1).Buffer))
+
+/***/ }),
+/* 36 */
+/***/ (function(module, exports) {
+
+	var toString = {}.toString;
+
+	module.exports = Array.isArray || function (arr) {
+	  return toString.call(arr) == '[object Array]';
+	};
+
+
+/***/ }),
+/* 37 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(global, process) {// Copyright Joyent, Inc. and other Node contributors.
+	//
+	// Permission is hereby granted, free of charge, to any person obtaining a
+	// copy of this software and associated documentation files (the
+	// "Software"), to deal in the Software without restriction, including
+	// without limitation the rights to use, copy, modify, merge, publish,
+	// distribute, sublicense, and/or sell copies of the Software, and to permit
+	// persons to whom the Software is furnished to do so, subject to the
+	// following conditions:
+	//
+	// The above copyright notice and this permission notice shall be included
+	// in all copies or substantial portions of the Software.
+	//
+	// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+	// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+	// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+	// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+	// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+	// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+	'use strict';
+
+	/*<replacement>*/
+
+	var processNextTick = __webpack_require__(7);
+	/*</replacement>*/
+
+	module.exports = Readable;
+
+	/*<replacement>*/
+	var isArray = __webpack_require__(36);
+	/*</replacement>*/
+
+	/*<replacement>*/
+	var Duplex;
+	/*</replacement>*/
+
+	Readable.ReadableState = ReadableState;
+
+	/*<replacement>*/
+	var EE = __webpack_require__(12).EventEmitter;
+
+	var EElistenerCount = function (emitter, type) {
+	  return emitter.listeners(type).length;
+	};
+	/*</replacement>*/
+
+	/*<replacement>*/
+	var Stream = __webpack_require__(40);
+	/*</replacement>*/
+
+	// TODO(bmeurer): Change this back to const once hole checks are
+	// properly optimized away early in Ignition+TurboFan.
+	/*<replacement>*/
+	var Buffer = __webpack_require__(8).Buffer;
+	var OurUint8Array = global.Uint8Array || function () {};
+	function _uint8ArrayToBuffer(chunk) {
+	  return Buffer.from(chunk);
+	}
+	function _isUint8Array(obj) {
+	  return Buffer.isBuffer(obj) || obj instanceof OurUint8Array;
+	}
+	/*</replacement>*/
+
+	/*<replacement>*/
+	var util = __webpack_require__(5);
+	util.inherits = __webpack_require__(2);
+	/*</replacement>*/
+
+	/*<replacement>*/
+	var debugUtil = __webpack_require__(85);
+	var debug = void 0;
+	if (debugUtil && debugUtil.debuglog) {
+	  debug = debugUtil.debuglog('stream');
+	} else {
+	  debug = function () {};
+	}
+	/*</replacement>*/
+
+	var BufferList = __webpack_require__(74);
+	var destroyImpl = __webpack_require__(39);
+	var StringDecoder;
+
+	util.inherits(Readable, Stream);
+
+	var kProxyEvents = ['error', 'close', 'destroy', 'pause', 'resume'];
+
+	function prependListener(emitter, event, fn) {
+	  // Sadly this is not cacheable as some libraries bundle their own
+	  // event emitter implementation with them.
+	  if (typeof emitter.prependListener === 'function') {
+	    return emitter.prependListener(event, fn);
+	  } else {
+	    // This is a hack to make sure that our error handler is attached before any
+	    // userland ones.  NEVER DO THIS. This is here only because this code needs
+	    // to continue to work with older versions of Node.js that do not include
+	    // the prependListener() method. The goal is to eventually remove this hack.
+	    if (!emitter._events || !emitter._events[event]) emitter.on(event, fn);else if (isArray(emitter._events[event])) emitter._events[event].unshift(fn);else emitter._events[event] = [fn, emitter._events[event]];
+	  }
+	}
+
+	function ReadableState(options, stream) {
+	  Duplex = Duplex || __webpack_require__(4);
+
+	  options = options || {};
+
+	  // object stream flag. Used to make read(n) ignore n and to
+	  // make all the buffer merging and length checks go away
+	  this.objectMode = !!options.objectMode;
+
+	  if (stream instanceof Duplex) this.objectMode = this.objectMode || !!options.readableObjectMode;
+
+	  // the point at which it stops calling _read() to fill the buffer
+	  // Note: 0 is a valid value, means "don't call _read preemptively ever"
+	  var hwm = options.highWaterMark;
+	  var defaultHwm = this.objectMode ? 16 : 16 * 1024;
+	  this.highWaterMark = hwm || hwm === 0 ? hwm : defaultHwm;
+
+	  // cast to ints.
+	  this.highWaterMark = Math.floor(this.highWaterMark);
+
+	  // A linked list is used to store data chunks instead of an array because the
+	  // linked list can remove elements from the beginning faster than
+	  // array.shift()
+	  this.buffer = new BufferList();
+	  this.length = 0;
+	  this.pipes = null;
+	  this.pipesCount = 0;
+	  this.flowing = null;
+	  this.ended = false;
+	  this.endEmitted = false;
+	  this.reading = false;
+
+	  // a flag to be able to tell if the event 'readable'/'data' is emitted
+	  // immediately, or on a later tick.  We set this to true at first, because
+	  // any actions that shouldn't happen until "later" should generally also
+	  // not happen before the first read call.
+	  this.sync = true;
+
+	  // whenever we return null, then we set a flag to say
+	  // that we're awaiting a 'readable' event emission.
+	  this.needReadable = false;
+	  this.emittedReadable = false;
+	  this.readableListening = false;
+	  this.resumeScheduled = false;
+
+	  // has it been destroyed
+	  this.destroyed = false;
+
+	  // Crypto is kind of old and crusty.  Historically, its default string
+	  // encoding is 'binary' so we have to make this configurable.
+	  // Everything else in the universe uses 'utf8', though.
+	  this.defaultEncoding = options.defaultEncoding || 'utf8';
+
+	  // the number of writers that are awaiting a drain event in .pipe()s
+	  this.awaitDrain = 0;
+
+	  // if true, a maybeReadMore has been scheduled
+	  this.readingMore = false;
+
+	  this.decoder = null;
+	  this.encoding = null;
+	  if (options.encoding) {
+	    if (!StringDecoder) StringDecoder = __webpack_require__(41).StringDecoder;
+	    this.decoder = new StringDecoder(options.encoding);
+	    this.encoding = options.encoding;
+	  }
+	}
+
+	function Readable(options) {
+	  Duplex = Duplex || __webpack_require__(4);
+
+	  if (!(this instanceof Readable)) return new Readable(options);
+
+	  this._readableState = new ReadableState(options, this);
+
+	  // legacy
+	  this.readable = true;
+
+	  if (options) {
+	    if (typeof options.read === 'function') this._read = options.read;
+
+	    if (typeof options.destroy === 'function') this._destroy = options.destroy;
+	  }
+
+	  Stream.call(this);
+	}
+
+	Object.defineProperty(Readable.prototype, 'destroyed', {
+	  get: function () {
+	    if (this._readableState === undefined) {
+	      return false;
+	    }
+	    return this._readableState.destroyed;
+	  },
+	  set: function (value) {
+	    // we ignore the value if the stream
+	    // has not been initialized yet
+	    if (!this._readableState) {
+	      return;
+	    }
+
+	    // backward compatibility, the user is explicitly
+	    // managing destroyed
+	    this._readableState.destroyed = value;
+	  }
+	});
+
+	Readable.prototype.destroy = destroyImpl.destroy;
+	Readable.prototype._undestroy = destroyImpl.undestroy;
+	Readable.prototype._destroy = function (err, cb) {
+	  this.push(null);
+	  cb(err);
+	};
+
+	// Manually shove something into the read() buffer.
+	// This returns true if the highWaterMark has not been hit yet,
+	// similar to how Writable.write() returns true if you should
+	// write() some more.
+	Readable.prototype.push = function (chunk, encoding) {
+	  var state = this._readableState;
+	  var skipChunkCheck;
+
+	  if (!state.objectMode) {
+	    if (typeof chunk === 'string') {
+	      encoding = encoding || state.defaultEncoding;
+	      if (encoding !== state.encoding) {
+	        chunk = Buffer.from(chunk, encoding);
+	        encoding = '';
+	      }
+	      skipChunkCheck = true;
+	    }
+	  } else {
+	    skipChunkCheck = true;
+	  }
+
+	  return readableAddChunk(this, chunk, encoding, false, skipChunkCheck);
+	};
+
+	// Unshift should *always* be something directly out of read()
+	Readable.prototype.unshift = function (chunk) {
+	  return readableAddChunk(this, chunk, null, true, false);
+	};
+
+	function readableAddChunk(stream, chunk, encoding, addToFront, skipChunkCheck) {
+	  var state = stream._readableState;
+	  if (chunk === null) {
+	    state.reading = false;
+	    onEofChunk(stream, state);
+	  } else {
+	    var er;
+	    if (!skipChunkCheck) er = chunkInvalid(state, chunk);
+	    if (er) {
+	      stream.emit('error', er);
+	    } else if (state.objectMode || chunk && chunk.length > 0) {
+	      if (typeof chunk !== 'string' && !state.objectMode && Object.getPrototypeOf(chunk) !== Buffer.prototype) {
+	        chunk = _uint8ArrayToBuffer(chunk);
+	      }
+
+	      if (addToFront) {
+	        if (state.endEmitted) stream.emit('error', new Error('stream.unshift() after end event'));else addChunk(stream, state, chunk, true);
+	      } else if (state.ended) {
+	        stream.emit('error', new Error('stream.push() after EOF'));
+	      } else {
+	        state.reading = false;
+	        if (state.decoder && !encoding) {
+	          chunk = state.decoder.write(chunk);
+	          if (state.objectMode || chunk.length !== 0) addChunk(stream, state, chunk, false);else maybeReadMore(stream, state);
+	        } else {
+	          addChunk(stream, state, chunk, false);
+	        }
+	      }
+	    } else if (!addToFront) {
+	      state.reading = false;
+	    }
+	  }
+
+	  return needMoreData(state);
+	}
+
+	function addChunk(stream, state, chunk, addToFront) {
+	  if (state.flowing && state.length === 0 && !state.sync) {
+	    stream.emit('data', chunk);
+	    stream.read(0);
+	  } else {
+	    // update the buffer info.
+	    state.length += state.objectMode ? 1 : chunk.length;
+	    if (addToFront) state.buffer.unshift(chunk);else state.buffer.push(chunk);
+
+	    if (state.needReadable) emitReadable(stream);
+	  }
+	  maybeReadMore(stream, state);
+	}
+
+	function chunkInvalid(state, chunk) {
+	  var er;
+	  if (!_isUint8Array(chunk) && typeof chunk !== 'string' && chunk !== undefined && !state.objectMode) {
+	    er = new TypeError('Invalid non-string/buffer chunk');
+	  }
+	  return er;
+	}
+
+	// if it's past the high water mark, we can push in some more.
+	// Also, if we have no data yet, we can stand some
+	// more bytes.  This is to work around cases where hwm=0,
+	// such as the repl.  Also, if the push() triggered a
+	// readable event, and the user called read(largeNumber) such that
+	// needReadable was set, then we ought to push more, so that another
+	// 'readable' event will be triggered.
+	function needMoreData(state) {
+	  return !state.ended && (state.needReadable || state.length < state.highWaterMark || state.length === 0);
+	}
+
+	Readable.prototype.isPaused = function () {
+	  return this._readableState.flowing === false;
+	};
+
+	// backwards compatibility.
+	Readable.prototype.setEncoding = function (enc) {
+	  if (!StringDecoder) StringDecoder = __webpack_require__(41).StringDecoder;
+	  this._readableState.decoder = new StringDecoder(enc);
+	  this._readableState.encoding = enc;
+	  return this;
+	};
+
+	// Don't raise the hwm > 8MB
+	var MAX_HWM = 0x800000;
+	function computeNewHighWaterMark(n) {
+	  if (n >= MAX_HWM) {
+	    n = MAX_HWM;
+	  } else {
+	    // Get the next highest power of 2 to prevent increasing hwm excessively in
+	    // tiny amounts
+	    n--;
+	    n |= n >>> 1;
+	    n |= n >>> 2;
+	    n |= n >>> 4;
+	    n |= n >>> 8;
+	    n |= n >>> 16;
+	    n++;
+	  }
+	  return n;
+	}
+
+	// This function is designed to be inlinable, so please take care when making
+	// changes to the function body.
+	function howMuchToRead(n, state) {
+	  if (n <= 0 || state.length === 0 && state.ended) return 0;
+	  if (state.objectMode) return 1;
+	  if (n !== n) {
+	    // Only flow one buffer at a time
+	    if (state.flowing && state.length) return state.buffer.head.data.length;else return state.length;
+	  }
+	  // If we're asking for more than the current hwm, then raise the hwm.
+	  if (n > state.highWaterMark) state.highWaterMark = computeNewHighWaterMark(n);
+	  if (n <= state.length) return n;
+	  // Don't have enough
+	  if (!state.ended) {
+	    state.needReadable = true;
+	    return 0;
+	  }
+	  return state.length;
+	}
+
+	// you can override either this method, or the async _read(n) below.
+	Readable.prototype.read = function (n) {
+	  debug('read', n);
+	  n = parseInt(n, 10);
+	  var state = this._readableState;
+	  var nOrig = n;
+
+	  if (n !== 0) state.emittedReadable = false;
+
+	  // if we're doing read(0) to trigger a readable event, but we
+	  // already have a bunch of data in the buffer, then just trigger
+	  // the 'readable' event and move on.
+	  if (n === 0 && state.needReadable && (state.length >= state.highWaterMark || state.ended)) {
+	    debug('read: emitReadable', state.length, state.ended);
+	    if (state.length === 0 && state.ended) endReadable(this);else emitReadable(this);
+	    return null;
+	  }
+
+	  n = howMuchToRead(n, state);
+
+	  // if we've ended, and we're now clear, then finish it up.
+	  if (n === 0 && state.ended) {
+	    if (state.length === 0) endReadable(this);
+	    return null;
+	  }
+
+	  // All the actual chunk generation logic needs to be
+	  // *below* the call to _read.  The reason is that in certain
+	  // synthetic stream cases, such as passthrough streams, _read
+	  // may be a completely synchronous operation which may change
+	  // the state of the read buffer, providing enough data when
+	  // before there was *not* enough.
+	  //
+	  // So, the steps are:
+	  // 1. Figure out what the state of things will be after we do
+	  // a read from the buffer.
+	  //
+	  // 2. If that resulting state will trigger a _read, then call _read.
+	  // Note that this may be asynchronous, or synchronous.  Yes, it is
+	  // deeply ugly to write APIs this way, but that still doesn't mean
+	  // that the Readable class should behave improperly, as streams are
+	  // designed to be sync/async agnostic.
+	  // Take note if the _read call is sync or async (ie, if the read call
+	  // has returned yet), so that we know whether or not it's safe to emit
+	  // 'readable' etc.
+	  //
+	  // 3. Actually pull the requested chunks out of the buffer and return.
+
+	  // if we need a readable event, then we need to do some reading.
+	  var doRead = state.needReadable;
+	  debug('need readable', doRead);
+
+	  // if we currently have less than the highWaterMark, then also read some
+	  if (state.length === 0 || state.length - n < state.highWaterMark) {
+	    doRead = true;
+	    debug('length less than watermark', doRead);
+	  }
+
+	  // however, if we've ended, then there's no point, and if we're already
+	  // reading, then it's unnecessary.
+	  if (state.ended || state.reading) {
+	    doRead = false;
+	    debug('reading or ended', doRead);
+	  } else if (doRead) {
+	    debug('do read');
+	    state.reading = true;
+	    state.sync = true;
+	    // if the length is currently zero, then we *need* a readable event.
+	    if (state.length === 0) state.needReadable = true;
+	    // call internal read method
+	    this._read(state.highWaterMark);
+	    state.sync = false;
+	    // If _read pushed data synchronously, then `reading` will be false,
+	    // and we need to re-evaluate how much data we can return to the user.
+	    if (!state.reading) n = howMuchToRead(nOrig, state);
+	  }
+
+	  var ret;
+	  if (n > 0) ret = fromList(n, state);else ret = null;
+
+	  if (ret === null) {
+	    state.needReadable = true;
+	    n = 0;
+	  } else {
+	    state.length -= n;
+	  }
+
+	  if (state.length === 0) {
+	    // If we have nothing in the buffer, then we want to know
+	    // as soon as we *do* get something into the buffer.
+	    if (!state.ended) state.needReadable = true;
+
+	    // If we tried to read() past the EOF, then emit end on the next tick.
+	    if (nOrig !== n && state.ended) endReadable(this);
+	  }
+
+	  if (ret !== null) this.emit('data', ret);
+
+	  return ret;
+	};
+
+	function onEofChunk(stream, state) {
+	  if (state.ended) return;
+	  if (state.decoder) {
+	    var chunk = state.decoder.end();
+	    if (chunk && chunk.length) {
+	      state.buffer.push(chunk);
+	      state.length += state.objectMode ? 1 : chunk.length;
+	    }
+	  }
+	  state.ended = true;
+
+	  // emit 'readable' now to make sure it gets picked up.
+	  emitReadable(stream);
+	}
+
+	// Don't emit readable right away in sync mode, because this can trigger
+	// another read() call => stack overflow.  This way, it might trigger
+	// a nextTick recursion warning, but that's not so bad.
+	function emitReadable(stream) {
+	  var state = stream._readableState;
+	  state.needReadable = false;
+	  if (!state.emittedReadable) {
+	    debug('emitReadable', state.flowing);
+	    state.emittedReadable = true;
+	    if (state.sync) processNextTick(emitReadable_, stream);else emitReadable_(stream);
+	  }
+	}
+
+	function emitReadable_(stream) {
+	  debug('emit readable');
+	  stream.emit('readable');
+	  flow(stream);
+	}
+
+	// at this point, the user has presumably seen the 'readable' event,
+	// and called read() to consume some data.  that may have triggered
+	// in turn another _read(n) call, in which case reading = true if
+	// it's in progress.
+	// However, if we're not ended, or reading, and the length < hwm,
+	// then go ahead and try to read some more preemptively.
+	function maybeReadMore(stream, state) {
+	  if (!state.readingMore) {
+	    state.readingMore = true;
+	    processNextTick(maybeReadMore_, stream, state);
+	  }
+	}
+
+	function maybeReadMore_(stream, state) {
+	  var len = state.length;
+	  while (!state.reading && !state.flowing && !state.ended && state.length < state.highWaterMark) {
+	    debug('maybeReadMore read 0');
+	    stream.read(0);
+	    if (len === state.length)
+	      // didn't get any data, stop spinning.
+	      break;else len = state.length;
+	  }
+	  state.readingMore = false;
+	}
+
+	// abstract method.  to be overridden in specific implementation classes.
+	// call cb(er, data) where data is <= n in length.
+	// for virtual (non-string, non-buffer) streams, "length" is somewhat
+	// arbitrary, and perhaps not very meaningful.
+	Readable.prototype._read = function (n) {
+	  this.emit('error', new Error('_read() is not implemented'));
+	};
+
+	Readable.prototype.pipe = function (dest, pipeOpts) {
+	  var src = this;
+	  var state = this._readableState;
+
+	  switch (state.pipesCount) {
+	    case 0:
+	      state.pipes = dest;
+	      break;
+	    case 1:
+	      state.pipes = [state.pipes, dest];
+	      break;
+	    default:
+	      state.pipes.push(dest);
+	      break;
+	  }
+	  state.pipesCount += 1;
+	  debug('pipe count=%d opts=%j', state.pipesCount, pipeOpts);
+
+	  var doEnd = (!pipeOpts || pipeOpts.end !== false) && dest !== process.stdout && dest !== process.stderr;
+
+	  var endFn = doEnd ? onend : unpipe;
+	  if (state.endEmitted) processNextTick(endFn);else src.once('end', endFn);
+
+	  dest.on('unpipe', onunpipe);
+	  function onunpipe(readable, unpipeInfo) {
+	    debug('onunpipe');
+	    if (readable === src) {
+	      if (unpipeInfo && unpipeInfo.hasUnpiped === false) {
+	        unpipeInfo.hasUnpiped = true;
+	        cleanup();
+	      }
+	    }
+	  }
+
+	  function onend() {
+	    debug('onend');
+	    dest.end();
+	  }
+
+	  // when the dest drains, it reduces the awaitDrain counter
+	  // on the source.  This would be more elegant with a .once()
+	  // handler in flow(), but adding and removing repeatedly is
+	  // too slow.
+	  var ondrain = pipeOnDrain(src);
+	  dest.on('drain', ondrain);
+
+	  var cleanedUp = false;
+	  function cleanup() {
+	    debug('cleanup');
+	    // cleanup event handlers once the pipe is broken
+	    dest.removeListener('close', onclose);
+	    dest.removeListener('finish', onfinish);
+	    dest.removeListener('drain', ondrain);
+	    dest.removeListener('error', onerror);
+	    dest.removeListener('unpipe', onunpipe);
+	    src.removeListener('end', onend);
+	    src.removeListener('end', unpipe);
+	    src.removeListener('data', ondata);
+
+	    cleanedUp = true;
+
+	    // if the reader is waiting for a drain event from this
+	    // specific writer, then it would cause it to never start
+	    // flowing again.
+	    // So, if this is awaiting a drain, then we just call it now.
+	    // If we don't know, then assume that we are waiting for one.
+	    if (state.awaitDrain && (!dest._writableState || dest._writableState.needDrain)) ondrain();
+	  }
+
+	  // If the user pushes more data while we're writing to dest then we'll end up
+	  // in ondata again. However, we only want to increase awaitDrain once because
+	  // dest will only emit one 'drain' event for the multiple writes.
+	  // => Introduce a guard on increasing awaitDrain.
+	  var increasedAwaitDrain = false;
+	  src.on('data', ondata);
+	  function ondata(chunk) {
+	    debug('ondata');
+	    increasedAwaitDrain = false;
+	    var ret = dest.write(chunk);
+	    if (false === ret && !increasedAwaitDrain) {
+	      // If the user unpiped during `dest.write()`, it is possible
+	      // to get stuck in a permanently paused state if that write
+	      // also returned false.
+	      // => Check whether `dest` is still a piping destination.
+	      if ((state.pipesCount === 1 && state.pipes === dest || state.pipesCount > 1 && indexOf(state.pipes, dest) !== -1) && !cleanedUp) {
+	        debug('false write response, pause', src._readableState.awaitDrain);
+	        src._readableState.awaitDrain++;
+	        increasedAwaitDrain = true;
+	      }
+	      src.pause();
+	    }
+	  }
+
+	  // if the dest has an error, then stop piping into it.
+	  // however, don't suppress the throwing behavior for this.
+	  function onerror(er) {
+	    debug('onerror', er);
+	    unpipe();
+	    dest.removeListener('error', onerror);
+	    if (EElistenerCount(dest, 'error') === 0) dest.emit('error', er);
+	  }
+
+	  // Make sure our error handler is attached before userland ones.
+	  prependListener(dest, 'error', onerror);
+
+	  // Both close and finish should trigger unpipe, but only once.
+	  function onclose() {
+	    dest.removeListener('finish', onfinish);
+	    unpipe();
+	  }
+	  dest.once('close', onclose);
+	  function onfinish() {
+	    debug('onfinish');
+	    dest.removeListener('close', onclose);
+	    unpipe();
+	  }
+	  dest.once('finish', onfinish);
+
+	  function unpipe() {
+	    debug('unpipe');
+	    src.unpipe(dest);
+	  }
+
+	  // tell the dest that it's being piped to
+	  dest.emit('pipe', src);
+
+	  // start the flow if it hasn't been started already.
+	  if (!state.flowing) {
+	    debug('pipe resume');
+	    src.resume();
+	  }
+
+	  return dest;
+	};
+
+	function pipeOnDrain(src) {
+	  return function () {
+	    var state = src._readableState;
+	    debug('pipeOnDrain', state.awaitDrain);
+	    if (state.awaitDrain) state.awaitDrain--;
+	    if (state.awaitDrain === 0 && EElistenerCount(src, 'data')) {
+	      state.flowing = true;
+	      flow(src);
+	    }
+	  };
+	}
+
+	Readable.prototype.unpipe = function (dest) {
+	  var state = this._readableState;
+	  var unpipeInfo = { hasUnpiped: false };
+
+	  // if we're not piping anywhere, then do nothing.
+	  if (state.pipesCount === 0) return this;
+
+	  // just one destination.  most common case.
+	  if (state.pipesCount === 1) {
+	    // passed in one, but it's not the right one.
+	    if (dest && dest !== state.pipes) return this;
+
+	    if (!dest) dest = state.pipes;
+
+	    // got a match.
+	    state.pipes = null;
+	    state.pipesCount = 0;
+	    state.flowing = false;
+	    if (dest) dest.emit('unpipe', this, unpipeInfo);
+	    return this;
+	  }
+
+	  // slow case. multiple pipe destinations.
+
+	  if (!dest) {
+	    // remove all.
+	    var dests = state.pipes;
+	    var len = state.pipesCount;
+	    state.pipes = null;
+	    state.pipesCount = 0;
+	    state.flowing = false;
+
+	    for (var i = 0; i < len; i++) {
+	      dests[i].emit('unpipe', this, unpipeInfo);
+	    }return this;
+	  }
+
+	  // try to find the right one.
+	  var index = indexOf(state.pipes, dest);
+	  if (index === -1) return this;
+
+	  state.pipes.splice(index, 1);
+	  state.pipesCount -= 1;
+	  if (state.pipesCount === 1) state.pipes = state.pipes[0];
+
+	  dest.emit('unpipe', this, unpipeInfo);
+
+	  return this;
+	};
+
+	// set up data events if they are asked for
+	// Ensure readable listeners eventually get something
+	Readable.prototype.on = function (ev, fn) {
+	  var res = Stream.prototype.on.call(this, ev, fn);
+
+	  if (ev === 'data') {
+	    // Start flowing on next tick if stream isn't explicitly paused
+	    if (this._readableState.flowing !== false) this.resume();
+	  } else if (ev === 'readable') {
+	    var state = this._readableState;
+	    if (!state.endEmitted && !state.readableListening) {
+	      state.readableListening = state.needReadable = true;
+	      state.emittedReadable = false;
+	      if (!state.reading) {
+	        processNextTick(nReadingNextTick, this);
+	      } else if (state.length) {
+	        emitReadable(this);
+	      }
+	    }
+	  }
+
+	  return res;
+	};
+	Readable.prototype.addListener = Readable.prototype.on;
+
+	function nReadingNextTick(self) {
+	  debug('readable nexttick read 0');
+	  self.read(0);
+	}
+
+	// pause() and resume() are remnants of the legacy readable stream API
+	// If the user uses them, then switch into old mode.
+	Readable.prototype.resume = function () {
+	  var state = this._readableState;
+	  if (!state.flowing) {
+	    debug('resume');
+	    state.flowing = true;
+	    resume(this, state);
+	  }
+	  return this;
+	};
+
+	function resume(stream, state) {
+	  if (!state.resumeScheduled) {
+	    state.resumeScheduled = true;
+	    processNextTick(resume_, stream, state);
+	  }
+	}
+
+	function resume_(stream, state) {
+	  if (!state.reading) {
+	    debug('resume read 0');
+	    stream.read(0);
+	  }
+
+	  state.resumeScheduled = false;
+	  state.awaitDrain = 0;
+	  stream.emit('resume');
+	  flow(stream);
+	  if (state.flowing && !state.reading) stream.read(0);
+	}
+
+	Readable.prototype.pause = function () {
+	  debug('call pause flowing=%j', this._readableState.flowing);
+	  if (false !== this._readableState.flowing) {
+	    debug('pause');
+	    this._readableState.flowing = false;
+	    this.emit('pause');
+	  }
+	  return this;
+	};
+
+	function flow(stream) {
+	  var state = stream._readableState;
+	  debug('flow', state.flowing);
+	  while (state.flowing && stream.read() !== null) {}
+	}
+
+	// wrap an old-style stream as the async data source.
+	// This is *not* part of the readable stream interface.
+	// It is an ugly unfortunate mess of history.
+	Readable.prototype.wrap = function (stream) {
+	  var state = this._readableState;
+	  var paused = false;
+
+	  var self = this;
+	  stream.on('end', function () {
+	    debug('wrapped end');
+	    if (state.decoder && !state.ended) {
+	      var chunk = state.decoder.end();
+	      if (chunk && chunk.length) self.push(chunk);
+	    }
+
+	    self.push(null);
+	  });
+
+	  stream.on('data', function (chunk) {
+	    debug('wrapped data');
+	    if (state.decoder) chunk = state.decoder.write(chunk);
+
+	    // don't skip over falsy values in objectMode
+	    if (state.objectMode && (chunk === null || chunk === undefined)) return;else if (!state.objectMode && (!chunk || !chunk.length)) return;
+
+	    var ret = self.push(chunk);
+	    if (!ret) {
+	      paused = true;
+	      stream.pause();
+	    }
+	  });
+
+	  // proxy all the other methods.
+	  // important when wrapping filters and duplexes.
+	  for (var i in stream) {
+	    if (this[i] === undefined && typeof stream[i] === 'function') {
+	      this[i] = function (method) {
+	        return function () {
+	          return stream[method].apply(stream, arguments);
+	        };
+	      }(i);
+	    }
+	  }
+
+	  // proxy certain important events.
+	  for (var n = 0; n < kProxyEvents.length; n++) {
+	    stream.on(kProxyEvents[n], self.emit.bind(self, kProxyEvents[n]));
+	  }
+
+	  // when we try to consume some more bytes, simply unpause the
+	  // underlying stream.
+	  self._read = function (n) {
+	    debug('wrapped _read', n);
+	    if (paused) {
+	      paused = false;
+	      stream.resume();
+	    }
+	  };
+
+	  return self;
+	};
+
+	// exposed for testing purposes only.
+	Readable._fromList = fromList;
+
+	// Pluck off n bytes from an array of buffers.
+	// Length is the combined lengths of all the buffers in the list.
+	// This function is designed to be inlinable, so please take care when making
+	// changes to the function body.
+	function fromList(n, state) {
+	  // nothing buffered
+	  if (state.length === 0) return null;
+
+	  var ret;
+	  if (state.objectMode) ret = state.buffer.shift();else if (!n || n >= state.length) {
+	    // read it all, truncate the list
+	    if (state.decoder) ret = state.buffer.join('');else if (state.buffer.length === 1) ret = state.buffer.head.data;else ret = state.buffer.concat(state.length);
+	    state.buffer.clear();
+	  } else {
+	    // read part of list
+	    ret = fromListPartial(n, state.buffer, state.decoder);
+	  }
+
+	  return ret;
+	}
+
+	// Extracts only enough buffered data to satisfy the amount requested.
+	// This function is designed to be inlinable, so please take care when making
+	// changes to the function body.
+	function fromListPartial(n, list, hasStrings) {
+	  var ret;
+	  if (n < list.head.data.length) {
+	    // slice is the same for buffers and strings
+	    ret = list.head.data.slice(0, n);
+	    list.head.data = list.head.data.slice(n);
+	  } else if (n === list.head.data.length) {
+	    // first chunk is a perfect match
+	    ret = list.shift();
+	  } else {
+	    // result spans more than one buffer
+	    ret = hasStrings ? copyFromBufferString(n, list) : copyFromBuffer(n, list);
+	  }
+	  return ret;
+	}
+
+	// Copies a specified amount of characters from the list of buffered data
+	// chunks.
+	// This function is designed to be inlinable, so please take care when making
+	// changes to the function body.
+	function copyFromBufferString(n, list) {
+	  var p = list.head;
+	  var c = 1;
+	  var ret = p.data;
+	  n -= ret.length;
+	  while (p = p.next) {
+	    var str = p.data;
+	    var nb = n > str.length ? str.length : n;
+	    if (nb === str.length) ret += str;else ret += str.slice(0, n);
+	    n -= nb;
+	    if (n === 0) {
+	      if (nb === str.length) {
+	        ++c;
+	        if (p.next) list.head = p.next;else list.head = list.tail = null;
+	      } else {
+	        list.head = p;
+	        p.data = str.slice(nb);
+	      }
+	      break;
+	    }
+	    ++c;
+	  }
+	  list.length -= c;
+	  return ret;
+	}
+
+	// Copies a specified amount of bytes from the list of buffered data chunks.
+	// This function is designed to be inlinable, so please take care when making
+	// changes to the function body.
+	function copyFromBuffer(n, list) {
+	  var ret = Buffer.allocUnsafe(n);
+	  var p = list.head;
+	  var c = 1;
+	  p.data.copy(ret);
+	  n -= p.data.length;
+	  while (p = p.next) {
+	    var buf = p.data;
+	    var nb = n > buf.length ? buf.length : n;
+	    buf.copy(ret, ret.length - n, 0, nb);
+	    n -= nb;
+	    if (n === 0) {
+	      if (nb === buf.length) {
+	        ++c;
+	        if (p.next) list.head = p.next;else list.head = list.tail = null;
+	      } else {
+	        list.head = p;
+	        p.data = buf.slice(nb);
+	      }
+	      break;
+	    }
+	    ++c;
+	  }
+	  list.length -= c;
+	  return ret;
+	}
+
+	function endReadable(stream) {
+	  var state = stream._readableState;
+
+	  // If we get here before consuming all the bytes, then that is a
+	  // bug in node.  Should never happen.
+	  if (state.length > 0) throw new Error('"endReadable()" called on non-empty stream');
+
+	  if (!state.endEmitted) {
+	    state.ended = true;
+	    processNextTick(endReadableNT, state, stream);
+	  }
+	}
+
+	function endReadableNT(state, stream) {
+	  // Check that we didn't get one last unshift.
+	  if (!state.endEmitted && state.length === 0) {
+	    state.endEmitted = true;
+	    stream.readable = false;
+	    stream.emit('end');
+	  }
+	}
+
+	function forEach(xs, f) {
+	  for (var i = 0, l = xs.length; i < l; i++) {
+	    f(xs[i], i);
+	  }
+	}
+
+	function indexOf(xs, x) {
+	  for (var i = 0, l = xs.length; i < l; i++) {
+	    if (xs[i] === x) return i;
+	  }
+	  return -1;
+	}
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(3)))
+
+/***/ }),
+/* 38 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	// Copyright Joyent, Inc. and other Node contributors.
+	//
+	// Permission is hereby granted, free of charge, to any person obtaining a
+	// copy of this software and associated documentation files (the
+	// "Software"), to deal in the Software without restriction, including
+	// without limitation the rights to use, copy, modify, merge, publish,
+	// distribute, sublicense, and/or sell copies of the Software, and to permit
+	// persons to whom the Software is furnished to do so, subject to the
+	// following conditions:
+	//
+	// The above copyright notice and this permission notice shall be included
+	// in all copies or substantial portions of the Software.
+	//
+	// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+	// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+	// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+	// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+	// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+	// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+	// a transform stream is a readable/writable stream where you do
+	// something with the data.  Sometimes it's called a "filter",
+	// but that's not a great name for it, since that implies a thing where
+	// some bits pass through, and others are simply ignored.  (That would
+	// be a valid example of a transform, of course.)
+	//
+	// While the output is causally related to the input, it's not a
+	// necessarily symmetric or synchronous transformation.  For example,
+	// a zlib stream might take multiple plain-text writes(), and then
+	// emit a single compressed chunk some time in the future.
+	//
+	// Here's how this works:
+	//
+	// The Transform stream has all the aspects of the readable and writable
+	// stream classes.  When you write(chunk), that calls _write(chunk,cb)
+	// internally, and returns false if there's a lot of pending writes
+	// buffered up.  When you call read(), that calls _read(n) until
+	// there's enough pending readable data buffered up.
+	//
+	// In a transform stream, the written data is placed in a buffer.  When
+	// _read(n) is called, it transforms the queued up data, calling the
+	// buffered _write cb's as it consumes chunks.  If consuming a single
+	// written chunk would result in multiple output chunks, then the first
+	// outputted bit calls the readcb, and subsequent chunks just go into
+	// the read buffer, and will cause it to emit 'readable' if necessary.
+	//
+	// This way, back-pressure is actually determined by the reading side,
+	// since _read has to be called to start processing a new chunk.  However,
+	// a pathological inflate type of transform can cause excessive buffering
+	// here.  For example, imagine a stream where every byte of input is
+	// interpreted as an integer from 0-255, and then results in that many
+	// bytes of output.  Writing the 4 bytes {ff,ff,ff,ff} would result in
+	// 1kb of data being output.  In this case, you could write a very small
+	// amount of input, and end up with a very large amount of output.  In
+	// such a pathological inflating mechanism, there'd be no way to tell
+	// the system to stop doing the transform.  A single 4MB write could
+	// cause the system to run out of memory.
+	//
+	// However, even in such a pathological case, only a single written chunk
+	// would be consumed, and then the rest would wait (un-transformed) until
+	// the results of the previous transformed chunk were consumed.
+
+	'use strict';
+
+	module.exports = Transform;
+
+	var Duplex = __webpack_require__(4);
+
+	/*<replacement>*/
+	var util = __webpack_require__(5);
+	util.inherits = __webpack_require__(2);
+	/*</replacement>*/
+
+	util.inherits(Transform, Duplex);
+
+	function TransformState(stream) {
+	  this.afterTransform = function (er, data) {
+	    return afterTransform(stream, er, data);
+	  };
+
+	  this.needTransform = false;
+	  this.transforming = false;
+	  this.writecb = null;
+	  this.writechunk = null;
+	  this.writeencoding = null;
+	}
+
+	function afterTransform(stream, er, data) {
+	  var ts = stream._transformState;
+	  ts.transforming = false;
+
+	  var cb = ts.writecb;
+
+	  if (!cb) {
+	    return stream.emit('error', new Error('write callback called multiple times'));
+	  }
+
+	  ts.writechunk = null;
+	  ts.writecb = null;
+
+	  if (data !== null && data !== undefined) stream.push(data);
+
+	  cb(er);
+
+	  var rs = stream._readableState;
+	  rs.reading = false;
+	  if (rs.needReadable || rs.length < rs.highWaterMark) {
+	    stream._read(rs.highWaterMark);
+	  }
+	}
+
+	function Transform(options) {
+	  if (!(this instanceof Transform)) return new Transform(options);
+
+	  Duplex.call(this, options);
+
+	  this._transformState = new TransformState(this);
+
+	  var stream = this;
+
+	  // start out asking for a readable event once data is transformed.
+	  this._readableState.needReadable = true;
+
+	  // we have implemented the _read method, and done the other things
+	  // that Readable wants before the first _read call, so unset the
+	  // sync guard flag.
+	  this._readableState.sync = false;
+
+	  if (options) {
+	    if (typeof options.transform === 'function') this._transform = options.transform;
+
+	    if (typeof options.flush === 'function') this._flush = options.flush;
+	  }
+
+	  // When the writable side finishes, then flush out anything remaining.
+	  this.once('prefinish', function () {
+	    if (typeof this._flush === 'function') this._flush(function (er, data) {
+	      done(stream, er, data);
+	    });else done(stream);
+	  });
+	}
+
+	Transform.prototype.push = function (chunk, encoding) {
+	  this._transformState.needTransform = false;
+	  return Duplex.prototype.push.call(this, chunk, encoding);
+	};
+
+	// This is the part where you do stuff!
+	// override this function in implementation classes.
+	// 'chunk' is an input chunk.
+	//
+	// Call `push(newChunk)` to pass along transformed output
+	// to the readable side.  You may call 'push' zero or more times.
+	//
+	// Call `cb(err)` when you are done with this chunk.  If you pass
+	// an error, then that'll put the hurt on the whole operation.  If you
+	// never call cb(), then you'll never get another chunk.
+	Transform.prototype._transform = function (chunk, encoding, cb) {
+	  throw new Error('_transform() is not implemented');
+	};
+
+	Transform.prototype._write = function (chunk, encoding, cb) {
+	  var ts = this._transformState;
+	  ts.writecb = cb;
+	  ts.writechunk = chunk;
+	  ts.writeencoding = encoding;
+	  if (!ts.transforming) {
+	    var rs = this._readableState;
+	    if (ts.needTransform || rs.needReadable || rs.length < rs.highWaterMark) this._read(rs.highWaterMark);
+	  }
+	};
+
+	// Doesn't matter what the args are here.
+	// _transform does all the work.
+	// That we got here means that the readable side wants more data.
+	Transform.prototype._read = function (n) {
+	  var ts = this._transformState;
+
+	  if (ts.writechunk !== null && ts.writecb && !ts.transforming) {
+	    ts.transforming = true;
+	    this._transform(ts.writechunk, ts.writeencoding, ts.afterTransform);
+	  } else {
+	    // mark that we need a transform, so that any data that comes in
+	    // will get processed, now that we've asked for it.
+	    ts.needTransform = true;
+	  }
+	};
+
+	Transform.prototype._destroy = function (err, cb) {
+	  var _this = this;
+
+	  Duplex.prototype._destroy.call(this, err, function (err2) {
+	    cb(err2);
+	    _this.emit('close');
+	  });
+	};
+
+	function done(stream, er, data) {
+	  if (er) return stream.emit('error', er);
+
+	  if (data !== null && data !== undefined) stream.push(data);
+
+	  // if there's nothing in the write buffer, then that means
+	  // that nothing more will ever be provided
+	  var ws = stream._writableState;
+	  var ts = stream._transformState;
+
+	  if (ws.length) throw new Error('Calling transform done when ws.length != 0');
+
+	  if (ts.transforming) throw new Error('Calling transform done when still transforming');
+
+	  return stream.push(null);
+	}
+
+/***/ }),
+/* 39 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	/*<replacement>*/
+
+	var processNextTick = __webpack_require__(7);
+	/*</replacement>*/
+
+	// undocumented cb() API, needed for core, not for public API
+	function destroy(err, cb) {
+	  var _this = this;
+
+	  var readableDestroyed = this._readableState && this._readableState.destroyed;
+	  var writableDestroyed = this._writableState && this._writableState.destroyed;
+
+	  if (readableDestroyed || writableDestroyed) {
+	    if (cb) {
+	      cb(err);
+	    } else if (err && (!this._writableState || !this._writableState.errorEmitted)) {
+	      processNextTick(emitErrorNT, this, err);
+	    }
+	    return;
+	  }
+
+	  // we set destroyed to true before firing error callbacks in order
+	  // to make it re-entrance safe in case destroy() is called within callbacks
+
+	  if (this._readableState) {
+	    this._readableState.destroyed = true;
+	  }
+
+	  // if this is a duplex stream mark the writable part as destroyed as well
+	  if (this._writableState) {
+	    this._writableState.destroyed = true;
+	  }
+
+	  this._destroy(err || null, function (err) {
+	    if (!cb && err) {
+	      processNextTick(emitErrorNT, _this, err);
+	      if (_this._writableState) {
+	        _this._writableState.errorEmitted = true;
+	      }
+	    } else if (cb) {
+	      cb(err);
+	    }
+	  });
+	}
+
+	function undestroy() {
+	  if (this._readableState) {
+	    this._readableState.destroyed = false;
+	    this._readableState.reading = false;
+	    this._readableState.ended = false;
+	    this._readableState.endEmitted = false;
+	  }
+
+	  if (this._writableState) {
+	    this._writableState.destroyed = false;
+	    this._writableState.ended = false;
+	    this._writableState.ending = false;
+	    this._writableState.finished = false;
+	    this._writableState.errorEmitted = false;
+	  }
+	}
+
+	function emitErrorNT(self, err) {
+	  self.emit('error', err);
+	}
+
+	module.exports = {
+	  destroy: destroy,
+	  undestroy: undestroy
+	};
+
+/***/ }),
+/* 40 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	module.exports = __webpack_require__(12).EventEmitter;
+
+
+/***/ }),
+/* 41 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var Buffer = __webpack_require__(8).Buffer;
+
+	var isEncoding = Buffer.isEncoding || function (encoding) {
+	  encoding = '' + encoding;
+	  switch (encoding && encoding.toLowerCase()) {
+	    case 'hex':case 'utf8':case 'utf-8':case 'ascii':case 'binary':case 'base64':case 'ucs2':case 'ucs-2':case 'utf16le':case 'utf-16le':case 'raw':
+	      return true;
+	    default:
+	      return false;
+	  }
+	};
+
+	function _normalizeEncoding(enc) {
+	  if (!enc) return 'utf8';
+	  var retried;
+	  while (true) {
+	    switch (enc) {
+	      case 'utf8':
+	      case 'utf-8':
+	        return 'utf8';
+	      case 'ucs2':
+	      case 'ucs-2':
+	      case 'utf16le':
+	      case 'utf-16le':
+	        return 'utf16le';
+	      case 'latin1':
+	      case 'binary':
+	        return 'latin1';
+	      case 'base64':
+	      case 'ascii':
+	      case 'hex':
+	        return enc;
+	      default:
+	        if (retried) return; // undefined
+	        enc = ('' + enc).toLowerCase();
+	        retried = true;
+	    }
+	  }
+	};
+
+	// Do not cache `Buffer.isEncoding` when checking encoding names as some
+	// modules monkey-patch it to support additional encodings
+	function normalizeEncoding(enc) {
+	  var nenc = _normalizeEncoding(enc);
+	  if (typeof nenc !== 'string' && (Buffer.isEncoding === isEncoding || !isEncoding(enc))) throw new Error('Unknown encoding: ' + enc);
+	  return nenc || enc;
+	}
+
+	// StringDecoder provides an interface for efficiently splitting a series of
+	// buffers into a series of JS strings without breaking apart multi-byte
+	// characters.
+	exports.StringDecoder = StringDecoder;
+	function StringDecoder(encoding) {
+	  this.encoding = normalizeEncoding(encoding);
+	  var nb;
+	  switch (this.encoding) {
+	    case 'utf16le':
+	      this.text = utf16Text;
+	      this.end = utf16End;
+	      nb = 4;
+	      break;
+	    case 'utf8':
+	      this.fillLast = utf8FillLast;
+	      nb = 4;
+	      break;
+	    case 'base64':
+	      this.text = base64Text;
+	      this.end = base64End;
+	      nb = 3;
+	      break;
+	    default:
+	      this.write = simpleWrite;
+	      this.end = simpleEnd;
+	      return;
+	  }
+	  this.lastNeed = 0;
+	  this.lastTotal = 0;
+	  this.lastChar = Buffer.allocUnsafe(nb);
+	}
+
+	StringDecoder.prototype.write = function (buf) {
+	  if (buf.length === 0) return '';
+	  var r;
+	  var i;
+	  if (this.lastNeed) {
+	    r = this.fillLast(buf);
+	    if (r === undefined) return '';
+	    i = this.lastNeed;
+	    this.lastNeed = 0;
+	  } else {
+	    i = 0;
+	  }
+	  if (i < buf.length) return r ? r + this.text(buf, i) : this.text(buf, i);
+	  return r || '';
+	};
+
+	StringDecoder.prototype.end = utf8End;
+
+	// Returns only complete characters in a Buffer
+	StringDecoder.prototype.text = utf8Text;
+
+	// Attempts to complete a partial non-UTF-8 character using bytes from a Buffer
+	StringDecoder.prototype.fillLast = function (buf) {
+	  if (this.lastNeed <= buf.length) {
+	    buf.copy(this.lastChar, this.lastTotal - this.lastNeed, 0, this.lastNeed);
+	    return this.lastChar.toString(this.encoding, 0, this.lastTotal);
+	  }
+	  buf.copy(this.lastChar, this.lastTotal - this.lastNeed, 0, buf.length);
+	  this.lastNeed -= buf.length;
+	};
+
+	// Checks the type of a UTF-8 byte, whether it's ASCII, a leading byte, or a
+	// continuation byte.
+	function utf8CheckByte(byte) {
+	  if (byte <= 0x7F) return 0;else if (byte >> 5 === 0x06) return 2;else if (byte >> 4 === 0x0E) return 3;else if (byte >> 3 === 0x1E) return 4;
+	  return -1;
+	}
+
+	// Checks at most 3 bytes at the end of a Buffer in order to detect an
+	// incomplete multi-byte UTF-8 character. The total number of bytes (2, 3, or 4)
+	// needed to complete the UTF-8 character (if applicable) are returned.
+	function utf8CheckIncomplete(self, buf, i) {
+	  var j = buf.length - 1;
+	  if (j < i) return 0;
+	  var nb = utf8CheckByte(buf[j]);
+	  if (nb >= 0) {
+	    if (nb > 0) self.lastNeed = nb - 1;
+	    return nb;
+	  }
+	  if (--j < i) return 0;
+	  nb = utf8CheckByte(buf[j]);
+	  if (nb >= 0) {
+	    if (nb > 0) self.lastNeed = nb - 2;
+	    return nb;
+	  }
+	  if (--j < i) return 0;
+	  nb = utf8CheckByte(buf[j]);
+	  if (nb >= 0) {
+	    if (nb > 0) {
+	      if (nb === 2) nb = 0;else self.lastNeed = nb - 3;
+	    }
+	    return nb;
+	  }
+	  return 0;
+	}
+
+	// Validates as many continuation bytes for a multi-byte UTF-8 character as
+	// needed or are available. If we see a non-continuation byte where we expect
+	// one, we "replace" the validated continuation bytes we've seen so far with
+	// UTF-8 replacement characters ('\ufffd'), to match v8's UTF-8 decoding
+	// behavior. The continuation byte check is included three times in the case
+	// where all of the continuation bytes for a character exist in the same buffer.
+	// It is also done this way as a slight performance increase instead of using a
+	// loop.
+	function utf8CheckExtraBytes(self, buf, p) {
+	  if ((buf[0] & 0xC0) !== 0x80) {
+	    self.lastNeed = 0;
+	    return '\ufffd'.repeat(p);
+	  }
+	  if (self.lastNeed > 1 && buf.length > 1) {
+	    if ((buf[1] & 0xC0) !== 0x80) {
+	      self.lastNeed = 1;
+	      return '\ufffd'.repeat(p + 1);
+	    }
+	    if (self.lastNeed > 2 && buf.length > 2) {
+	      if ((buf[2] & 0xC0) !== 0x80) {
+	        self.lastNeed = 2;
+	        return '\ufffd'.repeat(p + 2);
+	      }
+	    }
+	  }
+	}
+
+	// Attempts to complete a multi-byte UTF-8 character using bytes from a Buffer.
+	function utf8FillLast(buf) {
+	  var p = this.lastTotal - this.lastNeed;
+	  var r = utf8CheckExtraBytes(this, buf, p);
+	  if (r !== undefined) return r;
+	  if (this.lastNeed <= buf.length) {
+	    buf.copy(this.lastChar, p, 0, this.lastNeed);
+	    return this.lastChar.toString(this.encoding, 0, this.lastTotal);
+	  }
+	  buf.copy(this.lastChar, p, 0, buf.length);
+	  this.lastNeed -= buf.length;
+	}
+
+	// Returns all complete UTF-8 characters in a Buffer. If the Buffer ended on a
+	// partial character, the character's bytes are buffered until the required
+	// number of bytes are available.
+	function utf8Text(buf, i) {
+	  var total = utf8CheckIncomplete(this, buf, i);
+	  if (!this.lastNeed) return buf.toString('utf8', i);
+	  this.lastTotal = total;
+	  var end = buf.length - (total - this.lastNeed);
+	  buf.copy(this.lastChar, 0, end);
+	  return buf.toString('utf8', i, end);
+	}
+
+	// For UTF-8, a replacement character for each buffered byte of a (partial)
+	// character needs to be added to the output.
+	function utf8End(buf) {
+	  var r = buf && buf.length ? this.write(buf) : '';
+	  if (this.lastNeed) return r + '\ufffd'.repeat(this.lastTotal - this.lastNeed);
+	  return r;
+	}
+
+	// UTF-16LE typically needs two bytes per character, but even if we have an even
+	// number of bytes available, we need to check if we end on a leading/high
+	// surrogate. In that case, we need to wait for the next two bytes in order to
+	// decode the last character properly.
+	function utf16Text(buf, i) {
+	  if ((buf.length - i) % 2 === 0) {
+	    var r = buf.toString('utf16le', i);
+	    if (r) {
+	      var c = r.charCodeAt(r.length - 1);
+	      if (c >= 0xD800 && c <= 0xDBFF) {
+	        this.lastNeed = 2;
+	        this.lastTotal = 4;
+	        this.lastChar[0] = buf[buf.length - 2];
+	        this.lastChar[1] = buf[buf.length - 1];
+	        return r.slice(0, -1);
+	      }
+	    }
+	    return r;
+	  }
+	  this.lastNeed = 1;
+	  this.lastTotal = 2;
+	  this.lastChar[0] = buf[buf.length - 1];
+	  return buf.toString('utf16le', i, buf.length - 1);
+	}
+
+	// For UTF-16LE we do not explicitly append special replacement characters if we
+	// end on a partial character, we simply let v8 handle that.
+	function utf16End(buf) {
+	  var r = buf && buf.length ? this.write(buf) : '';
+	  if (this.lastNeed) {
+	    var end = this.lastTotal - this.lastNeed;
+	    return r + this.lastChar.toString('utf16le', 0, end);
+	  }
+	  return r;
+	}
+
+	function base64Text(buf, i) {
+	  var n = (buf.length - i) % 3;
+	  if (n === 0) return buf.toString('base64', i);
+	  this.lastNeed = 3 - n;
+	  this.lastTotal = 3;
+	  if (n === 1) {
+	    this.lastChar[0] = buf[buf.length - 1];
+	  } else {
+	    this.lastChar[0] = buf[buf.length - 2];
+	    this.lastChar[1] = buf[buf.length - 1];
+	  }
+	  return buf.toString('base64', i, buf.length - n);
+	}
+
+	function base64End(buf) {
+	  var r = buf && buf.length ? this.write(buf) : '';
+	  if (this.lastNeed) return r + this.lastChar.toString('base64', 0, 3 - this.lastNeed);
+	  return r;
+	}
+
+	// Pass bytes on through for single-byte encodings (e.g. ascii, latin1, hex)
+	function simpleWrite(buf) {
+	  return buf.toString(this.encoding);
+	}
+
+	function simpleEnd(buf) {
+	  return buf && buf.length ? this.write(buf) : '';
+	}
+
+/***/ }),
+/* 42 */
+/***/ (function(module, exports) {
+
+	module.exports = __WEBPACK_EXTERNAL_MODULE_42__;
+
+/***/ }),
+/* 43 */
+/***/ (function(module, exports) {
+
+	"use strict";
+
+	exports.__esModule = true;
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	/*!
+	 * Copyright 2016 Amazon.com,
+	 * Inc. or its affiliates. All Rights Reserved.
+	 *
+	 * Licensed under the Amazon Software License (the "License").
+	 * You may not use this file except in compliance with the
+	 * License. A copy of the License is located at
+	 *
+	 *     http://aws.amazon.com/asl/
+	 *
+	 * or in the "license" file accompanying this file. This file is
+	 * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+	 * CONDITIONS OF ANY KIND, express or implied. See the License
+	 * for the specific language governing permissions and
+	 * limitations under the License.
+	 */
+
+	/** @class */
+	var AuthenticationDetails = function () {
+	  /**
+	   * Constructs a new AuthenticationDetails object
+	   * @param {object=} data Creation options.
+	   * @param {string} data.Username User being authenticated.
+	   * @param {string} data.Password Plain-text password to authenticate with.
+	   * @param {(AttributeArg[])?} data.ValidationData Application extra metadata.
+	   * @param {(AttributeArg[])?} data.AuthParamaters Authentication paramaters for custom auth.
+	   */
+	  function AuthenticationDetails(data) {
+	    _classCallCheck(this, AuthenticationDetails);
+
+	    var _ref = data || {},
+	        ValidationData = _ref.ValidationData,
+	        Username = _ref.Username,
+	        Password = _ref.Password,
+	        AuthParameters = _ref.AuthParameters;
+
+	    this.validationData = ValidationData || [];
+	    this.authParameters = AuthParameters || [];
+	    this.username = Username;
+	    this.password = Password;
+	  }
+
+	  /**
+	   * @returns {string} the record's username
+	   */
+
+
+	  AuthenticationDetails.prototype.getUsername = function getUsername() {
+	    return this.username;
+	  };
+
+	  /**
+	   * @returns {string} the record's password
+	   */
+
+
+	  AuthenticationDetails.prototype.getPassword = function getPassword() {
+	    return this.password;
+	  };
+
+	  /**
+	   * @returns {Array} the record's validationData
+	   */
+
+
+	  AuthenticationDetails.prototype.getValidationData = function getValidationData() {
+	    return this.validationData;
+	  };
+
+	  /**
+	   * @returns {Array} the record's authParameters
+	   */
+
+
+	  AuthenticationDetails.prototype.getAuthParameters = function getAuthParameters() {
+	    return this.authParameters;
+	  };
+
+	  return AuthenticationDetails;
+	}();
+
+	exports.default = AuthenticationDetails;
+
+/***/ }),
+/* 44 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	exports.__esModule = true;
+
+	var _cognitoidentityserviceprovider = __webpack_require__(42);
+
+	var _cognitoidentityserviceprovider2 = _interopRequireDefault(_cognitoidentityserviceprovider);
+
+	var _CognitoUser = __webpack_require__(23);
+
+	var _CognitoUser2 = _interopRequireDefault(_CognitoUser);
+
+	var _StorageHelper = __webpack_require__(27);
+
+	var _StorageHelper2 = _interopRequireDefault(_StorageHelper);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } } /*!
+	                                                                                                                                                           * Copyright 2016 Amazon.com,
+	                                                                                                                                                           * Inc. or its affiliates. All Rights Reserved.
+	                                                                                                                                                           *
+	                                                                                                                                                           * Licensed under the Amazon Software License (the "License").
+	                                                                                                                                                           * You may not use this file except in compliance with the
+	                                                                                                                                                           * License. A copy of the License is located at
+	                                                                                                                                                           *
+	                                                                                                                                                           *     http://aws.amazon.com/asl/
+	                                                                                                                                                           *
+	                                                                                                                                                           * or in the "license" file accompanying this file. This file is
+	                                                                                                                                                           * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+	                                                                                                                                                           * CONDITIONS OF ANY KIND, express or implied. See the License
+	                                                                                                                                                           * for the specific language governing permissions and
+	                                                                                                                                                           * limitations under the License.
+	                                                                                                                                                           */
+
+	/** @class */
+	var CognitoUserPool = function () {
+	  /**
+	   * Constructs a new CognitoUserPool object
+	   * @param {object} data Creation options.
+	   * @param {string} data.UserPoolId Cognito user pool id.
+	   * @param {string} data.ClientId User pool application client id.
+	   * @param {object} data.Storage Optional storage object.
+	   * @param {boolean} data.AdvancedSecurityDataCollectionFlag Optional:
+	   *        boolean flag indicating if the data collection is enabled
+	   *        to support cognito advanced security features. By default, this
+	   *        flag is set to true.
+	   */
+	  function CognitoUserPool(data) {
+	    _classCallCheck(this, CognitoUserPool);
+
+	    var _ref = data || {},
+	        UserPoolId = _ref.UserPoolId,
+	        ClientId = _ref.ClientId,
+	        endpoint = _ref.endpoint,
+	        AdvancedSecurityDataCollectionFlag = _ref.AdvancedSecurityDataCollectionFlag;
+
+	    if (!UserPoolId || !ClientId) {
+	      throw new Error("Both UserPoolId and ClientId are required.");
+	    }
+	    if (!/^[\w-]+_.+$/.test(UserPoolId)) {
+	      throw new Error("Invalid UserPoolId format.");
+	    }
+	    var region = UserPoolId.split("_")[0];
+
+	    this.userPoolId = UserPoolId;
+	    this.clientId = ClientId;
+
+	    this.client = new _cognitoidentityserviceprovider2.default({
+	      apiVersion: "2016-04-19",
+	      region: region,
+	      endpoint: endpoint
+	    });
+
+	    /**
+	     * By default, AdvancedSecurityDataCollectionFlag is set to true,
+	     * if no input value is provided.
+	     */
+	    this.advancedSecurityDataCollectionFlag = AdvancedSecurityDataCollectionFlag !== false;
+
+	    this.storage = data.Storage || new _StorageHelper2.default().getStorage();
+	  }
+
+	  /**
+	   * @returns {string} the user pool id
+	   */
+
+
+	  CognitoUserPool.prototype.getUserPoolId = function getUserPoolId() {
+	    return this.userPoolId;
+	  };
+
+	  /**
+	   * @returns {string} the client id
+	   */
+
+
+	  CognitoUserPool.prototype.getClientId = function getClientId() {
+	    return this.clientId;
+	  };
+
+	  /**
+	   * @typedef {object} SignUpResult
+	   * @property {CognitoUser} user New user.
+	   * @property {bool} userConfirmed If the user is already confirmed.
+	   */
+	  /**
+	   * method for signing up a user
+	   * @param {string} username User's username.
+	   * @param {string} password Plain-text initial password entered by user.
+	   * @param {(AttributeArg[])=} userAttributes New user attributes.
+	   * @param {(AttributeArg[])=} validationData Application metadata.
+	   * @param {nodeCallback<SignUpResult>} callback Called on error or with the new user.
+	   * @returns {void}
+	   */
+
+
+	  CognitoUserPool.prototype.signUp = function signUp(username, password, userAttributes, validationData, callback) {
+	    var _this = this;
+
+	    var jsonReq = {
+	      ClientId: this.clientId,
+	      Username: username,
+	      Password: password,
+	      UserAttributes: userAttributes,
+	      ValidationData: validationData
+	    };
+	    if (this.getUserContextData(username)) {
+	      jsonReq.UserContextData = this.getUserContextData(username);
+	    }
+	    this.client.makeUnauthenticatedRequest("signUp", jsonReq, function (err, data) {
+	      console.log("signup", err, data);
+	      if (err) {
+	        return callback(err, null);
+	      }
+
+	      var cognitoUser = {
+	        Username: username,
+	        Pool: _this,
+	        Storage: _this.storage
+	      };
+
+	      var returnData = {
+	        user: new _CognitoUser2.default(cognitoUser),
+	        userConfirmed: data.UserConfirmed,
+	        userSub: data.UserSub
+	      };
+
+	      return callback(null, returnData);
+	    });
+	  };
+
+	  /**
+	   * method for getting the current user of the application from the local storage
+	   *
+	   * @returns {CognitoUser} the user retrieved from storage
+	   */
+
+
+	  CognitoUserPool.prototype.getCurrentUser = function getCurrentUser() {
+	    var lastUserKey = "CognitoIdentityServiceProvider." + this.clientId + ".LastAuthUser";
+
+	    var lastAuthUser = this.storage.getItem(lastUserKey);
+	    if (lastAuthUser) {
+	      var cognitoUser = {
+	        Username: lastAuthUser,
+	        Pool: this,
+	        Storage: this.storage
+	      };
+
+	      return new _CognitoUser2.default(cognitoUser);
+	    }
+
+	    return null;
+	  };
+
+	  /**
+	   * This method returns the encoded data string used for cognito advanced security feature.
+	   * This would be generated only when developer has included the JS used for collecting the
+	   * data on their client. Please refer to documentation to know more about using AdvancedSecurity
+	   * features
+	   * @param {string} username the username for the context data
+	   * @returns {string} the user context data
+	   **/
+
+
+	  CognitoUserPool.prototype.getUserContextData = function getUserContextData(username) {
+	    if (typeof AmazonCognitoAdvancedSecurityData === "undefined") {
+	      return undefined;
+	    }
+	    /* eslint-disable */
+	    var amazonCognitoAdvancedSecurityDataConst = AmazonCognitoAdvancedSecurityData;
+	    /* eslint-enable */
+
+	    if (this.advancedSecurityDataCollectionFlag) {
+	      var advancedSecurityData = amazonCognitoAdvancedSecurityDataConst.getData(username, this.userPoolId, this.clientId);
+	      if (advancedSecurityData) {
+	        var userContextData = {
+	          EncodedData: advancedSecurityData
+	        };
+	        return userContextData;
+	      }
+	    }
+	    return {};
+	  };
+
+	  return CognitoUserPool;
+	}();
+
+	exports.default = CognitoUserPool;
+
+/***/ }),
+/* 45 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	exports.__esModule = true;
+
+	var _jsCookie = __webpack_require__(67);
+
+	var Cookies = _interopRequireWildcard(_jsCookie);
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	/** @class */
+	var CookieStorage = function () {
+
+	  /**
+	   * Constructs a new CookieStorage object
+	   * @param {object} data Creation options.
+	   * @param {string} data.domain Cookies domain (mandatory).
+	   * @param {string} data.path Cookies path (default: '/')
+	   * @param {integer} data.expires Cookie expiration (in days, default: 365)
+	   * @param {boolean} data.secure Cookie secure flag (default: true)
+	   */
+	  function CookieStorage(data) {
+	    _classCallCheck(this, CookieStorage);
+
+	    this.domain = data.domain;
+	    if (data.path) {
+	      this.path = data.path;
+	    } else {
+	      this.path = '/';
+	    }
+	    if (Object.prototype.hasOwnProperty.call(data, 'expires')) {
+	      this.expires = data.expires;
+	    } else {
+	      this.expires = 365;
+	    }
+	    if (Object.prototype.hasOwnProperty.call(data, 'secure')) {
+	      this.secure = data.secure;
+	    } else {
+	      this.secure = true;
+	    }
+	  }
+
+	  /**
+	   * This is used to set a specific item in storage
+	   * @param {string} key - the key for the item
+	   * @param {object} value - the value
+	   * @returns {string} value that was set
+	   */
+
+
+	  CookieStorage.prototype.setItem = function setItem(key, value) {
+	    Cookies.set(key, value, {
+	      path: this.path,
+	      expires: this.expires,
+	      domain: this.domain,
+	      secure: this.secure
+	    });
+	    return Cookies.get(key);
+	  };
+
+	  /**
+	   * This is used to get a specific key from storage
+	   * @param {string} key - the key for the item
+	   * This is used to clear the storage
+	   * @returns {string} the data item
+	   */
+
+
+	  CookieStorage.prototype.getItem = function getItem(key) {
+	    return Cookies.get(key);
+	  };
+
+	  /**
+	   * This is used to remove an item from storage
+	   * @param {string} key - the key being set
+	   * @returns {string} value - value that was deleted
+	   */
+
+
+	  CookieStorage.prototype.removeItem = function removeItem(key) {
+	    return Cookies.remove(key, {
+	      path: this.path,
+	      domain: this.domain,
+	      secure: this.secure
+	    });
+	  };
+
+	  /**
+	   * This is used to clear the storage
+	   * @returns {string} nothing
+	   */
+
+
+	  CookieStorage.prototype.clear = function clear() {
+	    var cookies = Cookies.get();
+	    var index = void 0;
+	    for (index = 0; index < cookies.length; ++index) {
+	      Cookies.remove(cookies[index]);
+	    }
+	    return {};
+	  };
+
+	  return CookieStorage;
+	}();
+
+	exports.default = CookieStorage;
+
+/***/ }),
+/* 46 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	exports.__esModule = true;
+
+	var _AuthenticationDetails = __webpack_require__(43);
+
+	Object.defineProperty(exports, 'AuthenticationDetails', {
+	  enumerable: true,
+	  get: function get() {
+	    return _interopRequireDefault(_AuthenticationDetails).default;
+	  }
+	});
+
+	var _AuthenticationHelper = __webpack_require__(17);
+
+	Object.defineProperty(exports, 'AuthenticationHelper', {
+	  enumerable: true,
+	  get: function get() {
+	    return _interopRequireDefault(_AuthenticationHelper).default;
+	  }
+	});
+
+	var _CognitoAccessToken = __webpack_require__(19);
+
+	Object.defineProperty(exports, 'CognitoAccessToken', {
+	  enumerable: true,
+	  get: function get() {
+	    return _interopRequireDefault(_CognitoAccessToken).default;
+	  }
+	});
+
+	var _CognitoIdToken = __webpack_require__(20);
+
+	Object.defineProperty(exports, 'CognitoIdToken', {
+	  enumerable: true,
+	  get: function get() {
+	    return _interopRequireDefault(_CognitoIdToken).default;
+	  }
+	});
+
+	var _CognitoRefreshToken = __webpack_require__(22);
+
+	Object.defineProperty(exports, 'CognitoRefreshToken', {
+	  enumerable: true,
+	  get: function get() {
+	    return _interopRequireDefault(_CognitoRefreshToken).default;
+	  }
+	});
+
+	var _CognitoUser = __webpack_require__(23);
+
+	Object.defineProperty(exports, 'CognitoUser', {
+	  enumerable: true,
+	  get: function get() {
+	    return _interopRequireDefault(_CognitoUser).default;
+	  }
+	});
+
+	var _CognitoUserAttribute = __webpack_require__(24);
+
+	Object.defineProperty(exports, 'CognitoUserAttribute', {
+	  enumerable: true,
+	  get: function get() {
+	    return _interopRequireDefault(_CognitoUserAttribute).default;
+	  }
+	});
+
+	var _CognitoUserPool = __webpack_require__(44);
+
+	Object.defineProperty(exports, 'CognitoUserPool', {
+	  enumerable: true,
+	  get: function get() {
+	    return _interopRequireDefault(_CognitoUserPool).default;
+	  }
+	});
+
+	var _CognitoUserSession = __webpack_require__(25);
+
+	Object.defineProperty(exports, 'CognitoUserSession', {
+	  enumerable: true,
+	  get: function get() {
+	    return _interopRequireDefault(_CognitoUserSession).default;
+	  }
+	});
+
+	var _CookieStorage = __webpack_require__(45);
+
+	Object.defineProperty(exports, 'CookieStorage', {
+	  enumerable: true,
+	  get: function get() {
+	    return _interopRequireDefault(_CookieStorage).default;
+	  }
+	});
+
+	var _DateHelper = __webpack_require__(26);
+
+	Object.defineProperty(exports, 'DateHelper', {
+	  enumerable: true,
+	  get: function get() {
+	    return _interopRequireDefault(_DateHelper).default;
+	  }
+	});
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	// The version of crypto-browserify included by aws-sdk only
+	// checks for window.crypto, not window.msCrypto as used by
+	// IE 11 – so we set it explicitly here
+	if (typeof window !== 'undefined' && !window.crypto && window.msCrypto) {
+	  window.crypto = window.msCrypto;
+	}
+
+/***/ }),
+/* 47 */
+/***/ (function(module, exports) {
+
+	'use strict'
+
+	exports.byteLength = byteLength
+	exports.toByteArray = toByteArray
+	exports.fromByteArray = fromByteArray
+
+	var lookup = []
+	var revLookup = []
+	var Arr = typeof Uint8Array !== 'undefined' ? Uint8Array : Array
+
+	var code = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+	for (var i = 0, len = code.length; i < len; ++i) {
+	  lookup[i] = code[i]
+	  revLookup[code.charCodeAt(i)] = i
+	}
+
+	revLookup['-'.charCodeAt(0)] = 62
+	revLookup['_'.charCodeAt(0)] = 63
+
+	function placeHoldersCount (b64) {
+	  var len = b64.length
+	  if (len % 4 > 0) {
+	    throw new Error('Invalid string. Length must be a multiple of 4')
+	  }
+
+	  // the number of equal signs (place holders)
+	  // if there are two placeholders, than the two characters before it
+	  // represent one byte
+	  // if there is only one, then the three characters before it represent 2 bytes
+	  // this is just a cheap hack to not do indexOf twice
+	  return b64[len - 2] === '=' ? 2 : b64[len - 1] === '=' ? 1 : 0
+	}
+
+	function byteLength (b64) {
+	  // base64 is 4/3 + up to two characters of the original data
+	  return (b64.length * 3 / 4) - placeHoldersCount(b64)
+	}
+
+	function toByteArray (b64) {
+	  var i, l, tmp, placeHolders, arr
+	  var len = b64.length
+	  placeHolders = placeHoldersCount(b64)
+
+	  arr = new Arr((len * 3 / 4) - placeHolders)
+
+	  // if there are placeholders, only get up to the last complete 4 chars
+	  l = placeHolders > 0 ? len - 4 : len
+
+	  var L = 0
+
+	  for (i = 0; i < l; i += 4) {
+	    tmp = (revLookup[b64.charCodeAt(i)] << 18) | (revLookup[b64.charCodeAt(i + 1)] << 12) | (revLookup[b64.charCodeAt(i + 2)] << 6) | revLookup[b64.charCodeAt(i + 3)]
+	    arr[L++] = (tmp >> 16) & 0xFF
+	    arr[L++] = (tmp >> 8) & 0xFF
+	    arr[L++] = tmp & 0xFF
+	  }
+
+	  if (placeHolders === 2) {
+	    tmp = (revLookup[b64.charCodeAt(i)] << 2) | (revLookup[b64.charCodeAt(i + 1)] >> 4)
+	    arr[L++] = tmp & 0xFF
+	  } else if (placeHolders === 1) {
+	    tmp = (revLookup[b64.charCodeAt(i)] << 10) | (revLookup[b64.charCodeAt(i + 1)] << 4) | (revLookup[b64.charCodeAt(i + 2)] >> 2)
+	    arr[L++] = (tmp >> 8) & 0xFF
+	    arr[L++] = tmp & 0xFF
+	  }
+
+	  return arr
+	}
+
+	function tripletToBase64 (num) {
+	  return lookup[num >> 18 & 0x3F] + lookup[num >> 12 & 0x3F] + lookup[num >> 6 & 0x3F] + lookup[num & 0x3F]
+	}
+
+	function encodeChunk (uint8, start, end) {
+	  var tmp
+	  var output = []
+	  for (var i = start; i < end; i += 3) {
+	    tmp = (uint8[i] << 16) + (uint8[i + 1] << 8) + (uint8[i + 2])
+	    output.push(tripletToBase64(tmp))
+	  }
+	  return output.join('')
+	}
+
+	function fromByteArray (uint8) {
+	  var tmp
+	  var len = uint8.length
+	  var extraBytes = len % 3 // if we have 1 byte left, pad 2 bytes
+	  var output = ''
+	  var parts = []
+	  var maxChunkLength = 16383 // must be multiple of 3
+
+	  // go through the array every three bytes, we'll deal with trailing stuff later
+	  for (var i = 0, len2 = len - extraBytes; i < len2; i += maxChunkLength) {
+	    parts.push(encodeChunk(uint8, i, (i + maxChunkLength) > len2 ? len2 : (i + maxChunkLength)))
+	  }
+
+	  // pad the end with zeros, but make sure to not forget the extra bytes
+	  if (extraBytes === 1) {
+	    tmp = uint8[len - 1]
+	    output += lookup[tmp >> 2]
+	    output += lookup[(tmp << 4) & 0x3F]
+	    output += '=='
+	  } else if (extraBytes === 2) {
+	    tmp = (uint8[len - 2] << 8) + (uint8[len - 1])
+	    output += lookup[tmp >> 10]
+	    output += lookup[(tmp >> 4) & 0x3F]
+	    output += lookup[(tmp << 2) & 0x3F]
+	    output += '='
+	  }
+
+	  parts.push(output)
+
+	  return parts.join('')
+	}
+
+
+/***/ }),
+/* 48 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(Buffer) {var createHash = __webpack_require__(28)
+
+	var zeroBuffer = new Buffer(128)
+	zeroBuffer.fill(0)
+
+	module.exports = Hmac
+
+	function Hmac (alg, key) {
+	  if(!(this instanceof Hmac)) return new Hmac(alg, key)
+	  this._opad = opad
+	  this._alg = alg
+
+	  var blocksize = (alg === 'sha512') ? 128 : 64
+
+	  key = this._key = !Buffer.isBuffer(key) ? new Buffer(key) : key
+
+	  if(key.length > blocksize) {
+	    key = createHash(alg).update(key).digest()
+	  } else if(key.length < blocksize) {
+	    key = Buffer.concat([key, zeroBuffer], blocksize)
+	  }
+
+	  var ipad = this._ipad = new Buffer(blocksize)
+	  var opad = this._opad = new Buffer(blocksize)
+
+	  for(var i = 0; i < blocksize; i++) {
+	    ipad[i] = key[i] ^ 0x36
+	    opad[i] = key[i] ^ 0x5C
+	  }
+
+	  this._hash = createHash(alg).update(ipad)
+	}
+
+	Hmac.prototype.update = function (data, enc) {
+	  this._hash.update(data, enc)
+	  return this
+	}
+
+	Hmac.prototype.digest = function (enc) {
+	  var h = this._hash.digest()
+	  return createHash(this._alg).update(this._opad).update(h).digest(enc)
+	}
+
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1).Buffer))
+
+/***/ }),
+/* 49 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(Buffer) {var intSize = 4;
+	var zeroBuffer = new Buffer(intSize); zeroBuffer.fill(0);
+	var chrsz = 8;
+
+	function toArray(buf, bigEndian) {
+	  if ((buf.length % intSize) !== 0) {
+	    var len = buf.length + (intSize - (buf.length % intSize));
+	    buf = Buffer.concat([buf, zeroBuffer], len);
+	  }
+
+	  var arr = [];
+	  var fn = bigEndian ? buf.readInt32BE : buf.readInt32LE;
+	  for (var i = 0; i < buf.length; i += intSize) {
+	    arr.push(fn.call(buf, i));
+	  }
+	  return arr;
+	}
+
+	function toBuffer(arr, size, bigEndian) {
+	  var buf = new Buffer(size);
+	  var fn = bigEndian ? buf.writeInt32BE : buf.writeInt32LE;
+	  for (var i = 0; i < arr.length; i++) {
+	    fn.call(buf, arr[i], i * 4, true);
+	  }
+	  return buf;
+	}
+
+	function hash(buf, fn, hashSize, bigEndian) {
+	  if (!Buffer.isBuffer(buf)) buf = new Buffer(buf);
+	  var arr = fn(toArray(buf, bigEndian), buf.length * chrsz);
+	  return toBuffer(arr, hashSize, bigEndian);
+	}
+
+	module.exports = { hash: hash };
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1).Buffer))
+
+/***/ }),
+/* 50 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(Buffer) {var rng = __webpack_require__(62)
+
+	function error () {
+	  var m = [].slice.call(arguments).join(' ')
+	  throw new Error([
+	    m,
+	    'we accept pull requests',
+	    'http://github.com/dominictarr/crypto-browserify'
+	    ].join('\n'))
+	}
+
+	exports.createHash = __webpack_require__(28)
+
+	exports.createHmac = __webpack_require__(48)
+
+	exports.randomBytes = function(size, callback) {
+	  if (callback && callback.call) {
+	    try {
+	      callback.call(this, undefined, new Buffer(rng(size)))
+	    } catch (err) { callback(err) }
+	  } else {
+	    return new Buffer(rng(size))
+	  }
+	}
+
+	function each(a, f) {
+	  for(var i in a)
+	    f(a[i], i)
+	}
+
+	exports.getHashes = function () {
+	  return ['sha1', 'sha256', 'sha512', 'md5', 'rmd160']
+	}
+
+	var p = __webpack_require__(61)(exports)
+	exports.pbkdf2 = p.pbkdf2
+	exports.pbkdf2Sync = p.pbkdf2Sync
+	__webpack_require__(54)(exports, module.exports);
+
+	// the least I can do is make error messages for the rest of the node.js/crypto api.
+	each(['createCredentials'
+	, 'createSign'
+	, 'createVerify'
+	, 'createDiffieHellman'
+	], function (name) {
+	  exports[name] = function () {
+	    error('sorry,', name, 'is not implemented yet')
+	  }
+	})
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1).Buffer))
+
+/***/ }),
+/* 51 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/*
+	 * A JavaScript implementation of the RSA Data Security, Inc. MD5 Message
+	 * Digest Algorithm, as defined in RFC 1321.
+	 * Version 2.1 Copyright (C) Paul Johnston 1999 - 2002.
+	 * Other contributors: Greg Holt, Andrew Kepert, Ydnar, Lostinet
+	 * Distributed under the BSD License
+	 * See http://pajhome.org.uk/crypt/md5 for more info.
+	 */
+
+	var helpers = __webpack_require__(49);
+
+	/*
+	 * Calculate the MD5 of an array of little-endian words, and a bit length
+	 */
+	function core_md5(x, len)
+	{
+	  /* append padding */
+	  x[len >> 5] |= 0x80 << ((len) % 32);
+	  x[(((len + 64) >>> 9) << 4) + 14] = len;
+
+	  var a =  1732584193;
+	  var b = -271733879;
+	  var c = -1732584194;
+	  var d =  271733878;
+
+	  for(var i = 0; i < x.length; i += 16)
+	  {
+	    var olda = a;
+	    var oldb = b;
+	    var oldc = c;
+	    var oldd = d;
+
+	    a = md5_ff(a, b, c, d, x[i+ 0], 7 , -680876936);
+	    d = md5_ff(d, a, b, c, x[i+ 1], 12, -389564586);
+	    c = md5_ff(c, d, a, b, x[i+ 2], 17,  606105819);
+	    b = md5_ff(b, c, d, a, x[i+ 3], 22, -1044525330);
+	    a = md5_ff(a, b, c, d, x[i+ 4], 7 , -176418897);
+	    d = md5_ff(d, a, b, c, x[i+ 5], 12,  1200080426);
+	    c = md5_ff(c, d, a, b, x[i+ 6], 17, -1473231341);
+	    b = md5_ff(b, c, d, a, x[i+ 7], 22, -45705983);
+	    a = md5_ff(a, b, c, d, x[i+ 8], 7 ,  1770035416);
+	    d = md5_ff(d, a, b, c, x[i+ 9], 12, -1958414417);
+	    c = md5_ff(c, d, a, b, x[i+10], 17, -42063);
+	    b = md5_ff(b, c, d, a, x[i+11], 22, -1990404162);
+	    a = md5_ff(a, b, c, d, x[i+12], 7 ,  1804603682);
+	    d = md5_ff(d, a, b, c, x[i+13], 12, -40341101);
+	    c = md5_ff(c, d, a, b, x[i+14], 17, -1502002290);
+	    b = md5_ff(b, c, d, a, x[i+15], 22,  1236535329);
+
+	    a = md5_gg(a, b, c, d, x[i+ 1], 5 , -165796510);
+	    d = md5_gg(d, a, b, c, x[i+ 6], 9 , -1069501632);
+	    c = md5_gg(c, d, a, b, x[i+11], 14,  643717713);
+	    b = md5_gg(b, c, d, a, x[i+ 0], 20, -373897302);
+	    a = md5_gg(a, b, c, d, x[i+ 5], 5 , -701558691);
+	    d = md5_gg(d, a, b, c, x[i+10], 9 ,  38016083);
+	    c = md5_gg(c, d, a, b, x[i+15], 14, -660478335);
+	    b = md5_gg(b, c, d, a, x[i+ 4], 20, -405537848);
+	    a = md5_gg(a, b, c, d, x[i+ 9], 5 ,  568446438);
+	    d = md5_gg(d, a, b, c, x[i+14], 9 , -1019803690);
+	    c = md5_gg(c, d, a, b, x[i+ 3], 14, -187363961);
+	    b = md5_gg(b, c, d, a, x[i+ 8], 20,  1163531501);
+	    a = md5_gg(a, b, c, d, x[i+13], 5 , -1444681467);
+	    d = md5_gg(d, a, b, c, x[i+ 2], 9 , -51403784);
+	    c = md5_gg(c, d, a, b, x[i+ 7], 14,  1735328473);
+	    b = md5_gg(b, c, d, a, x[i+12], 20, -1926607734);
+
+	    a = md5_hh(a, b, c, d, x[i+ 5], 4 , -378558);
+	    d = md5_hh(d, a, b, c, x[i+ 8], 11, -2022574463);
+	    c = md5_hh(c, d, a, b, x[i+11], 16,  1839030562);
+	    b = md5_hh(b, c, d, a, x[i+14], 23, -35309556);
+	    a = md5_hh(a, b, c, d, x[i+ 1], 4 , -1530992060);
+	    d = md5_hh(d, a, b, c, x[i+ 4], 11,  1272893353);
+	    c = md5_hh(c, d, a, b, x[i+ 7], 16, -155497632);
+	    b = md5_hh(b, c, d, a, x[i+10], 23, -1094730640);
+	    a = md5_hh(a, b, c, d, x[i+13], 4 ,  681279174);
+	    d = md5_hh(d, a, b, c, x[i+ 0], 11, -358537222);
+	    c = md5_hh(c, d, a, b, x[i+ 3], 16, -722521979);
+	    b = md5_hh(b, c, d, a, x[i+ 6], 23,  76029189);
+	    a = md5_hh(a, b, c, d, x[i+ 9], 4 , -640364487);
+	    d = md5_hh(d, a, b, c, x[i+12], 11, -421815835);
+	    c = md5_hh(c, d, a, b, x[i+15], 16,  530742520);
+	    b = md5_hh(b, c, d, a, x[i+ 2], 23, -995338651);
+
+	    a = md5_ii(a, b, c, d, x[i+ 0], 6 , -198630844);
+	    d = md5_ii(d, a, b, c, x[i+ 7], 10,  1126891415);
+	    c = md5_ii(c, d, a, b, x[i+14], 15, -1416354905);
+	    b = md5_ii(b, c, d, a, x[i+ 5], 21, -57434055);
+	    a = md5_ii(a, b, c, d, x[i+12], 6 ,  1700485571);
+	    d = md5_ii(d, a, b, c, x[i+ 3], 10, -1894986606);
+	    c = md5_ii(c, d, a, b, x[i+10], 15, -1051523);
+	    b = md5_ii(b, c, d, a, x[i+ 1], 21, -2054922799);
+	    a = md5_ii(a, b, c, d, x[i+ 8], 6 ,  1873313359);
+	    d = md5_ii(d, a, b, c, x[i+15], 10, -30611744);
+	    c = md5_ii(c, d, a, b, x[i+ 6], 15, -1560198380);
+	    b = md5_ii(b, c, d, a, x[i+13], 21,  1309151649);
+	    a = md5_ii(a, b, c, d, x[i+ 4], 6 , -145523070);
+	    d = md5_ii(d, a, b, c, x[i+11], 10, -1120210379);
+	    c = md5_ii(c, d, a, b, x[i+ 2], 15,  718787259);
+	    b = md5_ii(b, c, d, a, x[i+ 9], 21, -343485551);
+
+	    a = safe_add(a, olda);
+	    b = safe_add(b, oldb);
+	    c = safe_add(c, oldc);
+	    d = safe_add(d, oldd);
+	  }
+	  return Array(a, b, c, d);
+
+	}
+
+	/*
+	 * These functions implement the four basic operations the algorithm uses.
+	 */
+	function md5_cmn(q, a, b, x, s, t)
+	{
+	  return safe_add(bit_rol(safe_add(safe_add(a, q), safe_add(x, t)), s),b);
+	}
+	function md5_ff(a, b, c, d, x, s, t)
+	{
+	  return md5_cmn((b & c) | ((~b) & d), a, b, x, s, t);
+	}
+	function md5_gg(a, b, c, d, x, s, t)
+	{
+	  return md5_cmn((b & d) | (c & (~d)), a, b, x, s, t);
+	}
+	function md5_hh(a, b, c, d, x, s, t)
+	{
+	  return md5_cmn(b ^ c ^ d, a, b, x, s, t);
+	}
+	function md5_ii(a, b, c, d, x, s, t)
+	{
+	  return md5_cmn(c ^ (b | (~d)), a, b, x, s, t);
+	}
+
+	/*
+	 * Add integers, wrapping at 2^32. This uses 16-bit operations internally
+	 * to work around bugs in some JS interpreters.
+	 */
+	function safe_add(x, y)
+	{
+	  var lsw = (x & 0xFFFF) + (y & 0xFFFF);
+	  var msw = (x >> 16) + (y >> 16) + (lsw >> 16);
+	  return (msw << 16) | (lsw & 0xFFFF);
+	}
+
+	/*
+	 * Bitwise rotate a 32-bit number to the left.
+	 */
+	function bit_rol(num, cnt)
+	{
+	  return (num << cnt) | (num >>> (32 - cnt));
+	}
+
+	module.exports = function md5(buf) {
+	  return helpers.hash(buf, core_md5, 16);
+	};
+
+
+/***/ }),
+/* 52 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(Buffer) {var aes = __webpack_require__(9);
+	var Transform = __webpack_require__(10);
+	var inherits = __webpack_require__(2);
+	var modes = __webpack_require__(11);
+	var StreamCipher = __webpack_require__(35);
+	var ebtk = __webpack_require__(29);
+
+	inherits(Decipher, Transform);
+	function Decipher(mode, key, iv) {
+	  if (!(this instanceof Decipher)) {
+	    return new Decipher(mode, key, iv);
+	  }
+	  Transform.call(this);
+	  this._cache = new Splitter();
+	  this._last = void 0;
+	  this._cipher = new aes.AES(key);
+	  this._prev = new Buffer(iv.length);
+	  iv.copy(this._prev);
+	  this._mode = mode;
+	}
+	Decipher.prototype._transform = function (data, _, next) {
+	  this._cache.add(data);
+	  var chunk;
+	  var thing;
+	  while ((chunk = this._cache.get())) {
+	    thing = this._mode.decrypt(this, chunk);
+	    this.push(thing);
+	  }
+	  next();
+	};
+	Decipher.prototype._flush = function (next) {
+	  var chunk = this._cache.flush();
+	  if (!chunk) {
+	    return next;
+	  }
+
+	  this.push(unpad(this._mode.decrypt(this, chunk)));
+
+	  next();
+	};
+
+	function Splitter() {
+	   if (!(this instanceof Splitter)) {
+	    return new Splitter();
+	  }
+	  this.cache = new Buffer('');
+	}
+	Splitter.prototype.add = function (data) {
+	  this.cache = Buffer.concat([this.cache, data]);
+	};
+
+	Splitter.prototype.get = function () {
+	  if (this.cache.length > 16) {
+	    var out = this.cache.slice(0, 16);
+	    this.cache = this.cache.slice(16);
+	    return out;
+	  }
+	  return null;
+	};
+	Splitter.prototype.flush = function () {
+	  if (this.cache.length) {
+	    return this.cache;
+	  }
+	};
+	function unpad(last) {
+	  var padded = last[15];
+	  if (padded === 16) {
+	    return;
+	  }
+	  return last.slice(0, 16 - padded);
+	}
+
+	var modelist = {
+	  ECB: __webpack_require__(33),
+	  CBC: __webpack_require__(30),
+	  CFB: __webpack_require__(31),
+	  OFB: __webpack_require__(34),
+	  CTR: __webpack_require__(32)
+	};
+
+	module.exports = function (crypto) {
+	  function createDecipheriv(suite, password, iv) {
+	    var config = modes[suite];
+	    if (!config) {
+	      throw new TypeError('invalid suite type');
+	    }
+	    if (typeof iv === 'string') {
+	      iv = new Buffer(iv);
+	    }
+	    if (typeof password === 'string') {
+	      password = new Buffer(password);
+	    }
+	    if (password.length !== config.key/8) {
+	      throw new TypeError('invalid key length ' + password.length);
+	    }
+	    if (iv.length !== config.iv) {
+	      throw new TypeError('invalid iv length ' + iv.length);
+	    }
+	    if (config.type === 'stream') {
+	      return new StreamCipher(modelist[config.mode], password, iv, true);
+	    }
+	    return new Decipher(modelist[config.mode], password, iv);
+	  }
+
+	  function createDecipher (suite, password) {
+	    var config = modes[suite];
+	    if (!config) {
+	      throw new TypeError('invalid suite type');
+	    }
+	    var keys = ebtk(crypto, password, config.key, config.iv);
+	    return createDecipheriv(suite, keys.key, keys.iv);
+	  }
+	  return {
+	    createDecipher: createDecipher,
+	    createDecipheriv: createDecipheriv
+	  };
+	};
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1).Buffer))
+
+/***/ }),
+/* 53 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(Buffer) {var aes = __webpack_require__(9);
+	var Transform = __webpack_require__(10);
+	var inherits = __webpack_require__(2);
+	var modes = __webpack_require__(11);
+	var ebtk = __webpack_require__(29);
+	var StreamCipher = __webpack_require__(35);
+	inherits(Cipher, Transform);
+	function Cipher(mode, key, iv) {
+	  if (!(this instanceof Cipher)) {
+	    return new Cipher(mode, key, iv);
+	  }
+	  Transform.call(this);
+	  this._cache = new Splitter();
+	  this._cipher = new aes.AES(key);
+	  this._prev = new Buffer(iv.length);
+	  iv.copy(this._prev);
+	  this._mode = mode;
+	}
+	Cipher.prototype._transform = function (data, _, next) {
+	  this._cache.add(data);
+	  var chunk;
+	  var thing;
+	  while ((chunk = this._cache.get())) {
+	    thing = this._mode.encrypt(this, chunk);
+	    this.push(thing);
+	  }
+	  next();
+	};
+	Cipher.prototype._flush = function (next) {
+	  var chunk = this._cache.flush();
+	  this.push(this._mode.encrypt(this, chunk));
+	  this._cipher.scrub();
+	  next();
+	};
+
+
+	function Splitter() {
+	   if (!(this instanceof Splitter)) {
+	    return new Splitter();
+	  }
+	  this.cache = new Buffer('');
+	}
+	Splitter.prototype.add = function (data) {
+	  this.cache = Buffer.concat([this.cache, data]);
+	};
+
+	Splitter.prototype.get = function () {
+	  if (this.cache.length > 15) {
+	    var out = this.cache.slice(0, 16);
+	    this.cache = this.cache.slice(16);
+	    return out;
+	  }
+	  return null;
+	};
+	Splitter.prototype.flush = function () {
+	  var len = 16 - this.cache.length;
+	  var padBuff = new Buffer(len);
+
+	  var i = -1;
+	  while (++i < len) {
+	    padBuff.writeUInt8(len, i);
+	  }
+	  var out = Buffer.concat([this.cache, padBuff]);
+	  return out;
+	};
+	var modelist = {
+	  ECB: __webpack_require__(33),
+	  CBC: __webpack_require__(30),
+	  CFB: __webpack_require__(31),
+	  OFB: __webpack_require__(34),
+	  CTR: __webpack_require__(32)
+	};
+	module.exports = function (crypto) {
+	  function createCipheriv(suite, password, iv) {
+	    var config = modes[suite];
+	    if (!config) {
+	      throw new TypeError('invalid suite type');
+	    }
+	    if (typeof iv === 'string') {
+	      iv = new Buffer(iv);
+	    }
+	    if (typeof password === 'string') {
+	      password = new Buffer(password);
+	    }
+	    if (password.length !== config.key/8) {
+	      throw new TypeError('invalid key length ' + password.length);
+	    }
+	    if (iv.length !== config.iv) {
+	      throw new TypeError('invalid iv length ' + iv.length);
+	    }
+	    if (config.type === 'stream') {
+	      return new StreamCipher(modelist[config.mode], password, iv);
+	    }
+	    return new Cipher(modelist[config.mode], password, iv);
+	  }
+	  function createCipher (suite, password) {
+	    var config = modes[suite];
+	    if (!config) {
+	      throw new TypeError('invalid suite type');
+	    }
+	    var keys = ebtk(crypto, password, config.key, config.iv);
+	    return createCipheriv(suite, keys.key, keys.iv);
+	  }
+	  return {
+	    createCipher: createCipher,
+	    createCipheriv: createCipheriv
+	  };
+	};
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1).Buffer))
+
+/***/ }),
+/* 54 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	module.exports = function (crypto, exports) {
+	  exports = exports || {};
+	  var ciphers = __webpack_require__(53)(crypto);
+	  exports.createCipher = ciphers.createCipher;
+	  exports.createCipheriv = ciphers.createCipheriv;
+	  var deciphers = __webpack_require__(52)(crypto);
+	  exports.createDecipher = deciphers.createDecipher;
+	  exports.createDecipheriv = deciphers.createDecipheriv;
+	  var modes = __webpack_require__(11);
+	  function listCiphers () {
+	    return Object.keys(modes);
+	  }
+	  exports.listCiphers = listCiphers;
+	};
+
+
+
+/***/ }),
+/* 55 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(Buffer) {
+	module.exports = ripemd160
+
+
+
+	/*
+	CryptoJS v3.1.2
+	code.google.com/p/crypto-js
+	(c) 2009-2013 by Jeff Mott. All rights reserved.
+	code.google.com/p/crypto-js/wiki/License
+	*/
+	/** @preserve
+	(c) 2012 by Cédric Mesnil. All rights reserved.
+
+	Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+	    - Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+	    - Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+
+	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+	*/
+
+	// Constants table
+	var zl = [
+	    0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15,
+	    7,  4, 13,  1, 10,  6, 15,  3, 12,  0,  9,  5,  2, 14, 11,  8,
+	    3, 10, 14,  4,  9, 15,  8,  1,  2,  7,  0,  6, 13, 11,  5, 12,
+	    1,  9, 11, 10,  0,  8, 12,  4, 13,  3,  7, 15, 14,  5,  6,  2,
+	    4,  0,  5,  9,  7, 12,  2, 10, 14,  1,  3,  8, 11,  6, 15, 13];
+	var zr = [
+	    5, 14,  7,  0,  9,  2, 11,  4, 13,  6, 15,  8,  1, 10,  3, 12,
+	    6, 11,  3,  7,  0, 13,  5, 10, 14, 15,  8, 12,  4,  9,  1,  2,
+	    15,  5,  1,  3,  7, 14,  6,  9, 11,  8, 12,  2, 10,  0,  4, 13,
+	    8,  6,  4,  1,  3, 11, 15,  0,  5, 12,  2, 13,  9,  7, 10, 14,
+	    12, 15, 10,  4,  1,  5,  8,  7,  6,  2, 13, 14,  0,  3,  9, 11];
+	var sl = [
+	     11, 14, 15, 12,  5,  8,  7,  9, 11, 13, 14, 15,  6,  7,  9,  8,
+	    7, 6,   8, 13, 11,  9,  7, 15,  7, 12, 15,  9, 11,  7, 13, 12,
+	    11, 13,  6,  7, 14,  9, 13, 15, 14,  8, 13,  6,  5, 12,  7,  5,
+	      11, 12, 14, 15, 14, 15,  9,  8,  9, 14,  5,  6,  8,  6,  5, 12,
+	    9, 15,  5, 11,  6,  8, 13, 12,  5, 12, 13, 14, 11,  8,  5,  6 ];
+	var sr = [
+	    8,  9,  9, 11, 13, 15, 15,  5,  7,  7,  8, 11, 14, 14, 12,  6,
+	    9, 13, 15,  7, 12,  8,  9, 11,  7,  7, 12,  7,  6, 15, 13, 11,
+	    9,  7, 15, 11,  8,  6,  6, 14, 12, 13,  5, 14, 13, 13,  7,  5,
+	    15,  5,  8, 11, 14, 14,  6, 14,  6,  9, 12,  9, 12,  5, 15,  8,
+	    8,  5, 12,  9, 12,  5, 14,  6,  8, 13,  6,  5, 15, 13, 11, 11 ];
+
+	var hl =  [ 0x00000000, 0x5A827999, 0x6ED9EBA1, 0x8F1BBCDC, 0xA953FD4E];
+	var hr =  [ 0x50A28BE6, 0x5C4DD124, 0x6D703EF3, 0x7A6D76E9, 0x00000000];
+
+	var bytesToWords = function (bytes) {
+	  var words = [];
+	  for (var i = 0, b = 0; i < bytes.length; i++, b += 8) {
+	    words[b >>> 5] |= bytes[i] << (24 - b % 32);
+	  }
+	  return words;
+	};
+
+	var wordsToBytes = function (words) {
+	  var bytes = [];
+	  for (var b = 0; b < words.length * 32; b += 8) {
+	    bytes.push((words[b >>> 5] >>> (24 - b % 32)) & 0xFF);
+	  }
+	  return bytes;
+	};
+
+	var processBlock = function (H, M, offset) {
+
+	  // Swap endian
+	  for (var i = 0; i < 16; i++) {
+	    var offset_i = offset + i;
+	    var M_offset_i = M[offset_i];
+
+	    // Swap
+	    M[offset_i] = (
+	        (((M_offset_i << 8)  | (M_offset_i >>> 24)) & 0x00ff00ff) |
+	        (((M_offset_i << 24) | (M_offset_i >>> 8))  & 0xff00ff00)
+	    );
+	  }
+
+	  // Working variables
+	  var al, bl, cl, dl, el;
+	  var ar, br, cr, dr, er;
+
+	  ar = al = H[0];
+	  br = bl = H[1];
+	  cr = cl = H[2];
+	  dr = dl = H[3];
+	  er = el = H[4];
+	  // Computation
+	  var t;
+	  for (var i = 0; i < 80; i += 1) {
+	    t = (al +  M[offset+zl[i]])|0;
+	    if (i<16){
+	        t +=  f1(bl,cl,dl) + hl[0];
+	    } else if (i<32) {
+	        t +=  f2(bl,cl,dl) + hl[1];
+	    } else if (i<48) {
+	        t +=  f3(bl,cl,dl) + hl[2];
+	    } else if (i<64) {
+	        t +=  f4(bl,cl,dl) + hl[3];
+	    } else {// if (i<80) {
+	        t +=  f5(bl,cl,dl) + hl[4];
+	    }
+	    t = t|0;
+	    t =  rotl(t,sl[i]);
+	    t = (t+el)|0;
+	    al = el;
+	    el = dl;
+	    dl = rotl(cl, 10);
+	    cl = bl;
+	    bl = t;
+
+	    t = (ar + M[offset+zr[i]])|0;
+	    if (i<16){
+	        t +=  f5(br,cr,dr) + hr[0];
+	    } else if (i<32) {
+	        t +=  f4(br,cr,dr) + hr[1];
+	    } else if (i<48) {
+	        t +=  f3(br,cr,dr) + hr[2];
+	    } else if (i<64) {
+	        t +=  f2(br,cr,dr) + hr[3];
+	    } else {// if (i<80) {
+	        t +=  f1(br,cr,dr) + hr[4];
+	    }
+	    t = t|0;
+	    t =  rotl(t,sr[i]) ;
+	    t = (t+er)|0;
+	    ar = er;
+	    er = dr;
+	    dr = rotl(cr, 10);
+	    cr = br;
+	    br = t;
+	  }
+	  // Intermediate hash value
+	  t    = (H[1] + cl + dr)|0;
+	  H[1] = (H[2] + dl + er)|0;
+	  H[2] = (H[3] + el + ar)|0;
+	  H[3] = (H[4] + al + br)|0;
+	  H[4] = (H[0] + bl + cr)|0;
+	  H[0] =  t;
+	};
+
+	function f1(x, y, z) {
+	  return ((x) ^ (y) ^ (z));
+	}
+
+	function f2(x, y, z) {
+	  return (((x)&(y)) | ((~x)&(z)));
+	}
+
+	function f3(x, y, z) {
+	  return (((x) | (~(y))) ^ (z));
+	}
+
+	function f4(x, y, z) {
+	  return (((x) & (z)) | ((y)&(~(z))));
+	}
+
+	function f5(x, y, z) {
+	  return ((x) ^ ((y) |(~(z))));
+	}
+
+	function rotl(x,n) {
+	  return (x<<n) | (x>>>(32-n));
+	}
+
+	function ripemd160(message) {
+	  var H = [0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0xC3D2E1F0];
+
+	  if (typeof message == 'string')
+	    message = new Buffer(message, 'utf8');
+
+	  var m = bytesToWords(message);
+
+	  var nBitsLeft = message.length * 8;
+	  var nBitsTotal = message.length * 8;
+
+	  // Add padding
+	  m[nBitsLeft >>> 5] |= 0x80 << (24 - nBitsLeft % 32);
+	  m[(((nBitsLeft + 64) >>> 9) << 4) + 14] = (
+	      (((nBitsTotal << 8)  | (nBitsTotal >>> 24)) & 0x00ff00ff) |
+	      (((nBitsTotal << 24) | (nBitsTotal >>> 8))  & 0xff00ff00)
+	  );
+
+	  for (var i=0 ; i<m.length; i += 16) {
+	    processBlock(H, m, i);
+	  }
+
+	  // Swap endian
+	  for (var i = 0; i < 5; i++) {
+	      // Shortcut
+	    var H_i = H[i];
+
+	    // Swap
+	    H[i] = (((H_i << 8)  | (H_i >>> 24)) & 0x00ff00ff) |
+	          (((H_i << 24) | (H_i >>> 8))  & 0xff00ff00);
+	  }
+
+	  var digestbytes = wordsToBytes(H);
+	  return new Buffer(digestbytes);
+	}
+
+
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1).Buffer))
+
+/***/ }),
+/* 56 */
+/***/ (function(module, exports) {
+
+	module.exports = function (Buffer) {
+
+	  //prototype class for hash functions
+	  function Hash (blockSize, finalSize) {
+	    this._block = new Buffer(blockSize) //new Uint32Array(blockSize/4)
+	    this._finalSize = finalSize
+	    this._blockSize = blockSize
+	    this._len = 0
+	    this._s = 0
+	  }
+
+	  Hash.prototype.init = function () {
+	    this._s = 0
+	    this._len = 0
+	  }
+
+	  Hash.prototype.update = function (data, enc) {
+	    if ("string" === typeof data) {
+	      enc = enc || "utf8"
+	      data = new Buffer(data, enc)
+	    }
+
+	    var l = this._len += data.length
+	    var s = this._s = (this._s || 0)
+	    var f = 0
+	    var buffer = this._block
+
+	    while (s < l) {
+	      var t = Math.min(data.length, f + this._blockSize - (s % this._blockSize))
+	      var ch = (t - f)
+
+	      for (var i = 0; i < ch; i++) {
+	        buffer[(s % this._blockSize) + i] = data[i + f]
+	      }
+
+	      s += ch
+	      f += ch
+
+	      if ((s % this._blockSize) === 0) {
+	        this._update(buffer)
+	      }
+	    }
+	    this._s = s
+
+	    return this
+	  }
+
+	  Hash.prototype.digest = function (enc) {
+	    // Suppose the length of the message M, in bits, is l
+	    var l = this._len * 8
+
+	    // Append the bit 1 to the end of the message
+	    this._block[this._len % this._blockSize] = 0x80
+
+	    // and then k zero bits, where k is the smallest non-negative solution to the equation (l + 1 + k) === finalSize mod blockSize
+	    this._block.fill(0, this._len % this._blockSize + 1)
+
+	    if (l % (this._blockSize * 8) >= this._finalSize * 8) {
+	      this._update(this._block)
+	      this._block.fill(0)
+	    }
+
+	    // to this append the block which is equal to the number l written in binary
+	    // TODO: handle case where l is > Math.pow(2, 29)
+	    this._block.writeInt32BE(l, this._blockSize - 4)
+
+	    var hash = this._update(this._block) || this._hash()
+
+	    return enc ? hash.toString(enc) : hash
+	  }
+
+	  Hash.prototype._update = function () {
+	    throw new Error('_update must be implemented by subclass')
+	  }
+
+	  return Hash
+	}
+
+
+/***/ }),
+/* 57 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	var exports = module.exports = function (alg) {
+	  var Alg = exports[alg]
+	  if(!Alg) throw new Error(alg + ' is not supported (we accept pull requests)')
+	  return new Alg()
+	}
+
+	var Buffer = __webpack_require__(1).Buffer
+	var Hash   = __webpack_require__(56)(Buffer)
+
+	exports.sha1 = __webpack_require__(58)(Buffer, Hash)
+	exports.sha256 = __webpack_require__(59)(Buffer, Hash)
+	exports.sha512 = __webpack_require__(60)(Buffer, Hash)
+
+
+/***/ }),
+/* 58 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/*
+	 * A JavaScript implementation of the Secure Hash Algorithm, SHA-1, as defined
+	 * in FIPS PUB 180-1
+	 * Version 2.1a Copyright Paul Johnston 2000 - 2002.
+	 * Other contributors: Greg Holt, Andrew Kepert, Ydnar, Lostinet
+	 * Distributed under the BSD License
+	 * See http://pajhome.org.uk/crypt/md5 for details.
+	 */
+
+	var inherits = __webpack_require__(15).inherits
+
+	module.exports = function (Buffer, Hash) {
+
+	  var A = 0|0
+	  var B = 4|0
+	  var C = 8|0
+	  var D = 12|0
+	  var E = 16|0
+
+	  var W = new (typeof Int32Array === 'undefined' ? Array : Int32Array)(80)
+
+	  var POOL = []
+
+	  function Sha1 () {
+	    if(POOL.length)
+	      return POOL.pop().init()
+
+	    if(!(this instanceof Sha1)) return new Sha1()
+	    this._w = W
+	    Hash.call(this, 16*4, 14*4)
+
+	    this._h = null
+	    this.init()
+	  }
+
+	  inherits(Sha1, Hash)
+
+	  Sha1.prototype.init = function () {
+	    this._a = 0x67452301
+	    this._b = 0xefcdab89
+	    this._c = 0x98badcfe
+	    this._d = 0x10325476
+	    this._e = 0xc3d2e1f0
+
+	    Hash.prototype.init.call(this)
+	    return this
+	  }
+
+	  Sha1.prototype._POOL = POOL
+	  Sha1.prototype._update = function (X) {
+
+	    var a, b, c, d, e, _a, _b, _c, _d, _e
+
+	    a = _a = this._a
+	    b = _b = this._b
+	    c = _c = this._c
+	    d = _d = this._d
+	    e = _e = this._e
+
+	    var w = this._w
+
+	    for(var j = 0; j < 80; j++) {
+	      var W = w[j] = j < 16 ? X.readInt32BE(j*4)
+	        : rol(w[j - 3] ^ w[j -  8] ^ w[j - 14] ^ w[j - 16], 1)
+
+	      var t = add(
+	        add(rol(a, 5), sha1_ft(j, b, c, d)),
+	        add(add(e, W), sha1_kt(j))
+	      )
+
+	      e = d
+	      d = c
+	      c = rol(b, 30)
+	      b = a
+	      a = t
+	    }
+
+	    this._a = add(a, _a)
+	    this._b = add(b, _b)
+	    this._c = add(c, _c)
+	    this._d = add(d, _d)
+	    this._e = add(e, _e)
+	  }
+
+	  Sha1.prototype._hash = function () {
+	    if(POOL.length < 100) POOL.push(this)
+	    var H = new Buffer(20)
+	    //console.log(this._a|0, this._b|0, this._c|0, this._d|0, this._e|0)
+	    H.writeInt32BE(this._a|0, A)
+	    H.writeInt32BE(this._b|0, B)
+	    H.writeInt32BE(this._c|0, C)
+	    H.writeInt32BE(this._d|0, D)
+	    H.writeInt32BE(this._e|0, E)
+	    return H
+	  }
+
+	  /*
+	   * Perform the appropriate triplet combination function for the current
+	   * iteration
+	   */
+	  function sha1_ft(t, b, c, d) {
+	    if(t < 20) return (b & c) | ((~b) & d);
+	    if(t < 40) return b ^ c ^ d;
+	    if(t < 60) return (b & c) | (b & d) | (c & d);
+	    return b ^ c ^ d;
+	  }
+
+	  /*
+	   * Determine the appropriate additive constant for the current iteration
+	   */
+	  function sha1_kt(t) {
+	    return (t < 20) ?  1518500249 : (t < 40) ?  1859775393 :
+	           (t < 60) ? -1894007588 : -899497514;
+	  }
+
+	  /*
+	   * Add integers, wrapping at 2^32. This uses 16-bit operations internally
+	   * to work around bugs in some JS interpreters.
+	   * //dominictarr: this is 10 years old, so maybe this can be dropped?)
+	   *
+	   */
+	  function add(x, y) {
+	    return (x + y ) | 0
+	  //lets see how this goes on testling.
+	  //  var lsw = (x & 0xFFFF) + (y & 0xFFFF);
+	  //  var msw = (x >> 16) + (y >> 16) + (lsw >> 16);
+	  //  return (msw << 16) | (lsw & 0xFFFF);
+	  }
+
+	  /*
+	   * Bitwise rotate a 32-bit number to the left.
+	   */
+	  function rol(num, cnt) {
+	    return (num << cnt) | (num >>> (32 - cnt));
+	  }
+
+	  return Sha1
+	}
+
+
+/***/ }),
+/* 59 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	
+	/**
+	 * A JavaScript implementation of the Secure Hash Algorithm, SHA-256, as defined
+	 * in FIPS 180-2
+	 * Version 2.2-beta Copyright Angel Marin, Paul Johnston 2000 - 2009.
+	 * Other contributors: Greg Holt, Andrew Kepert, Ydnar, Lostinet
+	 *
+	 */
+
+	var inherits = __webpack_require__(15).inherits
+
+	module.exports = function (Buffer, Hash) {
+
+	  var K = [
+	      0x428A2F98, 0x71374491, 0xB5C0FBCF, 0xE9B5DBA5,
+	      0x3956C25B, 0x59F111F1, 0x923F82A4, 0xAB1C5ED5,
+	      0xD807AA98, 0x12835B01, 0x243185BE, 0x550C7DC3,
+	      0x72BE5D74, 0x80DEB1FE, 0x9BDC06A7, 0xC19BF174,
+	      0xE49B69C1, 0xEFBE4786, 0x0FC19DC6, 0x240CA1CC,
+	      0x2DE92C6F, 0x4A7484AA, 0x5CB0A9DC, 0x76F988DA,
+	      0x983E5152, 0xA831C66D, 0xB00327C8, 0xBF597FC7,
+	      0xC6E00BF3, 0xD5A79147, 0x06CA6351, 0x14292967,
+	      0x27B70A85, 0x2E1B2138, 0x4D2C6DFC, 0x53380D13,
+	      0x650A7354, 0x766A0ABB, 0x81C2C92E, 0x92722C85,
+	      0xA2BFE8A1, 0xA81A664B, 0xC24B8B70, 0xC76C51A3,
+	      0xD192E819, 0xD6990624, 0xF40E3585, 0x106AA070,
+	      0x19A4C116, 0x1E376C08, 0x2748774C, 0x34B0BCB5,
+	      0x391C0CB3, 0x4ED8AA4A, 0x5B9CCA4F, 0x682E6FF3,
+	      0x748F82EE, 0x78A5636F, 0x84C87814, 0x8CC70208,
+	      0x90BEFFFA, 0xA4506CEB, 0xBEF9A3F7, 0xC67178F2
+	    ]
+
+	  var W = new Array(64)
+
+	  function Sha256() {
+	    this.init()
+
+	    this._w = W //new Array(64)
+
+	    Hash.call(this, 16*4, 14*4)
+	  }
+
+	  inherits(Sha256, Hash)
+
+	  Sha256.prototype.init = function () {
+
+	    this._a = 0x6a09e667|0
+	    this._b = 0xbb67ae85|0
+	    this._c = 0x3c6ef372|0
+	    this._d = 0xa54ff53a|0
+	    this._e = 0x510e527f|0
+	    this._f = 0x9b05688c|0
+	    this._g = 0x1f83d9ab|0
+	    this._h = 0x5be0cd19|0
+
+	    this._len = this._s = 0
+
+	    return this
+	  }
+
+	  function S (X, n) {
+	    return (X >>> n) | (X << (32 - n));
+	  }
+
+	  function R (X, n) {
+	    return (X >>> n);
+	  }
+
+	  function Ch (x, y, z) {
+	    return ((x & y) ^ ((~x) & z));
+	  }
+
+	  function Maj (x, y, z) {
+	    return ((x & y) ^ (x & z) ^ (y & z));
+	  }
+
+	  function Sigma0256 (x) {
+	    return (S(x, 2) ^ S(x, 13) ^ S(x, 22));
+	  }
+
+	  function Sigma1256 (x) {
+	    return (S(x, 6) ^ S(x, 11) ^ S(x, 25));
+	  }
+
+	  function Gamma0256 (x) {
+	    return (S(x, 7) ^ S(x, 18) ^ R(x, 3));
+	  }
+
+	  function Gamma1256 (x) {
+	    return (S(x, 17) ^ S(x, 19) ^ R(x, 10));
+	  }
+
+	  Sha256.prototype._update = function(M) {
+
+	    var W = this._w
+	    var a, b, c, d, e, f, g, h
+	    var T1, T2
+
+	    a = this._a | 0
+	    b = this._b | 0
+	    c = this._c | 0
+	    d = this._d | 0
+	    e = this._e | 0
+	    f = this._f | 0
+	    g = this._g | 0
+	    h = this._h | 0
+
+	    for (var j = 0; j < 64; j++) {
+	      var w = W[j] = j < 16
+	        ? M.readInt32BE(j * 4)
+	        : Gamma1256(W[j - 2]) + W[j - 7] + Gamma0256(W[j - 15]) + W[j - 16]
+
+	      T1 = h + Sigma1256(e) + Ch(e, f, g) + K[j] + w
+
+	      T2 = Sigma0256(a) + Maj(a, b, c);
+	      h = g; g = f; f = e; e = d + T1; d = c; c = b; b = a; a = T1 + T2;
+	    }
+
+	    this._a = (a + this._a) | 0
+	    this._b = (b + this._b) | 0
+	    this._c = (c + this._c) | 0
+	    this._d = (d + this._d) | 0
+	    this._e = (e + this._e) | 0
+	    this._f = (f + this._f) | 0
+	    this._g = (g + this._g) | 0
+	    this._h = (h + this._h) | 0
+
+	  };
+
+	  Sha256.prototype._hash = function () {
+	    var H = new Buffer(32)
+
+	    H.writeInt32BE(this._a,  0)
+	    H.writeInt32BE(this._b,  4)
+	    H.writeInt32BE(this._c,  8)
+	    H.writeInt32BE(this._d, 12)
+	    H.writeInt32BE(this._e, 16)
+	    H.writeInt32BE(this._f, 20)
+	    H.writeInt32BE(this._g, 24)
+	    H.writeInt32BE(this._h, 28)
+
+	    return H
+	  }
+
+	  return Sha256
+
+	}
+
+
+/***/ }),
+/* 60 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	var inherits = __webpack_require__(15).inherits
+
+	module.exports = function (Buffer, Hash) {
+	  var K = [
+	    0x428a2f98, 0xd728ae22, 0x71374491, 0x23ef65cd,
+	    0xb5c0fbcf, 0xec4d3b2f, 0xe9b5dba5, 0x8189dbbc,
+	    0x3956c25b, 0xf348b538, 0x59f111f1, 0xb605d019,
+	    0x923f82a4, 0xaf194f9b, 0xab1c5ed5, 0xda6d8118,
+	    0xd807aa98, 0xa3030242, 0x12835b01, 0x45706fbe,
+	    0x243185be, 0x4ee4b28c, 0x550c7dc3, 0xd5ffb4e2,
+	    0x72be5d74, 0xf27b896f, 0x80deb1fe, 0x3b1696b1,
+	    0x9bdc06a7, 0x25c71235, 0xc19bf174, 0xcf692694,
+	    0xe49b69c1, 0x9ef14ad2, 0xefbe4786, 0x384f25e3,
+	    0x0fc19dc6, 0x8b8cd5b5, 0x240ca1cc, 0x77ac9c65,
+	    0x2de92c6f, 0x592b0275, 0x4a7484aa, 0x6ea6e483,
+	    0x5cb0a9dc, 0xbd41fbd4, 0x76f988da, 0x831153b5,
+	    0x983e5152, 0xee66dfab, 0xa831c66d, 0x2db43210,
+	    0xb00327c8, 0x98fb213f, 0xbf597fc7, 0xbeef0ee4,
+	    0xc6e00bf3, 0x3da88fc2, 0xd5a79147, 0x930aa725,
+	    0x06ca6351, 0xe003826f, 0x14292967, 0x0a0e6e70,
+	    0x27b70a85, 0x46d22ffc, 0x2e1b2138, 0x5c26c926,
+	    0x4d2c6dfc, 0x5ac42aed, 0x53380d13, 0x9d95b3df,
+	    0x650a7354, 0x8baf63de, 0x766a0abb, 0x3c77b2a8,
+	    0x81c2c92e, 0x47edaee6, 0x92722c85, 0x1482353b,
+	    0xa2bfe8a1, 0x4cf10364, 0xa81a664b, 0xbc423001,
+	    0xc24b8b70, 0xd0f89791, 0xc76c51a3, 0x0654be30,
+	    0xd192e819, 0xd6ef5218, 0xd6990624, 0x5565a910,
+	    0xf40e3585, 0x5771202a, 0x106aa070, 0x32bbd1b8,
+	    0x19a4c116, 0xb8d2d0c8, 0x1e376c08, 0x5141ab53,
+	    0x2748774c, 0xdf8eeb99, 0x34b0bcb5, 0xe19b48a8,
+	    0x391c0cb3, 0xc5c95a63, 0x4ed8aa4a, 0xe3418acb,
+	    0x5b9cca4f, 0x7763e373, 0x682e6ff3, 0xd6b2b8a3,
+	    0x748f82ee, 0x5defb2fc, 0x78a5636f, 0x43172f60,
+	    0x84c87814, 0xa1f0ab72, 0x8cc70208, 0x1a6439ec,
+	    0x90befffa, 0x23631e28, 0xa4506ceb, 0xde82bde9,
+	    0xbef9a3f7, 0xb2c67915, 0xc67178f2, 0xe372532b,
+	    0xca273ece, 0xea26619c, 0xd186b8c7, 0x21c0c207,
+	    0xeada7dd6, 0xcde0eb1e, 0xf57d4f7f, 0xee6ed178,
+	    0x06f067aa, 0x72176fba, 0x0a637dc5, 0xa2c898a6,
+	    0x113f9804, 0xbef90dae, 0x1b710b35, 0x131c471b,
+	    0x28db77f5, 0x23047d84, 0x32caab7b, 0x40c72493,
+	    0x3c9ebe0a, 0x15c9bebc, 0x431d67c4, 0x9c100d4c,
+	    0x4cc5d4be, 0xcb3e42b6, 0x597f299c, 0xfc657e2a,
+	    0x5fcb6fab, 0x3ad6faec, 0x6c44198c, 0x4a475817
+	  ]
+
+	  var W = new Array(160)
+
+	  function Sha512() {
+	    this.init()
+	    this._w = W
+
+	    Hash.call(this, 128, 112)
+	  }
+
+	  inherits(Sha512, Hash)
+
+	  Sha512.prototype.init = function () {
+
+	    this._a = 0x6a09e667|0
+	    this._b = 0xbb67ae85|0
+	    this._c = 0x3c6ef372|0
+	    this._d = 0xa54ff53a|0
+	    this._e = 0x510e527f|0
+	    this._f = 0x9b05688c|0
+	    this._g = 0x1f83d9ab|0
+	    this._h = 0x5be0cd19|0
+
+	    this._al = 0xf3bcc908|0
+	    this._bl = 0x84caa73b|0
+	    this._cl = 0xfe94f82b|0
+	    this._dl = 0x5f1d36f1|0
+	    this._el = 0xade682d1|0
+	    this._fl = 0x2b3e6c1f|0
+	    this._gl = 0xfb41bd6b|0
+	    this._hl = 0x137e2179|0
+
+	    this._len = this._s = 0
+
+	    return this
+	  }
+
+	  function S (X, Xl, n) {
+	    return (X >>> n) | (Xl << (32 - n))
+	  }
+
+	  function Ch (x, y, z) {
+	    return ((x & y) ^ ((~x) & z));
+	  }
+
+	  function Maj (x, y, z) {
+	    return ((x & y) ^ (x & z) ^ (y & z));
+	  }
+
+	  Sha512.prototype._update = function(M) {
+
+	    var W = this._w
+	    var a, b, c, d, e, f, g, h
+	    var al, bl, cl, dl, el, fl, gl, hl
+
+	    a = this._a | 0
+	    b = this._b | 0
+	    c = this._c | 0
+	    d = this._d | 0
+	    e = this._e | 0
+	    f = this._f | 0
+	    g = this._g | 0
+	    h = this._h | 0
+
+	    al = this._al | 0
+	    bl = this._bl | 0
+	    cl = this._cl | 0
+	    dl = this._dl | 0
+	    el = this._el | 0
+	    fl = this._fl | 0
+	    gl = this._gl | 0
+	    hl = this._hl | 0
+
+	    for (var i = 0; i < 80; i++) {
+	      var j = i * 2
+
+	      var Wi, Wil
+
+	      if (i < 16) {
+	        Wi = W[j] = M.readInt32BE(j * 4)
+	        Wil = W[j + 1] = M.readInt32BE(j * 4 + 4)
+
+	      } else {
+	        var x  = W[j - 15*2]
+	        var xl = W[j - 15*2 + 1]
+	        var gamma0  = S(x, xl, 1) ^ S(x, xl, 8) ^ (x >>> 7)
+	        var gamma0l = S(xl, x, 1) ^ S(xl, x, 8) ^ S(xl, x, 7)
+
+	        x  = W[j - 2*2]
+	        xl = W[j - 2*2 + 1]
+	        var gamma1  = S(x, xl, 19) ^ S(xl, x, 29) ^ (x >>> 6)
+	        var gamma1l = S(xl, x, 19) ^ S(x, xl, 29) ^ S(xl, x, 6)
+
+	        // W[i] = gamma0 + W[i - 7] + gamma1 + W[i - 16]
+	        var Wi7  = W[j - 7*2]
+	        var Wi7l = W[j - 7*2 + 1]
+
+	        var Wi16  = W[j - 16*2]
+	        var Wi16l = W[j - 16*2 + 1]
+
+	        Wil = gamma0l + Wi7l
+	        Wi  = gamma0  + Wi7 + ((Wil >>> 0) < (gamma0l >>> 0) ? 1 : 0)
+	        Wil = Wil + gamma1l
+	        Wi  = Wi  + gamma1  + ((Wil >>> 0) < (gamma1l >>> 0) ? 1 : 0)
+	        Wil = Wil + Wi16l
+	        Wi  = Wi  + Wi16 + ((Wil >>> 0) < (Wi16l >>> 0) ? 1 : 0)
+
+	        W[j] = Wi
+	        W[j + 1] = Wil
+	      }
+
+	      var maj = Maj(a, b, c)
+	      var majl = Maj(al, bl, cl)
+
+	      var sigma0h = S(a, al, 28) ^ S(al, a, 2) ^ S(al, a, 7)
+	      var sigma0l = S(al, a, 28) ^ S(a, al, 2) ^ S(a, al, 7)
+	      var sigma1h = S(e, el, 14) ^ S(e, el, 18) ^ S(el, e, 9)
+	      var sigma1l = S(el, e, 14) ^ S(el, e, 18) ^ S(e, el, 9)
+
+	      // t1 = h + sigma1 + ch + K[i] + W[i]
+	      var Ki = K[j]
+	      var Kil = K[j + 1]
+
+	      var ch = Ch(e, f, g)
+	      var chl = Ch(el, fl, gl)
+
+	      var t1l = hl + sigma1l
+	      var t1 = h + sigma1h + ((t1l >>> 0) < (hl >>> 0) ? 1 : 0)
+	      t1l = t1l + chl
+	      t1 = t1 + ch + ((t1l >>> 0) < (chl >>> 0) ? 1 : 0)
+	      t1l = t1l + Kil
+	      t1 = t1 + Ki + ((t1l >>> 0) < (Kil >>> 0) ? 1 : 0)
+	      t1l = t1l + Wil
+	      t1 = t1 + Wi + ((t1l >>> 0) < (Wil >>> 0) ? 1 : 0)
+
+	      // t2 = sigma0 + maj
+	      var t2l = sigma0l + majl
+	      var t2 = sigma0h + maj + ((t2l >>> 0) < (sigma0l >>> 0) ? 1 : 0)
+
+	      h  = g
+	      hl = gl
+	      g  = f
+	      gl = fl
+	      f  = e
+	      fl = el
+	      el = (dl + t1l) | 0
+	      e  = (d + t1 + ((el >>> 0) < (dl >>> 0) ? 1 : 0)) | 0
+	      d  = c
+	      dl = cl
+	      c  = b
+	      cl = bl
+	      b  = a
+	      bl = al
+	      al = (t1l + t2l) | 0
+	      a  = (t1 + t2 + ((al >>> 0) < (t1l >>> 0) ? 1 : 0)) | 0
+	    }
+
+	    this._al = (this._al + al) | 0
+	    this._bl = (this._bl + bl) | 0
+	    this._cl = (this._cl + cl) | 0
+	    this._dl = (this._dl + dl) | 0
+	    this._el = (this._el + el) | 0
+	    this._fl = (this._fl + fl) | 0
+	    this._gl = (this._gl + gl) | 0
+	    this._hl = (this._hl + hl) | 0
+
+	    this._a = (this._a + a + ((this._al >>> 0) < (al >>> 0) ? 1 : 0)) | 0
+	    this._b = (this._b + b + ((this._bl >>> 0) < (bl >>> 0) ? 1 : 0)) | 0
+	    this._c = (this._c + c + ((this._cl >>> 0) < (cl >>> 0) ? 1 : 0)) | 0
+	    this._d = (this._d + d + ((this._dl >>> 0) < (dl >>> 0) ? 1 : 0)) | 0
+	    this._e = (this._e + e + ((this._el >>> 0) < (el >>> 0) ? 1 : 0)) | 0
+	    this._f = (this._f + f + ((this._fl >>> 0) < (fl >>> 0) ? 1 : 0)) | 0
+	    this._g = (this._g + g + ((this._gl >>> 0) < (gl >>> 0) ? 1 : 0)) | 0
+	    this._h = (this._h + h + ((this._hl >>> 0) < (hl >>> 0) ? 1 : 0)) | 0
+	  }
+
+	  Sha512.prototype._hash = function () {
+	    var H = new Buffer(64)
+
+	    function writeInt64BE(h, l, offset) {
+	      H.writeInt32BE(h, offset)
+	      H.writeInt32BE(l, offset + 4)
+	    }
+
+	    writeInt64BE(this._a, this._al, 0)
+	    writeInt64BE(this._b, this._bl, 8)
+	    writeInt64BE(this._c, this._cl, 16)
+	    writeInt64BE(this._d, this._dl, 24)
+	    writeInt64BE(this._e, this._el, 32)
+	    writeInt64BE(this._f, this._fl, 40)
+	    writeInt64BE(this._g, this._gl, 48)
+	    writeInt64BE(this._h, this._hl, 56)
+
+	    return H
+	  }
+
+	  return Sha512
+
+	}
+
+
+/***/ }),
+/* 61 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	var pbkdf2Export = __webpack_require__(69)
+
+	module.exports = function (crypto, exports) {
+	  exports = exports || {}
+
+	  var exported = pbkdf2Export(crypto)
+
+	  exports.pbkdf2 = exported.pbkdf2
+	  exports.pbkdf2Sync = exported.pbkdf2Sync
+
+	  return exports
+	}
+
+
+/***/ }),
+/* 62 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(global, Buffer) {(function() {
+	  var g = ('undefined' === typeof window ? global : window) || {}
+	  _crypto = (
+	    g.crypto || g.msCrypto || __webpack_require__(84)
+	  )
+	  module.exports = function(size) {
+	    // Modern Browsers
+	    if(_crypto.getRandomValues) {
+	      var bytes = new Buffer(size); //in browserify, this is an extended Uint8Array
+	      /* This will not work in older browsers.
+	       * See https://developer.mozilla.org/en-US/docs/Web/API/window.crypto.getRandomValues
+	       */
+	    
+	      _crypto.getRandomValues(bytes);
+	      return bytes;
+	    }
+	    else if (_crypto.randomBytes) {
+	      return _crypto.randomBytes(size)
+	    }
+	    else
+	      throw new Error(
+	        'secure random number generation not supported by this browser\n'+
+	        'use chrome, FireFox or Internet Explorer 11'
+	      )
+	  }
+	}())
+
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(1).Buffer))
+
+/***/ }),
+/* 63 */
+/***/ (function(module, exports) {
+
+	"use strict";
+
+	/**
+	 * Copyright (c) 2013-present, Facebook, Inc.
+	 *
+	 * This source code is licensed under the MIT license found in the
+	 * LICENSE file in the root directory of this source tree.
+	 *
+	 * 
+	 */
+
+	function makeEmptyFunction(arg) {
+	  return function () {
+	    return arg;
+	  };
+	}
+
+	/**
+	 * This function accepts and discards inputs; it has no side effects. This is
+	 * primarily useful idiomatically for overridable function endpoints which
+	 * always need to be callable, since JS lacks a null-call idiom ala Cocoa.
+	 */
+	var emptyFunction = function emptyFunction() {};
+
+	emptyFunction.thatReturns = makeEmptyFunction;
+	emptyFunction.thatReturnsFalse = makeEmptyFunction(false);
+	emptyFunction.thatReturnsTrue = makeEmptyFunction(true);
+	emptyFunction.thatReturnsNull = makeEmptyFunction(null);
+	emptyFunction.thatReturnsThis = function () {
+	  return this;
+	};
+	emptyFunction.thatReturnsArgument = function (arg) {
+	  return arg;
+	};
+
+	module.exports = emptyFunction;
+
+/***/ }),
+/* 64 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(process) {/**
+	 * Copyright (c) 2013-present, Facebook, Inc.
+	 *
+	 * This source code is licensed under the MIT license found in the
+	 * LICENSE file in the root directory of this source tree.
+	 *
+	 */
+
+	'use strict';
+
+	/**
+	 * Use invariant() to assert state which your program assumes to be true.
+	 *
+	 * Provide sprintf-style format (only %s is supported) and arguments
+	 * to provide information about what broke and what you were
+	 * expecting.
+	 *
+	 * The invariant message will be stripped in production, but the invariant
+	 * will remain to ensure logic does not differ in production.
+	 */
+
+	var validateFormat = function validateFormat(format) {};
+
+	if (process.env.NODE_ENV !== 'production') {
+	  validateFormat = function validateFormat(format) {
+	    if (format === undefined) {
+	      throw new Error('invariant requires an error message argument');
+	    }
+	  };
+	}
+
+	function invariant(condition, format, a, b, c, d, e, f) {
+	  validateFormat(format);
+
+	  if (!condition) {
+	    var error;
+	    if (format === undefined) {
+	      error = new Error('Minified exception occurred; use the non-minified dev environment ' + 'for the full error message and additional helpful warnings.');
+	    } else {
+	      var args = [a, b, c, d, e, f];
+	      var argIndex = 0;
+	      error = new Error(format.replace(/%s/g, function () {
+	        return args[argIndex++];
+	      }));
+	      error.name = 'Invariant Violation';
+	    }
+
+	    error.framesToPop = 1; // we don't care about invariant's own frame
+	    throw error;
+	  }
+	}
+
+	module.exports = invariant;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
+
+/***/ }),
+/* 65 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(process) {/**
+	 * Copyright (c) 2014-present, Facebook, Inc.
+	 *
+	 * This source code is licensed under the MIT license found in the
+	 * LICENSE file in the root directory of this source tree.
+	 *
+	 */
+
+	'use strict';
+
+	var emptyFunction = __webpack_require__(63);
+
+	/**
+	 * Similar to invariant but only logs a warning if the condition is not met.
+	 * This can be used to log issues in development environments in critical
+	 * paths. Removing the logging code for production environments will keep the
+	 * same logic and follow the same code paths.
+	 */
+
+	var warning = emptyFunction;
+
+	if (process.env.NODE_ENV !== 'production') {
+	  var printWarning = function printWarning(format) {
+	    for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+	      args[_key - 1] = arguments[_key];
+	    }
+
+	    var argIndex = 0;
+	    var message = 'Warning: ' + format.replace(/%s/g, function () {
+	      return args[argIndex++];
+	    });
+	    if (typeof console !== 'undefined') {
+	      console.error(message);
+	    }
+	    try {
+	      // --- Welcome to debugging React ---
+	      // This error was thrown as a convenience so that you can use this stack
+	      // to find the callsite that caused this warning to fire.
+	      throw new Error(message);
+	    } catch (x) {}
+	  };
+
+	  warning = function warning(condition, format) {
+	    if (format === undefined) {
+	      throw new Error('`warning(condition, format, ...args)` requires a warning ' + 'message argument');
+	    }
+
+	    if (format.indexOf('Failed Composite propType: ') === 0) {
+	      return; // Ignore CompositeComponent proptype check.
+	    }
+
+	    if (!condition) {
+	      for (var _len2 = arguments.length, args = Array(_len2 > 2 ? _len2 - 2 : 0), _key2 = 2; _key2 < _len2; _key2++) {
+	        args[_key2 - 2] = arguments[_key2];
+	      }
+
+	      printWarning.apply(undefined, [format].concat(args));
+	    }
+	  };
+	}
+
+	module.exports = warning;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
+
+/***/ }),
+/* 66 */
+/***/ (function(module, exports) {
+
+	exports.read = function (buffer, offset, isLE, mLen, nBytes) {
+	  var e, m
+	  var eLen = nBytes * 8 - mLen - 1
+	  var eMax = (1 << eLen) - 1
+	  var eBias = eMax >> 1
+	  var nBits = -7
+	  var i = isLE ? (nBytes - 1) : 0
+	  var d = isLE ? -1 : 1
+	  var s = buffer[offset + i]
+
+	  i += d
+
+	  e = s & ((1 << (-nBits)) - 1)
+	  s >>= (-nBits)
+	  nBits += eLen
+	  for (; nBits > 0; e = e * 256 + buffer[offset + i], i += d, nBits -= 8) {}
+
+	  m = e & ((1 << (-nBits)) - 1)
+	  e >>= (-nBits)
+	  nBits += mLen
+	  for (; nBits > 0; m = m * 256 + buffer[offset + i], i += d, nBits -= 8) {}
+
+	  if (e === 0) {
+	    e = 1 - eBias
+	  } else if (e === eMax) {
+	    return m ? NaN : ((s ? -1 : 1) * Infinity)
+	  } else {
+	    m = m + Math.pow(2, mLen)
+	    e = e - eBias
+	  }
+	  return (s ? -1 : 1) * m * Math.pow(2, e - mLen)
+	}
+
+	exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
+	  var e, m, c
+	  var eLen = nBytes * 8 - mLen - 1
+	  var eMax = (1 << eLen) - 1
+	  var eBias = eMax >> 1
+	  var rt = (mLen === 23 ? Math.pow(2, -24) - Math.pow(2, -77) : 0)
+	  var i = isLE ? 0 : (nBytes - 1)
+	  var d = isLE ? 1 : -1
+	  var s = value < 0 || (value === 0 && 1 / value < 0) ? 1 : 0
+
+	  value = Math.abs(value)
+
+	  if (isNaN(value) || value === Infinity) {
+	    m = isNaN(value) ? 1 : 0
+	    e = eMax
+	  } else {
+	    e = Math.floor(Math.log(value) / Math.LN2)
+	    if (value * (c = Math.pow(2, -e)) < 1) {
+	      e--
+	      c *= 2
+	    }
+	    if (e + eBias >= 1) {
+	      value += rt / c
+	    } else {
+	      value += rt * Math.pow(2, 1 - eBias)
+	    }
+	    if (value * c >= 2) {
+	      e++
+	      c /= 2
+	    }
+
+	    if (e + eBias >= eMax) {
+	      m = 0
+	      e = eMax
+	    } else if (e + eBias >= 1) {
+	      m = (value * c - 1) * Math.pow(2, mLen)
+	      e = e + eBias
+	    } else {
+	      m = value * Math.pow(2, eBias - 1) * Math.pow(2, mLen)
+	      e = 0
+	    }
+	  }
+
+	  for (; mLen >= 8; buffer[offset + i] = m & 0xff, i += d, m /= 256, mLen -= 8) {}
+
+	  e = (e << mLen) | m
+	  eLen += mLen
+	  for (; eLen > 0; buffer[offset + i] = e & 0xff, i += d, e /= 256, eLen -= 8) {}
+
+	  buffer[offset + i - d] |= s * 128
+	}
+
+
+/***/ }),
+/* 67 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
+	 * JavaScript Cookie v2.2.0
+	 * https://github.com/js-cookie/js-cookie
+	 *
+	 * Copyright 2006, 2015 Klaus Hartl & Fagner Brack
+	 * Released under the MIT license
+	 */
+	;(function (factory) {
+		var registeredInModuleLoader = false;
+		if (true) {
+			!(__WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.call(exports, __webpack_require__, exports, module)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+			registeredInModuleLoader = true;
+		}
+		if (true) {
+			module.exports = factory();
+			registeredInModuleLoader = true;
+		}
+		if (!registeredInModuleLoader) {
+			var OldCookies = window.Cookies;
+			var api = window.Cookies = factory();
+			api.noConflict = function () {
+				window.Cookies = OldCookies;
+				return api;
+			};
+		}
+	}(function () {
+		function extend () {
+			var i = 0;
+			var result = {};
+			for (; i < arguments.length; i++) {
+				var attributes = arguments[ i ];
+				for (var key in attributes) {
+					result[key] = attributes[key];
+				}
+			}
+			return result;
+		}
+
+		function init (converter) {
+			function api (key, value, attributes) {
+				var result;
+				if (typeof document === 'undefined') {
+					return;
+				}
+
+				// Write
+
+				if (arguments.length > 1) {
+					attributes = extend({
+						path: '/'
+					}, api.defaults, attributes);
+
+					if (typeof attributes.expires === 'number') {
+						var expires = new Date();
+						expires.setMilliseconds(expires.getMilliseconds() + attributes.expires * 864e+5);
+						attributes.expires = expires;
+					}
+
+					// We're using "expires" because "max-age" is not supported by IE
+					attributes.expires = attributes.expires ? attributes.expires.toUTCString() : '';
+
+					try {
+						result = JSON.stringify(value);
+						if (/^[\{\[]/.test(result)) {
+							value = result;
+						}
+					} catch (e) {}
+
+					if (!converter.write) {
+						value = encodeURIComponent(String(value))
+							.replace(/%(23|24|26|2B|3A|3C|3E|3D|2F|3F|40|5B|5D|5E|60|7B|7D|7C)/g, decodeURIComponent);
+					} else {
+						value = converter.write(value, key);
+					}
+
+					key = encodeURIComponent(String(key));
+					key = key.replace(/%(23|24|26|2B|5E|60|7C)/g, decodeURIComponent);
+					key = key.replace(/[\(\)]/g, escape);
+
+					var stringifiedAttributes = '';
+
+					for (var attributeName in attributes) {
+						if (!attributes[attributeName]) {
+							continue;
+						}
+						stringifiedAttributes += '; ' + attributeName;
+						if (attributes[attributeName] === true) {
+							continue;
+						}
+						stringifiedAttributes += '=' + attributes[attributeName];
+					}
+					return (document.cookie = key + '=' + value + stringifiedAttributes);
+				}
+
+				// Read
+
+				if (!key) {
+					result = {};
+				}
+
+				// To prevent the for loop in the first place assign an empty array
+				// in case there are no cookies at all. Also prevents odd result when
+				// calling "get()"
+				var cookies = document.cookie ? document.cookie.split('; ') : [];
+				var rdecode = /(%[0-9A-Z]{2})+/g;
+				var i = 0;
+
+				for (; i < cookies.length; i++) {
+					var parts = cookies[i].split('=');
+					var cookie = parts.slice(1).join('=');
+
+					if (!this.json && cookie.charAt(0) === '"') {
+						cookie = cookie.slice(1, -1);
+					}
+
+					try {
+						var name = parts[0].replace(rdecode, decodeURIComponent);
+						cookie = converter.read ?
+							converter.read(cookie, name) : converter(cookie, name) ||
+							cookie.replace(rdecode, decodeURIComponent);
+
+						if (this.json) {
+							try {
+								cookie = JSON.parse(cookie);
+							} catch (e) {}
+						}
+
+						if (key === name) {
+							result = cookie;
+							break;
+						}
+
+						if (!key) {
+							result[name] = cookie;
+						}
+					} catch (e) {}
+				}
+
+				return result;
+			}
+
+			api.set = api;
+			api.get = function (key) {
+				return api.call(api, key);
+			};
+			api.getJSON = function () {
+				return api.apply({
+					json: true
+				}, [].slice.call(arguments));
+			};
+			api.defaults = {};
+
+			api.remove = function (key, attributes) {
+				api(key, '', extend(attributes, {
+					expires: -1
+				}));
+			};
+
+			api.withConverter = init;
+
+			return api;
+		}
+
+		return init(function () {});
+	}));
+
+
+/***/ }),
+/* 68 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(global) {var apply = Function.prototype.apply;
+
+	// DOM APIs, for completeness
+
+	exports.setTimeout = function() {
+	  return new Timeout(apply.call(setTimeout, window, arguments), clearTimeout);
+	};
+	exports.setInterval = function() {
+	  return new Timeout(apply.call(setInterval, window, arguments), clearInterval);
+	};
+	exports.clearTimeout =
+	exports.clearInterval = function(timeout) {
+	  if (timeout) {
+	    timeout.close();
+	  }
+	};
+
+	function Timeout(id, clearFn) {
+	  this._id = id;
+	  this._clearFn = clearFn;
+	}
+	Timeout.prototype.unref = Timeout.prototype.ref = function() {};
+	Timeout.prototype.close = function() {
+	  this._clearFn.call(window, this._id);
+	};
+
+	// Does not start the time, just sets up the members needed.
+	exports.enroll = function(item, msecs) {
+	  clearTimeout(item._idleTimeoutId);
+	  item._idleTimeout = msecs;
+	};
+
+	exports.unenroll = function(item) {
+	  clearTimeout(item._idleTimeoutId);
+	  item._idleTimeout = -1;
+	};
+
+	exports._unrefActive = exports.active = function(item) {
+	  clearTimeout(item._idleTimeoutId);
+
+	  var msecs = item._idleTimeout;
+	  if (msecs >= 0) {
+	    item._idleTimeoutId = setTimeout(function onTimeout() {
+	      if (item._onTimeout)
+	        item._onTimeout();
+	    }, msecs);
+	  }
+	};
+
+	// setimmediate attaches itself to the global object
+	__webpack_require__(78);
+	// On some exotic environments, it's not clear which object `setimmeidate` was
+	// able to install onto.  Search each possibility in the same order as the
+	// `setimmediate` library.
+	exports.setImmediate = self && self.setImmediate || global && global.setImmediate || this && this.setImmediate;
+	exports.clearImmediate = self && self.clearImmediate || global && global.clearImmediate || this && this.clearImmediate;
+
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
+
+/***/ }),
+/* 69 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(Buffer) {module.exports = function(crypto) {
+	  function pbkdf2(password, salt, iterations, keylen, digest, callback) {
+	    if ('function' === typeof digest) {
+	      callback = digest
+	      digest = undefined
+	    }
+
+	    if ('function' !== typeof callback)
+	      throw new Error('No callback provided to pbkdf2')
+
+	    setTimeout(function() {
+	      var result
+
+	      try {
+	        result = pbkdf2Sync(password, salt, iterations, keylen, digest)
+	      } catch (e) {
+	        return callback(e)
+	      }
+
+	      callback(undefined, result)
+	    })
+	  }
+
+	  function pbkdf2Sync(password, salt, iterations, keylen, digest) {
+	    if ('number' !== typeof iterations)
+	      throw new TypeError('Iterations not a number')
+
+	    if (iterations < 0)
+	      throw new TypeError('Bad iterations')
+
+	    if ('number' !== typeof keylen)
+	      throw new TypeError('Key length not a number')
+
+	    if (keylen < 0)
+	      throw new TypeError('Bad key length')
+
+	    digest = digest || 'sha1'
+
+	    if (!Buffer.isBuffer(password)) password = new Buffer(password)
+	    if (!Buffer.isBuffer(salt)) salt = new Buffer(salt)
+
+	    var hLen, l = 1, r, T
+	    var DK = new Buffer(keylen)
+	    var block1 = new Buffer(salt.length + 4)
+	    salt.copy(block1, 0, 0, salt.length)
+
+	    for (var i = 1; i <= l; i++) {
+	      block1.writeUInt32BE(i, salt.length)
+
+	      var U = crypto.createHmac(digest, password).update(block1).digest()
+
+	      if (!hLen) {
+	        hLen = U.length
+	        T = new Buffer(hLen)
+	        l = Math.ceil(keylen / hLen)
+	        r = keylen - (l - 1) * hLen
+
+	        if (keylen > (Math.pow(2, 32) - 1) * hLen)
+	          throw new TypeError('keylen exceeds maximum length')
+	      }
+
+	      U.copy(T, 0, 0, hLen)
+
+	      for (var j = 1; j < iterations; j++) {
+	        U = crypto.createHmac(digest, password).update(U).digest()
+
+	        for (var k = 0; k < hLen; k++) {
+	          T[k] ^= U[k]
+	        }
+	      }
+
+	      var destPos = (i - 1) * hLen
+	      var len = (i == l ? r : hLen)
+	      T.copy(DK, destPos, 0, len)
+	    }
+
+	    return DK
+	  }
+
+	  return {
+	    pbkdf2: pbkdf2,
+	    pbkdf2Sync: pbkdf2Sync
+	  }
+	}
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1).Buffer))
+
+/***/ }),
+/* 70 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(Buffer, global) {if (typeof Buffer === 'undefined') {
+	  global.Buffer = __webpack_require__(1).Buffer
+	}
+
+	let sjcl = __webpack_require__(79)
+	let RNRandomBytes = __webpack_require__(71).NativeModules.RNRandomBytes
+
+	function noop () {}
+
+	function toBuffer (nativeStr) {
+	  return new Buffer(nativeStr, 'base64')
+	}
+
+	function init () {
+	  if (RNRandomBytes.seed) {
+	    let seedBuffer = toBuffer(RNRandomBytes.seed)
+	    addEntropy(seedBuffer)
+	  } else {
+	    seedSJCL()
+	  }
+	}
+
+	function addEntropy (entropyBuf) {
+	  let hexString = entropyBuf.toString('hex')
+	  let stanfordSeed = sjcl.codec.hex.toBits(hexString)
+	  sjcl.random.addEntropy(stanfordSeed)
+	}
+
+	export function seedSJCL (cb) {
+	  cb = cb || noop
+	  randomBytes(4096, function (err, buffer) {
+	    if (err) return cb(err)
+
+	    addEntropy(buffer)
+	  })
+	}
+
+	export function randomBytes (length, cb) {
+	  if (!cb) {
+	    let size = length
+	    let wordCount = Math.ceil(size * 0.25)
+	    let randomBytes = sjcl.random.randomWords(wordCount, 10)
+	    let hexString = sjcl.codec.hex.fromBits(randomBytes)
+	    hexString = hexString.substr(0, size * 2)
+	    return new Buffer(hexString, 'hex')
+	  }
+
+	  RNRandomBytes.randomBytes(length, function(err, base64String) {
+	    if (err) {
+	      cb(err)
+	    } else {
+	      cb(null, toBuffer(base64String))
+	    }
+	  })
+	}
+
+	init()
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1).Buffer, (function() { return this; }())))
+
+/***/ }),
+/* 71 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/**
+	 * Copyright (c) 2015-present, Facebook, Inc.
+	 * All rights reserved.
+	 *
+	 * This source code is licensed under the BSD-style license found in the
+	 * LICENSE file in the root directory of this source tree. An additional grant
+	 * of patent rights can be found in the PATENTS file in the same directory.
+	 *
+	 * @providesModule react-native-implementation
+	 * @noflow - get/set properties not yet supported by flow. also `...require(x)` is broken #6560135
+	 */
+	'use strict';
+
+	const invariant = __webpack_require__(64);
+	const warning = __webpack_require__(65);
+
+	if (__DEV__) {
+	  var warningDedupe = {};
+	  var addonWarn = function(prevName, newPackageName) {
+	    warning(
+	      warningDedupe[prevName],
+	      'React.addons.' + prevName + ' is deprecated. Please import the "' +
+	      newPackageName + '" package instead.'
+	    );
+	    warningDedupe[prevName] = true;
+	  };
+	}
+
+	// Export React, plus some native additions.
+	const ReactNative = {
+	  // Components
+	  get AccessibilityInfo() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"AccessibilityInfo\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get ActivityIndicator() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"ActivityIndicator\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get ART() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"ReactNativeART\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get Button() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"Button\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get DatePickerIOS() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"DatePickerIOS\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get DrawerLayoutAndroid() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"DrawerLayoutAndroid\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get FlatList() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"FlatList\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get Image() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"Image\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get ImageEditor() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"ImageEditor\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get ImageStore() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"ImageStore\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get KeyboardAvoidingView() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"KeyboardAvoidingView\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get ListView() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"ListView\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get Modal() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"Modal\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get NavigatorIOS() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"NavigatorIOS\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get Picker() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"Picker\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get PickerIOS() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"PickerIOS\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get ProgressBarAndroid() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"ProgressBarAndroid\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get ProgressViewIOS() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"ProgressViewIOS\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get ScrollView() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"ScrollView\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get SectionList() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"SectionList\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get SegmentedControlIOS() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"SegmentedControlIOS\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get Slider() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"Slider\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get SnapshotViewIOS() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"SnapshotViewIOS\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get Switch() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"Switch\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get RefreshControl() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"RefreshControl\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get StatusBar() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"StatusBar\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get SwipeableListView() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"SwipeableListView\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get TabBarIOS() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"TabBarIOS\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get Text() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"Text\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get TextInput() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"TextInput\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get ToastAndroid() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"ToastAndroid\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get ToolbarAndroid() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"ToolbarAndroid\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get Touchable() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"Touchable\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get TouchableHighlight() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"TouchableHighlight\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get TouchableNativeFeedback() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"TouchableNativeFeedback\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get TouchableOpacity() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"TouchableOpacity\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get TouchableWithoutFeedback() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"TouchableWithoutFeedback\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get View() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"View\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get ViewPagerAndroid() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"ViewPagerAndroid\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get VirtualizedList() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"VirtualizedList\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get WebView() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"WebView\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+
+	  // APIs
+	  get ActionSheetIOS() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"ActionSheetIOS\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get AdSupportIOS() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"AdSupportIOS\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get Alert() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"Alert\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get AlertIOS() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"AlertIOS\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get Animated() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"Animated\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get AppRegistry() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"AppRegistry\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get AppState() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"AppState\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get AsyncStorage() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"AsyncStorage\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get BackAndroid() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"BackAndroid\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); }, // deprecated: use BackHandler instead
+	  get BackHandler() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"BackHandler\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get CameraRoll() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"CameraRoll\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get Clipboard() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"Clipboard\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get DatePickerAndroid() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"DatePickerAndroid\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get DeviceInfo() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"DeviceInfo\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get Dimensions() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"Dimensions\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get Easing() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"Easing\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get I18nManager() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"I18nManager\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get ImagePickerIOS() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"ImagePickerIOS\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get InteractionManager() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"InteractionManager\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get Keyboard() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"Keyboard\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get LayoutAnimation() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"LayoutAnimation\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get Linking() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"Linking\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get NativeEventEmitter() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"NativeEventEmitter\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get NetInfo() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"NetInfo\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get PanResponder() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"PanResponder\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get PermissionsAndroid() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"PermissionsAndroid\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get PixelRatio() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"PixelRatio\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get PushNotificationIOS() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"PushNotificationIOS\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get Settings() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"Settings\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get Share() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"Share\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get StatusBarIOS() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"StatusBarIOS\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get StyleSheet() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"StyleSheet\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get Systrace() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"Systrace\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get TimePickerAndroid() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"TimePickerAndroid\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get TVEventHandler() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"TVEventHandler\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get UIManager() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"UIManager\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get Vibration() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"Vibration\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get VibrationIOS() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"VibrationIOS\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+
+	  // Plugins
+	  get DeviceEventEmitter() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"RCTDeviceEventEmitter\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get NativeAppEventEmitter() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"RCTNativeAppEventEmitter\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get NativeModules() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"NativeModules\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get Platform() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"Platform\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get processColor() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"processColor\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get requireNativeComponent() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"requireNativeComponent\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+
+	  // Prop Types
+	  get ColorPropType() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"ColorPropType\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get EdgeInsetsPropType() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"EdgeInsetsPropType\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get PointPropType() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"PointPropType\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+	  get ViewPropTypes() { return __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"ViewPropTypes\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())); },
+
+	  // Deprecated
+	  get Navigator() {
+	    invariant(
+	      false,
+	      'Navigator is deprecated and has been removed from this package. It can now be installed ' +
+	      'and imported from `react-native-deprecated-custom-components` instead of `react-native`. ' +
+	      'Learn about alternative navigation solutions at http://facebook.github.io/react-native/docs/navigation.html'
+	    );
+	    return null;
+	  },
+	};
+
+	// Better error messages when accessing React APIs on ReactNative
+	if (__DEV__) {
+	  const throwOnWrongReactAPI = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"throwOnWrongReactAPI\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
+	  const reactAPIs = [ 'createClass', 'Component' ];
+
+	  for (const key of reactAPIs) {
+	    Object.defineProperty(ReactNative, key, {
+	      get() { throwOnWrongReactAPI(key); },
+	      enumerable: false,
+	      configurable: false,
+	    });
+	  }
+	}
+
+	// Preserve getters with warnings on the internal ReactNative copy without
+	// invoking them.
+	const ReactNativeInternal = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"ReactNative\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
+	function applyForwarding(key) {
+	  if (__DEV__) {
+	    Object.defineProperty(
+	      ReactNative,
+	      key,
+	      Object.getOwnPropertyDescriptor(ReactNativeInternal, key)
+	    );
+	    return;
+	  }
+	  ReactNative[key] = ReactNativeInternal[key];
+	}
+	for (const key in ReactNativeInternal) {
+	  applyForwarding(key);
+	}
+	module.exports = ReactNative;
+
+
+/***/ }),
+/* 72 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	module.exports = __webpack_require__(4);
+
+
+/***/ }),
+/* 73 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	// Copyright Joyent, Inc. and other Node contributors.
+	//
+	// Permission is hereby granted, free of charge, to any person obtaining a
+	// copy of this software and associated documentation files (the
+	// "Software"), to deal in the Software without restriction, including
+	// without limitation the rights to use, copy, modify, merge, publish,
+	// distribute, sublicense, and/or sell copies of the Software, and to permit
+	// persons to whom the Software is furnished to do so, subject to the
+	// following conditions:
+	//
+	// The above copyright notice and this permission notice shall be included
+	// in all copies or substantial portions of the Software.
+	//
+	// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+	// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+	// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+	// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+	// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+	// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+	// a passthrough stream.
+	// basically just the most minimal sort of Transform stream.
+	// Every written chunk gets output as-is.
+
+	'use strict';
+
+	module.exports = PassThrough;
+
+	var Transform = __webpack_require__(38);
+
+	/*<replacement>*/
+	var util = __webpack_require__(5);
+	util.inherits = __webpack_require__(2);
+	/*</replacement>*/
+
+	util.inherits(PassThrough, Transform);
+
+	function PassThrough(options) {
+	  if (!(this instanceof PassThrough)) return new PassThrough(options);
+
+	  Transform.call(this, options);
+	}
+
+	PassThrough.prototype._transform = function (chunk, encoding, cb) {
+	  cb(null, chunk);
+	};
+
+/***/ }),
+/* 74 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	/*<replacement>*/
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var Buffer = __webpack_require__(8).Buffer;
+	/*</replacement>*/
+
+	function copyBuffer(src, target, offset) {
+	  src.copy(target, offset);
+	}
+
+	module.exports = function () {
+	  function BufferList() {
+	    _classCallCheck(this, BufferList);
+
+	    this.head = null;
+	    this.tail = null;
+	    this.length = 0;
+	  }
+
+	  BufferList.prototype.push = function push(v) {
+	    var entry = { data: v, next: null };
+	    if (this.length > 0) this.tail.next = entry;else this.head = entry;
+	    this.tail = entry;
+	    ++this.length;
+	  };
+
+	  BufferList.prototype.unshift = function unshift(v) {
+	    var entry = { data: v, next: this.head };
+	    if (this.length === 0) this.tail = entry;
+	    this.head = entry;
+	    ++this.length;
+	  };
+
+	  BufferList.prototype.shift = function shift() {
+	    if (this.length === 0) return;
+	    var ret = this.head.data;
+	    if (this.length === 1) this.head = this.tail = null;else this.head = this.head.next;
+	    --this.length;
+	    return ret;
+	  };
+
+	  BufferList.prototype.clear = function clear() {
+	    this.head = this.tail = null;
+	    this.length = 0;
+	  };
+
+	  BufferList.prototype.join = function join(s) {
+	    if (this.length === 0) return '';
+	    var p = this.head;
+	    var ret = '' + p.data;
+	    while (p = p.next) {
+	      ret += s + p.data;
+	    }return ret;
+	  };
+
+	  BufferList.prototype.concat = function concat(n) {
+	    if (this.length === 0) return Buffer.alloc(0);
+	    if (this.length === 1) return this.head.data;
+	    var ret = Buffer.allocUnsafe(n >>> 0);
+	    var p = this.head;
+	    var i = 0;
+	    while (p) {
+	      copyBuffer(p.data, ret, i);
+	      i += p.data.length;
+	      p = p.next;
+	    }
+	    return ret;
+	  };
+
+	  return BufferList;
+	}();
+
+/***/ }),
+/* 75 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	module.exports = __webpack_require__(14).PassThrough
+
+
+/***/ }),
+/* 76 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	module.exports = __webpack_require__(14).Transform
+
+
+/***/ }),
+/* 77 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	module.exports = __webpack_require__(13);
+
+
+/***/ }),
+/* 78 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(global, process) {(function (global, undefined) {
+	    "use strict";
+
+	    if (global.setImmediate) {
+	        return;
+	    }
+
+	    var nextHandle = 1; // Spec says greater than zero
+	    var tasksByHandle = {};
+	    var currentlyRunningATask = false;
+	    var doc = global.document;
+	    var registerImmediate;
+
+	    function setImmediate(callback) {
+	      // Callback can either be a function or a string
+	      if (typeof callback !== "function") {
+	        callback = new Function("" + callback);
+	      }
+	      // Copy function arguments
+	      var args = new Array(arguments.length - 1);
+	      for (var i = 0; i < args.length; i++) {
+	          args[i] = arguments[i + 1];
+	      }
+	      // Store and register the task
+	      var task = { callback: callback, args: args };
+	      tasksByHandle[nextHandle] = task;
+	      registerImmediate(nextHandle);
+	      return nextHandle++;
+	    }
+
+	    function clearImmediate(handle) {
+	        delete tasksByHandle[handle];
+	    }
+
+	    function run(task) {
+	        var callback = task.callback;
+	        var args = task.args;
+	        switch (args.length) {
+	        case 0:
+	            callback();
+	            break;
+	        case 1:
+	            callback(args[0]);
+	            break;
+	        case 2:
+	            callback(args[0], args[1]);
+	            break;
+	        case 3:
+	            callback(args[0], args[1], args[2]);
+	            break;
+	        default:
+	            callback.apply(undefined, args);
+	            break;
+	        }
+	    }
+
+	    function runIfPresent(handle) {
+	        // From the spec: "Wait until any invocations of this algorithm started before this one have completed."
+	        // So if we're currently running a task, we'll need to delay this invocation.
+	        if (currentlyRunningATask) {
+	            // Delay by doing a setTimeout. setImmediate was tried instead, but in Firefox 7 it generated a
+	            // "too much recursion" error.
+	            setTimeout(runIfPresent, 0, handle);
+	        } else {
+	            var task = tasksByHandle[handle];
+	            if (task) {
+	                currentlyRunningATask = true;
+	                try {
+	                    run(task);
+	                } finally {
+	                    clearImmediate(handle);
+	                    currentlyRunningATask = false;
+	                }
+	            }
+	        }
+	    }
+
+	    function installNextTickImplementation() {
+	        registerImmediate = function(handle) {
+	            process.nextTick(function () { runIfPresent(handle); });
+	        };
+	    }
+
+	    function canUsePostMessage() {
+	        // The test against `importScripts` prevents this implementation from being installed inside a web worker,
+	        // where `global.postMessage` means something completely different and can't be used for this purpose.
+	        if (global.postMessage && !global.importScripts) {
+	            var postMessageIsAsynchronous = true;
+	            var oldOnMessage = global.onmessage;
+	            global.onmessage = function() {
+	                postMessageIsAsynchronous = false;
+	            };
+	            global.postMessage("", "*");
+	            global.onmessage = oldOnMessage;
+	            return postMessageIsAsynchronous;
+	        }
+	    }
+
+	    function installPostMessageImplementation() {
+	        // Installs an event handler on `global` for the `message` event: see
+	        // * https://developer.mozilla.org/en/DOM/window.postMessage
+	        // * http://www.whatwg.org/specs/web-apps/current-work/multipage/comms.html#crossDocumentMessages
+
+	        var messagePrefix = "setImmediate$" + Math.random() + "$";
+	        var onGlobalMessage = function(event) {
+	            if (event.source === global &&
+	                typeof event.data === "string" &&
+	                event.data.indexOf(messagePrefix) === 0) {
+	                runIfPresent(+event.data.slice(messagePrefix.length));
+	            }
+	        };
+
+	        if (global.addEventListener) {
+	            global.addEventListener("message", onGlobalMessage, false);
+	        } else {
+	            global.attachEvent("onmessage", onGlobalMessage);
+	        }
+
+	        registerImmediate = function(handle) {
+	            global.postMessage(messagePrefix + handle, "*");
+	        };
+	    }
+
+	    function installMessageChannelImplementation() {
+	        var channel = new MessageChannel();
+	        channel.port1.onmessage = function(event) {
+	            var handle = event.data;
+	            runIfPresent(handle);
+	        };
+
+	        registerImmediate = function(handle) {
+	            channel.port2.postMessage(handle);
+	        };
+	    }
+
+	    function installReadyStateChangeImplementation() {
+	        var html = doc.documentElement;
+	        registerImmediate = function(handle) {
+	            // Create a <script> element; its readystatechange event will be fired asynchronously once it is inserted
+	            // into the document. Do so, thus queuing up the task. Remember to clean up once it's been called.
+	            var script = doc.createElement("script");
+	            script.onreadystatechange = function () {
+	                runIfPresent(handle);
+	                script.onreadystatechange = null;
+	                html.removeChild(script);
+	                script = null;
+	            };
+	            html.appendChild(script);
+	        };
+	    }
+
+	    function installSetTimeoutImplementation() {
+	        registerImmediate = function(handle) {
+	            setTimeout(runIfPresent, 0, handle);
+	        };
+	    }
+
+	    // If supported, we should attach to the prototype of global, since that is where setTimeout et al. live.
+	    var attachTo = Object.getPrototypeOf && Object.getPrototypeOf(global);
+	    attachTo = attachTo && attachTo.setTimeout ? attachTo : global;
+
+	    // Don't get fooled by e.g. browserify environments.
+	    if ({}.toString.call(global.process) === "[object process]") {
+	        // For Node.js before 0.9
+	        installNextTickImplementation();
+
+	    } else if (canUsePostMessage()) {
+	        // For non-IE10 modern browsers
+	        installPostMessageImplementation();
+
+	    } else if (global.MessageChannel) {
+	        // For web workers, where supported
+	        installMessageChannelImplementation();
+
+	    } else if (doc && "onreadystatechange" in doc.createElement("script")) {
+	        // For IE 6–8
+	        installReadyStateChangeImplementation();
+
+	    } else {
+	        // For older browsers
+	        installSetTimeoutImplementation();
+	    }
+
+	    attachTo.setImmediate = setImmediate;
+	    attachTo.clearImmediate = clearImmediate;
+	}(typeof self === "undefined" ? typeof global === "undefined" ? this : global : self));
+
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(3)))
+
+/***/ }),
+/* 79 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;"use strict";var sjcl={cipher:{},hash:{},keyexchange:{},mode:{},misc:{},codec:{},exception:{corrupt:function(a){this.toString=function(){return"CORRUPT: "+this.message};this.message=a},invalid:function(a){this.toString=function(){return"INVALID: "+this.message};this.message=a},bug:function(a){this.toString=function(){return"BUG: "+this.message};this.message=a},notReady:function(a){this.toString=function(){return"NOT READY: "+this.message};this.message=a}}};
+	sjcl.cipher.aes=function(a){this.s[0][0][0]||this.O();var b,c,d,e,f=this.s[0][4],g=this.s[1];b=a.length;var h=1;if(4!==b&&6!==b&&8!==b)throw new sjcl.exception.invalid("invalid aes key size");this.b=[d=a.slice(0),e=[]];for(a=b;a<4*b+28;a++){c=d[a-1];if(0===a%b||8===b&&4===a%b)c=f[c>>>24]<<24^f[c>>16&255]<<16^f[c>>8&255]<<8^f[c&255],0===a%b&&(c=c<<8^c>>>24^h<<24,h=h<<1^283*(h>>7));d[a]=d[a-b]^c}for(b=0;a;b++,a--)c=d[b&3?a:a-4],e[b]=4>=a||4>b?c:g[0][f[c>>>24]]^g[1][f[c>>16&255]]^g[2][f[c>>8&255]]^g[3][f[c&
+	255]]};
+	sjcl.cipher.aes.prototype={encrypt:function(a){return t(this,a,0)},decrypt:function(a){return t(this,a,1)},s:[[[],[],[],[],[]],[[],[],[],[],[]]],O:function(){var a=this.s[0],b=this.s[1],c=a[4],d=b[4],e,f,g,h=[],k=[],l,n,m,p;for(e=0;0x100>e;e++)k[(h[e]=e<<1^283*(e>>7))^e]=e;for(f=g=0;!c[f];f^=l||1,g=k[g]||1)for(m=g^g<<1^g<<2^g<<3^g<<4,m=m>>8^m&255^99,c[f]=m,d[m]=f,n=h[e=h[l=h[f]]],p=0x1010101*n^0x10001*e^0x101*l^0x1010100*f,n=0x101*h[m]^0x1010100*m,e=0;4>e;e++)a[e][f]=n=n<<24^n>>>8,b[e][m]=p=p<<24^p>>>8;for(e=
+	0;5>e;e++)a[e]=a[e].slice(0),b[e]=b[e].slice(0)}};
+	function t(a,b,c){if(4!==b.length)throw new sjcl.exception.invalid("invalid aes block size");var d=a.b[c],e=b[0]^d[0],f=b[c?3:1]^d[1],g=b[2]^d[2];b=b[c?1:3]^d[3];var h,k,l,n=d.length/4-2,m,p=4,r=[0,0,0,0];h=a.s[c];a=h[0];var q=h[1],v=h[2],w=h[3],x=h[4];for(m=0;m<n;m++)h=a[e>>>24]^q[f>>16&255]^v[g>>8&255]^w[b&255]^d[p],k=a[f>>>24]^q[g>>16&255]^v[b>>8&255]^w[e&255]^d[p+1],l=a[g>>>24]^q[b>>16&255]^v[e>>8&255]^w[f&255]^d[p+2],b=a[b>>>24]^q[e>>16&255]^v[f>>8&255]^w[g&255]^d[p+3],p+=4,e=h,f=k,g=l;for(m=
+	0;4>m;m++)r[c?3&-m:m]=x[e>>>24]<<24^x[f>>16&255]<<16^x[g>>8&255]<<8^x[b&255]^d[p++],h=e,e=f,f=g,g=b,b=h;return r}
+	sjcl.bitArray={bitSlice:function(a,b,c){a=sjcl.bitArray.$(a.slice(b/32),32-(b&31)).slice(1);return void 0===c?a:sjcl.bitArray.clamp(a,c-b)},extract:function(a,b,c){var d=Math.floor(-b-c&31);return((b+c-1^b)&-32?a[b/32|0]<<32-d^a[b/32+1|0]>>>d:a[b/32|0]>>>d)&(1<<c)-1},concat:function(a,b){if(0===a.length||0===b.length)return a.concat(b);var c=a[a.length-1],d=sjcl.bitArray.getPartial(c);return 32===d?a.concat(b):sjcl.bitArray.$(b,d,c|0,a.slice(0,a.length-1))},bitLength:function(a){var b=a.length;return 0===
+	b?0:32*(b-1)+sjcl.bitArray.getPartial(a[b-1])},clamp:function(a,b){if(32*a.length<b)return a;a=a.slice(0,Math.ceil(b/32));var c=a.length;b=b&31;0<c&&b&&(a[c-1]=sjcl.bitArray.partial(b,a[c-1]&2147483648>>b-1,1));return a},partial:function(a,b,c){return 32===a?b:(c?b|0:b<<32-a)+0x10000000000*a},getPartial:function(a){return Math.round(a/0x10000000000)||32},equal:function(a,b){if(sjcl.bitArray.bitLength(a)!==sjcl.bitArray.bitLength(b))return!1;var c=0,d;for(d=0;d<a.length;d++)c|=a[d]^b[d];return 0===
+	c},$:function(a,b,c,d){var e;e=0;for(void 0===d&&(d=[]);32<=b;b-=32)d.push(c),c=0;if(0===b)return d.concat(a);for(e=0;e<a.length;e++)d.push(c|a[e]>>>b),c=a[e]<<32-b;e=a.length?a[a.length-1]:0;a=sjcl.bitArray.getPartial(e);d.push(sjcl.bitArray.partial(b+a&31,32<b+a?c:d.pop(),1));return d},i:function(a,b){return[a[0]^b[0],a[1]^b[1],a[2]^b[2],a[3]^b[3]]},byteswapM:function(a){var b,c;for(b=0;b<a.length;++b)c=a[b],a[b]=c>>>24|c>>>8&0xff00|(c&0xff00)<<8|c<<24;return a}};
+	sjcl.codec.utf8String={fromBits:function(a){var b="",c=sjcl.bitArray.bitLength(a),d,e;for(d=0;d<c/8;d++)0===(d&3)&&(e=a[d/4]),b+=String.fromCharCode(e>>>8>>>8>>>8),e<<=8;return decodeURIComponent(escape(b))},toBits:function(a){a=unescape(encodeURIComponent(a));var b=[],c,d=0;for(c=0;c<a.length;c++)d=d<<8|a.charCodeAt(c),3===(c&3)&&(b.push(d),d=0);c&3&&b.push(sjcl.bitArray.partial(8*(c&3),d));return b}};
+	sjcl.codec.hex={fromBits:function(a){var b="",c;for(c=0;c<a.length;c++)b+=((a[c]|0)+0xf00000000000).toString(16).substr(4);return b.substr(0,sjcl.bitArray.bitLength(a)/4)},toBits:function(a){var b,c=[],d;a=a.replace(/\s|0x/g,"");d=a.length;a=a+"00000000";for(b=0;b<a.length;b+=8)c.push(parseInt(a.substr(b,8),16)^0);return sjcl.bitArray.clamp(c,4*d)}};
+	sjcl.codec.base32={B:"ABCDEFGHIJKLMNOPQRSTUVWXYZ234567",X:"0123456789ABCDEFGHIJKLMNOPQRSTUV",BITS:32,BASE:5,REMAINING:27,fromBits:function(a,b,c){var d=sjcl.codec.base32.BASE,e=sjcl.codec.base32.REMAINING,f="",g=0,h=sjcl.codec.base32.B,k=0,l=sjcl.bitArray.bitLength(a);c&&(h=sjcl.codec.base32.X);for(c=0;f.length*d<l;)f+=h.charAt((k^a[c]>>>g)>>>e),g<d?(k=a[c]<<d-g,g+=e,c++):(k<<=d,g-=d);for(;f.length&7&&!b;)f+="=";return f},toBits:function(a,b){a=a.replace(/\s|=/g,"").toUpperCase();var c=sjcl.codec.base32.BITS,
+	d=sjcl.codec.base32.BASE,e=sjcl.codec.base32.REMAINING,f=[],g,h=0,k=sjcl.codec.base32.B,l=0,n,m="base32";b&&(k=sjcl.codec.base32.X,m="base32hex");for(g=0;g<a.length;g++){n=k.indexOf(a.charAt(g));if(0>n){if(!b)try{return sjcl.codec.base32hex.toBits(a)}catch(p){}throw new sjcl.exception.invalid("this isn't "+m+"!");}h>e?(h-=e,f.push(l^n>>>h),l=n<<c-h):(h+=d,l^=n<<c-h)}h&56&&f.push(sjcl.bitArray.partial(h&56,l,1));return f}};
+	sjcl.codec.base32hex={fromBits:function(a,b){return sjcl.codec.base32.fromBits(a,b,1)},toBits:function(a){return sjcl.codec.base32.toBits(a,1)}};
+	sjcl.codec.base64={B:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/",fromBits:function(a,b,c){var d="",e=0,f=sjcl.codec.base64.B,g=0,h=sjcl.bitArray.bitLength(a);c&&(f=f.substr(0,62)+"-_");for(c=0;6*d.length<h;)d+=f.charAt((g^a[c]>>>e)>>>26),6>e?(g=a[c]<<6-e,e+=26,c++):(g<<=6,e-=6);for(;d.length&3&&!b;)d+="=";return d},toBits:function(a,b){a=a.replace(/\s|=/g,"");var c=[],d,e=0,f=sjcl.codec.base64.B,g=0,h;b&&(f=f.substr(0,62)+"-_");for(d=0;d<a.length;d++){h=f.indexOf(a.charAt(d));
+	if(0>h)throw new sjcl.exception.invalid("this isn't base64!");26<e?(e-=26,c.push(g^h>>>e),g=h<<32-e):(e+=6,g^=h<<32-e)}e&56&&c.push(sjcl.bitArray.partial(e&56,g,1));return c}};sjcl.codec.base64url={fromBits:function(a){return sjcl.codec.base64.fromBits(a,1,1)},toBits:function(a){return sjcl.codec.base64.toBits(a,1)}};sjcl.hash.sha256=function(a){this.b[0]||this.O();a?(this.F=a.F.slice(0),this.A=a.A.slice(0),this.l=a.l):this.reset()};sjcl.hash.sha256.hash=function(a){return(new sjcl.hash.sha256).update(a).finalize()};
+	sjcl.hash.sha256.prototype={blockSize:512,reset:function(){this.F=this.Y.slice(0);this.A=[];this.l=0;return this},update:function(a){"string"===typeof a&&(a=sjcl.codec.utf8String.toBits(a));var b,c=this.A=sjcl.bitArray.concat(this.A,a);b=this.l;a=this.l=b+sjcl.bitArray.bitLength(a);if(0x1fffffffffffff<a)throw new sjcl.exception.invalid("Cannot hash more than 2^53 - 1 bits");if("undefined"!==typeof Uint32Array){var d=new Uint32Array(c),e=0;for(b=512+b-(512+b&0x1ff);b<=a;b+=512)u(this,d.subarray(16*e,
+	16*(e+1))),e+=1;c.splice(0,16*e)}else for(b=512+b-(512+b&0x1ff);b<=a;b+=512)u(this,c.splice(0,16));return this},finalize:function(){var a,b=this.A,c=this.F,b=sjcl.bitArray.concat(b,[sjcl.bitArray.partial(1,1)]);for(a=b.length+2;a&15;a++)b.push(0);b.push(Math.floor(this.l/0x100000000));for(b.push(this.l|0);b.length;)u(this,b.splice(0,16));this.reset();return c},Y:[],b:[],O:function(){function a(a){return 0x100000000*(a-Math.floor(a))|0}for(var b=0,c=2,d,e;64>b;c++){e=!0;for(d=2;d*d<=c;d++)if(0===c%d){e=
+	!1;break}e&&(8>b&&(this.Y[b]=a(Math.pow(c,.5))),this.b[b]=a(Math.pow(c,1/3)),b++)}}};
+	function u(a,b){var c,d,e,f=a.F,g=a.b,h=f[0],k=f[1],l=f[2],n=f[3],m=f[4],p=f[5],r=f[6],q=f[7];for(c=0;64>c;c++)16>c?d=b[c]:(d=b[c+1&15],e=b[c+14&15],d=b[c&15]=(d>>>7^d>>>18^d>>>3^d<<25^d<<14)+(e>>>17^e>>>19^e>>>10^e<<15^e<<13)+b[c&15]+b[c+9&15]|0),d=d+q+(m>>>6^m>>>11^m>>>25^m<<26^m<<21^m<<7)+(r^m&(p^r))+g[c],q=r,r=p,p=m,m=n+d|0,n=l,l=k,k=h,h=d+(k&l^n&(k^l))+(k>>>2^k>>>13^k>>>22^k<<30^k<<19^k<<10)|0;f[0]=f[0]+h|0;f[1]=f[1]+k|0;f[2]=f[2]+l|0;f[3]=f[3]+n|0;f[4]=f[4]+m|0;f[5]=f[5]+p|0;f[6]=f[6]+r|0;f[7]=
+	f[7]+q|0}
+	sjcl.mode.ccm={name:"ccm",G:[],listenProgress:function(a){sjcl.mode.ccm.G.push(a)},unListenProgress:function(a){a=sjcl.mode.ccm.G.indexOf(a);-1<a&&sjcl.mode.ccm.G.splice(a,1)},fa:function(a){var b=sjcl.mode.ccm.G.slice(),c;for(c=0;c<b.length;c+=1)b[c](a)},encrypt:function(a,b,c,d,e){var f,g=b.slice(0),h=sjcl.bitArray,k=h.bitLength(c)/8,l=h.bitLength(g)/8;e=e||64;d=d||[];if(7>k)throw new sjcl.exception.invalid("ccm: iv must be at least 7 bytes");for(f=2;4>f&&l>>>8*f;f++);f<15-k&&(f=15-k);c=h.clamp(c,
+	8*(15-f));b=sjcl.mode.ccm.V(a,b,c,d,e,f);g=sjcl.mode.ccm.C(a,g,c,b,e,f);return h.concat(g.data,g.tag)},decrypt:function(a,b,c,d,e){e=e||64;d=d||[];var f=sjcl.bitArray,g=f.bitLength(c)/8,h=f.bitLength(b),k=f.clamp(b,h-e),l=f.bitSlice(b,h-e),h=(h-e)/8;if(7>g)throw new sjcl.exception.invalid("ccm: iv must be at least 7 bytes");for(b=2;4>b&&h>>>8*b;b++);b<15-g&&(b=15-g);c=f.clamp(c,8*(15-b));k=sjcl.mode.ccm.C(a,k,c,l,e,b);a=sjcl.mode.ccm.V(a,k.data,c,d,e,b);if(!f.equal(k.tag,a))throw new sjcl.exception.corrupt("ccm: tag doesn't match");
+	return k.data},na:function(a,b,c,d,e,f){var g=[],h=sjcl.bitArray,k=h.i;d=[h.partial(8,(b.length?64:0)|d-2<<2|f-1)];d=h.concat(d,c);d[3]|=e;d=a.encrypt(d);if(b.length)for(c=h.bitLength(b)/8,65279>=c?g=[h.partial(16,c)]:0xffffffff>=c&&(g=h.concat([h.partial(16,65534)],[c])),g=h.concat(g,b),b=0;b<g.length;b+=4)d=a.encrypt(k(d,g.slice(b,b+4).concat([0,0,0])));return d},V:function(a,b,c,d,e,f){var g=sjcl.bitArray,h=g.i;e/=8;if(e%2||4>e||16<e)throw new sjcl.exception.invalid("ccm: invalid tag length");
+	if(0xffffffff<d.length||0xffffffff<b.length)throw new sjcl.exception.bug("ccm: can't deal with 4GiB or more data");c=sjcl.mode.ccm.na(a,d,c,e,g.bitLength(b)/8,f);for(d=0;d<b.length;d+=4)c=a.encrypt(h(c,b.slice(d,d+4).concat([0,0,0])));return g.clamp(c,8*e)},C:function(a,b,c,d,e,f){var g,h=sjcl.bitArray;g=h.i;var k=b.length,l=h.bitLength(b),n=k/50,m=n;c=h.concat([h.partial(8,f-1)],c).concat([0,0,0]).slice(0,4);d=h.bitSlice(g(d,a.encrypt(c)),0,e);if(!k)return{tag:d,data:[]};for(g=0;g<k;g+=4)g>n&&(sjcl.mode.ccm.fa(g/
+	k),n+=m),c[3]++,e=a.encrypt(c),b[g]^=e[0],b[g+1]^=e[1],b[g+2]^=e[2],b[g+3]^=e[3];return{tag:d,data:h.clamp(b,l)}}};
+	sjcl.mode.ocb2={name:"ocb2",encrypt:function(a,b,c,d,e,f){if(128!==sjcl.bitArray.bitLength(c))throw new sjcl.exception.invalid("ocb iv must be 128 bits");var g,h=sjcl.mode.ocb2.S,k=sjcl.bitArray,l=k.i,n=[0,0,0,0];c=h(a.encrypt(c));var m,p=[];d=d||[];e=e||64;for(g=0;g+4<b.length;g+=4)m=b.slice(g,g+4),n=l(n,m),p=p.concat(l(c,a.encrypt(l(c,m)))),c=h(c);m=b.slice(g);b=k.bitLength(m);g=a.encrypt(l(c,[0,0,0,b]));m=k.clamp(l(m.concat([0,0,0]),g),b);n=l(n,l(m.concat([0,0,0]),g));n=a.encrypt(l(n,l(c,h(c))));
+	d.length&&(n=l(n,f?d:sjcl.mode.ocb2.pmac(a,d)));return p.concat(k.concat(m,k.clamp(n,e)))},decrypt:function(a,b,c,d,e,f){if(128!==sjcl.bitArray.bitLength(c))throw new sjcl.exception.invalid("ocb iv must be 128 bits");e=e||64;var g=sjcl.mode.ocb2.S,h=sjcl.bitArray,k=h.i,l=[0,0,0,0],n=g(a.encrypt(c)),m,p,r=sjcl.bitArray.bitLength(b)-e,q=[];d=d||[];for(c=0;c+4<r/32;c+=4)m=k(n,a.decrypt(k(n,b.slice(c,c+4)))),l=k(l,m),q=q.concat(m),n=g(n);p=r-32*c;m=a.encrypt(k(n,[0,0,0,p]));m=k(m,h.clamp(b.slice(c),p).concat([0,
+	0,0]));l=k(l,m);l=a.encrypt(k(l,k(n,g(n))));d.length&&(l=k(l,f?d:sjcl.mode.ocb2.pmac(a,d)));if(!h.equal(h.clamp(l,e),h.bitSlice(b,r)))throw new sjcl.exception.corrupt("ocb: tag doesn't match");return q.concat(h.clamp(m,p))},pmac:function(a,b){var c,d=sjcl.mode.ocb2.S,e=sjcl.bitArray,f=e.i,g=[0,0,0,0],h=a.encrypt([0,0,0,0]),h=f(h,d(d(h)));for(c=0;c+4<b.length;c+=4)h=d(h),g=f(g,a.encrypt(f(h,b.slice(c,c+4))));c=b.slice(c);128>e.bitLength(c)&&(h=f(h,d(h)),c=e.concat(c,[-2147483648,0,0,0]));g=f(g,c);
+	return a.encrypt(f(d(f(h,d(h))),g))},S:function(a){return[a[0]<<1^a[1]>>>31,a[1]<<1^a[2]>>>31,a[2]<<1^a[3]>>>31,a[3]<<1^135*(a[0]>>>31)]}};
+	sjcl.mode.gcm={name:"gcm",encrypt:function(a,b,c,d,e){var f=b.slice(0);b=sjcl.bitArray;d=d||[];a=sjcl.mode.gcm.C(!0,a,f,d,c,e||128);return b.concat(a.data,a.tag)},decrypt:function(a,b,c,d,e){var f=b.slice(0),g=sjcl.bitArray,h=g.bitLength(f);e=e||128;d=d||[];e<=h?(b=g.bitSlice(f,h-e),f=g.bitSlice(f,0,h-e)):(b=f,f=[]);a=sjcl.mode.gcm.C(!1,a,f,d,c,e);if(!g.equal(a.tag,b))throw new sjcl.exception.corrupt("gcm: tag doesn't match");return a.data},ka:function(a,b){var c,d,e,f,g,h=sjcl.bitArray.i;e=[0,0,
+	0,0];f=b.slice(0);for(c=0;128>c;c++){(d=0!==(a[Math.floor(c/32)]&1<<31-c%32))&&(e=h(e,f));g=0!==(f[3]&1);for(d=3;0<d;d--)f[d]=f[d]>>>1|(f[d-1]&1)<<31;f[0]>>>=1;g&&(f[0]^=-0x1f000000)}return e},j:function(a,b,c){var d,e=c.length;b=b.slice(0);for(d=0;d<e;d+=4)b[0]^=0xffffffff&c[d],b[1]^=0xffffffff&c[d+1],b[2]^=0xffffffff&c[d+2],b[3]^=0xffffffff&c[d+3],b=sjcl.mode.gcm.ka(b,a);return b},C:function(a,b,c,d,e,f){var g,h,k,l,n,m,p,r,q=sjcl.bitArray;m=c.length;p=q.bitLength(c);r=q.bitLength(d);h=q.bitLength(e);
+	g=b.encrypt([0,0,0,0]);96===h?(e=e.slice(0),e=q.concat(e,[1])):(e=sjcl.mode.gcm.j(g,[0,0,0,0],e),e=sjcl.mode.gcm.j(g,e,[0,0,Math.floor(h/0x100000000),h&0xffffffff]));h=sjcl.mode.gcm.j(g,[0,0,0,0],d);n=e.slice(0);d=h.slice(0);a||(d=sjcl.mode.gcm.j(g,h,c));for(l=0;l<m;l+=4)n[3]++,k=b.encrypt(n),c[l]^=k[0],c[l+1]^=k[1],c[l+2]^=k[2],c[l+3]^=k[3];c=q.clamp(c,p);a&&(d=sjcl.mode.gcm.j(g,h,c));a=[Math.floor(r/0x100000000),r&0xffffffff,Math.floor(p/0x100000000),p&0xffffffff];d=sjcl.mode.gcm.j(g,d,a);k=b.encrypt(e);
+	d[0]^=k[0];d[1]^=k[1];d[2]^=k[2];d[3]^=k[3];return{tag:q.bitSlice(d,0,f),data:c}}};sjcl.misc.hmac=function(a,b){this.W=b=b||sjcl.hash.sha256;var c=[[],[]],d,e=b.prototype.blockSize/32;this.w=[new b,new b];a.length>e&&(a=b.hash(a));for(d=0;d<e;d++)c[0][d]=a[d]^909522486,c[1][d]=a[d]^1549556828;this.w[0].update(c[0]);this.w[1].update(c[1]);this.R=new b(this.w[0])};
+	sjcl.misc.hmac.prototype.encrypt=sjcl.misc.hmac.prototype.mac=function(a){if(this.aa)throw new sjcl.exception.invalid("encrypt on already updated hmac called!");this.update(a);return this.digest(a)};sjcl.misc.hmac.prototype.reset=function(){this.R=new this.W(this.w[0]);this.aa=!1};sjcl.misc.hmac.prototype.update=function(a){this.aa=!0;this.R.update(a)};sjcl.misc.hmac.prototype.digest=function(){var a=this.R.finalize(),a=(new this.W(this.w[1])).update(a).finalize();this.reset();return a};
+	sjcl.misc.pbkdf2=function(a,b,c,d,e){c=c||1E4;if(0>d||0>c)throw new sjcl.exception.invalid("invalid params to pbkdf2");"string"===typeof a&&(a=sjcl.codec.utf8String.toBits(a));"string"===typeof b&&(b=sjcl.codec.utf8String.toBits(b));e=e||sjcl.misc.hmac;a=new e(a);var f,g,h,k,l=[],n=sjcl.bitArray;for(k=1;32*l.length<(d||1);k++){e=f=a.encrypt(n.concat(b,[k]));for(g=1;g<c;g++)for(f=a.encrypt(f),h=0;h<f.length;h++)e[h]^=f[h];l=l.concat(e)}d&&(l=n.clamp(l,d));return l};
+	sjcl.prng=function(a){this.c=[new sjcl.hash.sha256];this.m=[0];this.P=0;this.H={};this.N=0;this.U={};this.Z=this.f=this.o=this.ha=0;this.b=[0,0,0,0,0,0,0,0];this.h=[0,0,0,0];this.L=void 0;this.M=a;this.D=!1;this.K={progress:{},seeded:{}};this.u=this.ga=0;this.I=1;this.J=2;this.ca=0x10000;this.T=[0,48,64,96,128,192,0x100,384,512,768,1024];this.da=3E4;this.ba=80};
+	sjcl.prng.prototype={randomWords:function(a,b){var c=[],d;d=this.isReady(b);var e;if(d===this.u)throw new sjcl.exception.notReady("generator isn't seeded");if(d&this.J){d=!(d&this.I);e=[];var f=0,g;this.Z=e[0]=(new Date).valueOf()+this.da;for(g=0;16>g;g++)e.push(0x100000000*Math.random()|0);for(g=0;g<this.c.length&&(e=e.concat(this.c[g].finalize()),f+=this.m[g],this.m[g]=0,d||!(this.P&1<<g));g++);this.P>=1<<this.c.length&&(this.c.push(new sjcl.hash.sha256),this.m.push(0));this.f-=f;f>this.o&&(this.o=
+	f);this.P++;this.b=sjcl.hash.sha256.hash(this.b.concat(e));this.L=new sjcl.cipher.aes(this.b);for(d=0;4>d&&(this.h[d]=this.h[d]+1|0,!this.h[d]);d++);}for(d=0;d<a;d+=4)0===(d+1)%this.ca&&y(this),e=z(this),c.push(e[0],e[1],e[2],e[3]);y(this);return c.slice(0,a)},setDefaultParanoia:function(a,b){if(0===a&&"Setting paranoia=0 will ruin your security; use it only for testing"!==b)throw new sjcl.exception.invalid("Setting paranoia=0 will ruin your security; use it only for testing");this.M=a},addEntropy:function(a,
+	b,c){c=c||"user";var d,e,f=(new Date).valueOf(),g=this.H[c],h=this.isReady(),k=0;d=this.U[c];void 0===d&&(d=this.U[c]=this.ha++);void 0===g&&(g=this.H[c]=0);this.H[c]=(this.H[c]+1)%this.c.length;switch(typeof a){case "number":void 0===b&&(b=1);this.c[g].update([d,this.N++,1,b,f,1,a|0]);break;case "object":c=Object.prototype.toString.call(a);if("[object Uint32Array]"===c){e=[];for(c=0;c<a.length;c++)e.push(a[c]);a=e}else for("[object Array]"!==c&&(k=1),c=0;c<a.length&&!k;c++)"number"!==typeof a[c]&&
+	(k=1);if(!k){if(void 0===b)for(c=b=0;c<a.length;c++)for(e=a[c];0<e;)b++,e=e>>>1;this.c[g].update([d,this.N++,2,b,f,a.length].concat(a))}break;case "string":void 0===b&&(b=a.length);this.c[g].update([d,this.N++,3,b,f,a.length]);this.c[g].update(a);break;default:k=1}if(k)throw new sjcl.exception.bug("random: addEntropy only supports number, array of numbers or string");this.m[g]+=b;this.f+=b;h===this.u&&(this.isReady()!==this.u&&A("seeded",Math.max(this.o,this.f)),A("progress",this.getProgress()))},
+	isReady:function(a){a=this.T[void 0!==a?a:this.M];return this.o&&this.o>=a?this.m[0]>this.ba&&(new Date).valueOf()>this.Z?this.J|this.I:this.I:this.f>=a?this.J|this.u:this.u},getProgress:function(a){a=this.T[a?a:this.M];return this.o>=a?1:this.f>a?1:this.f/a},startCollectors:function(){if(!this.D){this.a={loadTimeCollector:B(this,this.ma),mouseCollector:B(this,this.oa),keyboardCollector:B(this,this.la),accelerometerCollector:B(this,this.ea),touchCollector:B(this,this.qa)};if(window.addEventListener)window.addEventListener("load",
+	this.a.loadTimeCollector,!1),window.addEventListener("mousemove",this.a.mouseCollector,!1),window.addEventListener("keypress",this.a.keyboardCollector,!1),window.addEventListener("devicemotion",this.a.accelerometerCollector,!1),window.addEventListener("touchmove",this.a.touchCollector,!1);else if(document.attachEvent)document.attachEvent("onload",this.a.loadTimeCollector),document.attachEvent("onmousemove",this.a.mouseCollector),document.attachEvent("keypress",this.a.keyboardCollector);else throw new sjcl.exception.bug("can't attach event");
+	this.D=!0}},stopCollectors:function(){this.D&&(window.removeEventListener?(window.removeEventListener("load",this.a.loadTimeCollector,!1),window.removeEventListener("mousemove",this.a.mouseCollector,!1),window.removeEventListener("keypress",this.a.keyboardCollector,!1),window.removeEventListener("devicemotion",this.a.accelerometerCollector,!1),window.removeEventListener("touchmove",this.a.touchCollector,!1)):document.detachEvent&&(document.detachEvent("onload",this.a.loadTimeCollector),document.detachEvent("onmousemove",
+	this.a.mouseCollector),document.detachEvent("keypress",this.a.keyboardCollector)),this.D=!1)},addEventListener:function(a,b){this.K[a][this.ga++]=b},removeEventListener:function(a,b){var c,d,e=this.K[a],f=[];for(d in e)e.hasOwnProperty(d)&&e[d]===b&&f.push(d);for(c=0;c<f.length;c++)d=f[c],delete e[d]},la:function(){C(this,1)},oa:function(a){var b,c;try{b=a.x||a.clientX||a.offsetX||0,c=a.y||a.clientY||a.offsetY||0}catch(d){c=b=0}0!=b&&0!=c&&this.addEntropy([b,c],2,"mouse");C(this,0)},qa:function(a){a=
+	a.touches[0]||a.changedTouches[0];this.addEntropy([a.pageX||a.clientX,a.pageY||a.clientY],1,"touch");C(this,0)},ma:function(){C(this,2)},ea:function(a){a=a.accelerationIncludingGravity.x||a.accelerationIncludingGravity.y||a.accelerationIncludingGravity.z;if(window.orientation){var b=window.orientation;"number"===typeof b&&this.addEntropy(b,1,"accelerometer")}a&&this.addEntropy(a,2,"accelerometer");C(this,0)}};
+	function A(a,b){var c,d=sjcl.random.K[a],e=[];for(c in d)d.hasOwnProperty(c)&&e.push(d[c]);for(c=0;c<e.length;c++)e[c](b)}function C(a,b){"undefined"!==typeof window&&window.performance&&"function"===typeof window.performance.now?a.addEntropy(window.performance.now(),b,"loadtime"):a.addEntropy((new Date).valueOf(),b,"loadtime")}function y(a){a.b=z(a).concat(z(a));a.L=new sjcl.cipher.aes(a.b)}function z(a){for(var b=0;4>b&&(a.h[b]=a.h[b]+1|0,!a.h[b]);b++);return a.L.encrypt(a.h)}
+	function B(a,b){return function(){b.apply(a,arguments)}}sjcl.random=new sjcl.prng(6);
+	a:try{var D,E,F,G;if(G="undefined"!==typeof module&&module.exports){var H;try{H=__webpack_require__(50)}catch(a){H=null}G=E=H}if(G&&E.randomBytes)D=E.randomBytes(128),D=new Uint32Array((new Uint8Array(D)).buffer),sjcl.random.addEntropy(D,1024,"crypto['randomBytes']");else if("undefined"!==typeof window&&"undefined"!==typeof Uint32Array){F=new Uint32Array(32);if(window.crypto&&window.crypto.getRandomValues)window.crypto.getRandomValues(F);else if(window.msCrypto&&window.msCrypto.getRandomValues)window.msCrypto.getRandomValues(F);
+	else break a;sjcl.random.addEntropy(F,1024,"crypto['getRandomValues']")}}catch(a){"undefined"!==typeof window&&window.console&&(console.log("There was an error collecting entropy from the browser:"),console.log(a))}
+	sjcl.json={defaults:{v:1,iter:1E4,ks:128,ts:64,mode:"ccm",adata:"",cipher:"aes"},ja:function(a,b,c,d){c=c||{};d=d||{};var e=sjcl.json,f=e.g({iv:sjcl.random.randomWords(4,0)},e.defaults),g;e.g(f,c);c=f.adata;"string"===typeof f.salt&&(f.salt=sjcl.codec.base64.toBits(f.salt));"string"===typeof f.iv&&(f.iv=sjcl.codec.base64.toBits(f.iv));if(!sjcl.mode[f.mode]||!sjcl.cipher[f.cipher]||"string"===typeof a&&100>=f.iter||64!==f.ts&&96!==f.ts&&128!==f.ts||128!==f.ks&&192!==f.ks&&0x100!==f.ks||2>f.iv.length||
+	4<f.iv.length)throw new sjcl.exception.invalid("json encrypt: invalid parameters");"string"===typeof a?(g=sjcl.misc.cachedPbkdf2(a,f),a=g.key.slice(0,f.ks/32),f.salt=g.salt):sjcl.ecc&&a instanceof sjcl.ecc.elGamal.publicKey&&(g=a.kem(),f.kemtag=g.tag,a=g.key.slice(0,f.ks/32));"string"===typeof b&&(b=sjcl.codec.utf8String.toBits(b));"string"===typeof c&&(f.adata=c=sjcl.codec.utf8String.toBits(c));g=new sjcl.cipher[f.cipher](a);e.g(d,f);d.key=a;f.ct="ccm"===f.mode&&sjcl.arrayBuffer&&sjcl.arrayBuffer.ccm&&
+	b instanceof ArrayBuffer?sjcl.arrayBuffer.ccm.encrypt(g,b,f.iv,c,f.ts):sjcl.mode[f.mode].encrypt(g,b,f.iv,c,f.ts);return f},encrypt:function(a,b,c,d){var e=sjcl.json,f=e.ja.apply(e,arguments);return e.encode(f)},ia:function(a,b,c,d){c=c||{};d=d||{};var e=sjcl.json;b=e.g(e.g(e.g({},e.defaults),b),c,!0);var f,g;f=b.adata;"string"===typeof b.salt&&(b.salt=sjcl.codec.base64.toBits(b.salt));"string"===typeof b.iv&&(b.iv=sjcl.codec.base64.toBits(b.iv));if(!sjcl.mode[b.mode]||!sjcl.cipher[b.cipher]||"string"===
+	typeof a&&100>=b.iter||64!==b.ts&&96!==b.ts&&128!==b.ts||128!==b.ks&&192!==b.ks&&0x100!==b.ks||!b.iv||2>b.iv.length||4<b.iv.length)throw new sjcl.exception.invalid("json decrypt: invalid parameters");"string"===typeof a?(g=sjcl.misc.cachedPbkdf2(a,b),a=g.key.slice(0,b.ks/32),b.salt=g.salt):sjcl.ecc&&a instanceof sjcl.ecc.elGamal.secretKey&&(a=a.unkem(sjcl.codec.base64.toBits(b.kemtag)).slice(0,b.ks/32));"string"===typeof f&&(f=sjcl.codec.utf8String.toBits(f));g=new sjcl.cipher[b.cipher](a);f="ccm"===
+	b.mode&&sjcl.arrayBuffer&&sjcl.arrayBuffer.ccm&&b.ct instanceof ArrayBuffer?sjcl.arrayBuffer.ccm.decrypt(g,b.ct,b.iv,b.tag,f,b.ts):sjcl.mode[b.mode].decrypt(g,b.ct,b.iv,f,b.ts);e.g(d,b);d.key=a;return 1===c.raw?f:sjcl.codec.utf8String.fromBits(f)},decrypt:function(a,b,c,d){var e=sjcl.json;return e.ia(a,e.decode(b),c,d)},encode:function(a){var b,c="{",d="";for(b in a)if(a.hasOwnProperty(b)){if(!b.match(/^[a-z0-9]+$/i))throw new sjcl.exception.invalid("json encode: invalid property name");c+=d+'"'+
+	b+'":';d=",";switch(typeof a[b]){case "number":case "boolean":c+=a[b];break;case "string":c+='"'+escape(a[b])+'"';break;case "object":c+='"'+sjcl.codec.base64.fromBits(a[b],0)+'"';break;default:throw new sjcl.exception.bug("json encode: unsupported type");}}return c+"}"},decode:function(a){a=a.replace(/\s/g,"");if(!a.match(/^\{.*\}$/))throw new sjcl.exception.invalid("json decode: this isn't json!");a=a.replace(/^\{|\}$/g,"").split(/,/);var b={},c,d;for(c=0;c<a.length;c++){if(!(d=a[c].match(/^\s*(?:(["']?)([a-z][a-z0-9]*)\1)\s*:\s*(?:(-?\d+)|"([a-z0-9+\/%*_.@=\-]*)"|(true|false))$/i)))throw new sjcl.exception.invalid("json decode: this isn't json!");
+	null!=d[3]?b[d[2]]=parseInt(d[3],10):null!=d[4]?b[d[2]]=d[2].match(/^(ct|adata|salt|iv)$/)?sjcl.codec.base64.toBits(d[4]):unescape(d[4]):null!=d[5]&&(b[d[2]]="true"===d[5])}return b},g:function(a,b,c){void 0===a&&(a={});if(void 0===b)return a;for(var d in b)if(b.hasOwnProperty(d)){if(c&&void 0!==a[d]&&a[d]!==b[d])throw new sjcl.exception.invalid("required parameter overridden");a[d]=b[d]}return a},sa:function(a,b){var c={},d;for(d in a)a.hasOwnProperty(d)&&a[d]!==b[d]&&(c[d]=a[d]);return c},ra:function(a,
+	b){var c={},d;for(d=0;d<b.length;d++)void 0!==a[b[d]]&&(c[b[d]]=a[b[d]]);return c}};sjcl.encrypt=sjcl.json.encrypt;sjcl.decrypt=sjcl.json.decrypt;sjcl.misc.pa={};sjcl.misc.cachedPbkdf2=function(a,b){var c=sjcl.misc.pa,d;b=b||{};d=b.iter||1E3;c=c[a]=c[a]||{};d=c[d]=c[d]||{firstSalt:b.salt&&b.salt.length?b.salt.slice(0):sjcl.random.randomWords(2,0)};c=void 0===b.salt?d.firstSalt:b.salt;d[c]=d[c]||sjcl.misc.pbkdf2(a,c,b.iter);return{key:d[c].slice(0),salt:c.slice(0)}};
+	"undefined"!==typeof module&&module.exports&&(module.exports=sjcl);"function"==="function"&&!(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_RESULT__ = function(){return sjcl}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+
+/***/ }),
+/* 80 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	// Copyright Joyent, Inc. and other Node contributors.
+	//
+	// Permission is hereby granted, free of charge, to any person obtaining a
+	// copy of this software and associated documentation files (the
+	// "Software"), to deal in the Software without restriction, including
+	// without limitation the rights to use, copy, modify, merge, publish,
+	// distribute, sublicense, and/or sell copies of the Software, and to permit
+	// persons to whom the Software is furnished to do so, subject to the
+	// following conditions:
+	//
+	// The above copyright notice and this permission notice shall be included
+	// in all copies or substantial portions of the Software.
+	//
+	// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+	// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+	// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+	// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+	// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+	// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+	module.exports = Stream;
+
+	var EE = __webpack_require__(12).EventEmitter;
+	var inherits = __webpack_require__(2);
+
+	inherits(Stream, EE);
+	Stream.Readable = __webpack_require__(14);
+	Stream.Writable = __webpack_require__(77);
+	Stream.Duplex = __webpack_require__(72);
+	Stream.Transform = __webpack_require__(76);
+	Stream.PassThrough = __webpack_require__(75);
+
+	// Backwards-compat with node 0.4.x
+	Stream.Stream = Stream;
+
+
+
+	// old-style streams.  Note that the pipe method (the only relevant
+	// part of this class) is overridden in the Readable class.
+
+	function Stream() {
+	  EE.call(this);
+	}
+
+	Stream.prototype.pipe = function(dest, options) {
+	  var source = this;
+
+	  function ondata(chunk) {
+	    if (dest.writable) {
+	      if (false === dest.write(chunk) && source.pause) {
+	        source.pause();
+	      }
+	    }
+	  }
+
+	  source.on('data', ondata);
+
+	  function ondrain() {
+	    if (source.readable && source.resume) {
+	      source.resume();
+	    }
+	  }
+
+	  dest.on('drain', ondrain);
+
+	  // If the 'end' option is not supplied, dest.end() will be called when
+	  // source gets the 'end' or 'close' events.  Only dest.end() once.
+	  if (!dest._isStdio && (!options || options.end !== false)) {
+	    source.on('end', onend);
+	    source.on('close', onclose);
+	  }
+
+	  var didOnEnd = false;
+	  function onend() {
+	    if (didOnEnd) return;
+	    didOnEnd = true;
+
+	    dest.end();
+	  }
+
+
+	  function onclose() {
+	    if (didOnEnd) return;
+	    didOnEnd = true;
+
+	    if (typeof dest.destroy === 'function') dest.destroy();
+	  }
+
+	  // don't leave dangling pipes when there are errors.
+	  function onerror(er) {
+	    cleanup();
+	    if (EE.listenerCount(this, 'error') === 0) {
+	      throw er; // Unhandled stream error in pipe.
+	    }
+	  }
+
+	  source.on('error', onerror);
+	  dest.on('error', onerror);
+
+	  // remove all the event listeners that were added.
+	  function cleanup() {
+	    source.removeListener('data', ondata);
+	    dest.removeListener('drain', ondrain);
+
+	    source.removeListener('end', onend);
+	    source.removeListener('close', onclose);
+
+	    source.removeListener('error', onerror);
+	    dest.removeListener('error', onerror);
+
+	    source.removeListener('end', cleanup);
+	    source.removeListener('close', cleanup);
+
+	    dest.removeListener('close', cleanup);
+	  }
+
+	  source.on('end', cleanup);
+	  source.on('close', cleanup);
+
+	  dest.on('close', cleanup);
+
+	  dest.emit('pipe', source);
+
+	  // Allow for unix-like usage: A.pipe(B).pipe(C)
+	  return dest;
+	};
+
+
+/***/ }),
+/* 81 */
+/***/ (function(module, exports) {
+
+	/* WEBPACK VAR INJECTION */(function(global) {
+	/**
+	 * Module exports.
+	 */
+
+	module.exports = deprecate;
+
+	/**
+	 * Mark that a method should not be used.
+	 * Returns a modified function which warns once by default.
+	 *
+	 * If `localStorage.noDeprecation = true` is set, then it is a no-op.
+	 *
+	 * If `localStorage.throwDeprecation = true` is set, then deprecated functions
+	 * will throw an Error when invoked.
+	 *
+	 * If `localStorage.traceDeprecation = true` is set, then deprecated functions
+	 * will invoke `console.trace()` instead of `console.error()`.
+	 *
+	 * @param {Function} fn - the function to deprecate
+	 * @param {String} msg - the string to print to the console when `fn` is invoked
+	 * @returns {Function} a new "deprecated" version of `fn`
+	 * @api public
+	 */
+
+	function deprecate (fn, msg) {
+	  if (config('noDeprecation')) {
+	    return fn;
+	  }
+
+	  var warned = false;
+	  function deprecated() {
+	    if (!warned) {
+	      if (config('throwDeprecation')) {
+	        throw new Error(msg);
+	      } else if (config('traceDeprecation')) {
+	        console.trace(msg);
+	      } else {
+	        console.warn(msg);
+	      }
+	      warned = true;
+	    }
+	    return fn.apply(this, arguments);
+	  }
+
+	  return deprecated;
+	}
+
+	/**
+	 * Checks `localStorage` for boolean values for the given `name`.
+	 *
+	 * @param {String} name
+	 * @returns {Boolean}
+	 * @api private
+	 */
+
+	function config (name) {
+	  // accessing global.localStorage can trigger a DOMException in sandboxed iframes
+	  try {
+	    if (!global.localStorage) return false;
+	  } catch (_) {
+	    return false;
+	  }
+	  var val = global.localStorage[name];
+	  if (null == val) return false;
+	  return String(val).toLowerCase() === 'true';
+	}
+
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
+
+/***/ }),
+/* 82 */
+/***/ (function(module, exports) {
+
+	if (typeof Object.create === 'function') {
+	  // implementation from standard node.js 'util' module
+	  module.exports = function inherits(ctor, superCtor) {
+	    ctor.super_ = superCtor
+	    ctor.prototype = Object.create(superCtor.prototype, {
+	      constructor: {
+	        value: ctor,
+	        enumerable: false,
+	        writable: true,
+	        configurable: true
+	      }
+	    });
+	  };
+	} else {
+	  // old school shim for old browsers
+	  module.exports = function inherits(ctor, superCtor) {
+	    ctor.super_ = superCtor
+	    var TempCtor = function () {}
+	    TempCtor.prototype = superCtor.prototype
+	    ctor.prototype = new TempCtor()
+	    ctor.prototype.constructor = ctor
+	  }
+	}
+
+
+/***/ }),
+/* 83 */
+/***/ (function(module, exports) {
+
+	module.exports = function isBuffer(arg) {
+	  return arg && typeof arg === 'object'
+	    && typeof arg.copy === 'function'
+	    && typeof arg.fill === 'function'
+	    && typeof arg.readUInt8 === 'function';
+	}
+
+/***/ }),
+/* 84 */
+/***/ (function(module, exports) {
+
+	/* (ignored) */
+
+/***/ }),
+/* 85 */
+/***/ (function(module, exports) {
+
+	/* (ignored) */
 
 /***/ })
 /******/ ])
